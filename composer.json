@@ -1,0 +1,32 @@
+{
+    "name": "prolic/humus-amqp-module",
+    "type": "library",
+    "description": "AMQP Module for Zend Framework 2 based on php-amqplib",
+    "keywords": ["zf2", "rabbit", "rabbitmq", "queue", "amqp", "php-amqplib", "humus"],
+    "homepage": "https://github.com/prolic/HumusAmqpModule",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sascha-Oliver Prolic",
+            "email": "saschaprolic@googlemail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "videlalvaro/php-amqplib"  : "~2.4.0",
+        "zendframework/zenc-console": "~2.3.0",
+        "zendframework/zend-eventmanager": "~2.3.0",
+        "zendframework/zend-servicemanager": "~2.3.0"
+    },
+    "require-dev": {
+        "phpunit/PHPUnit": ">=4.0"
+    },
+    "suggest": {
+        "indigophp/supervisor": "For supervisor usage"
+    },
+    "autoload": {
+        "psr-0": {
+            "HumusAmqpModule": "src"
+        }
+    }
+}
