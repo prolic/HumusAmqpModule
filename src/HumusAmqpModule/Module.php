@@ -29,6 +29,9 @@ class Module implements
     public function getAutoloaderConfig()
     {
         return array(
+            'Zend\Loader\ClassMapAutoloader' => array(
+                __DIR__ . '/../../autoload_classmap.php'
+            ),
             'Zend\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__,
@@ -64,7 +67,6 @@ class Module implements
             ),
             array(
                 'consumer <name> [<amount>] [arguments]',
-                /* 'route'    => 'rabbitmq consumer <name> [<amount>] [--route|-r] [--memory_limit|-l] [--without-signals|-w] [--debug|-d]', */
                 'Start a consumer by name, msg limits the messages of available'
             ),
             'Available arguments:',
