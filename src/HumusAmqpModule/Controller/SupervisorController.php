@@ -63,7 +63,7 @@ class SupervisorController extends AbstractConsoleController
      */
     public function processlist()
     {
-        $processes = $this->supervisor->getAllProcess();
+        $processes = $this->supervisor->getAllProcesses();
 
         $table = new \Zend\Text\Table\Table(array('columnWidths' => array(40, 9, 20)));
 
