@@ -17,6 +17,7 @@
         "zendframework/zend-console": "~2.3.0",
         "zendframework/zend-eventmanager": "~2.3.0",
         "zendframework/zend-mvc": "~2.3.0",
+        "zendframework/zend-modulemanager": "~2.3.0",
         "zendframework/zend-servicemanager": "~2.3.0",
         "zendframework/zend-text": "2.*"
     },
