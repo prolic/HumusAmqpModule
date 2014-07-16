@@ -292,7 +292,7 @@ class Module implements
                     $class = $config['classes']['multi_consumer'];
                 }
 
-                foreach ($options['queues'] as $queueName => $queueOptions) {
+                foreach ($options['queues'] as $queueOptions) {
                     $qo = new QueueOptions($queueOptions);
                     $queues[$queueOptions['name']]  = $qo;
                     $queues[$queueOptions['name']]['callback'] = array(

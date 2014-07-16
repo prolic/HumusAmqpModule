@@ -178,7 +178,7 @@ class ExchangeOptions extends AbstractOptions
     }
 
     /**
-     * @param string|null $ticket
+     * @param int|null $ticket
      */
     public function setTicket($ticket)
     {
@@ -186,7 +186,7 @@ class ExchangeOptions extends AbstractOptions
     }
 
     /**
-     * @return string|null
+     * @return int|null
      */
     public function getTicket()
     {
