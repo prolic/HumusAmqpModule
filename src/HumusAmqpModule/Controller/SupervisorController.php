@@ -26,20 +26,25 @@ class SupervisorController extends AbstractConsoleController
         $this->$action();
     }
 
+    /**
+     * @return void
+     */
     public function start()
     {
         $this->supervisor->startAllProcesses();
     }
 
+    /**
+     * @return void
+     */
     public function stop()
     {
         $this->supervisor->stopAllProcesses();
     }
 
-    /*
-     * start|stop|list|pid|version|api
+    /**
+     * @return void
      */
-
     public function processlist()
     {
         $processes = $this->supervisor->getAllProcess();
@@ -63,24 +68,40 @@ class SupervisorController extends AbstractConsoleController
         echo $table;
     }
 
+    /**
+     * @return void
+     */
     public function pid()
     {
         echo $this->supervisor->getPID();
     }
 
+    /**
+     * @return void
+     */
     public function version()
     {
         echo $this->supervisor->getVersion();
     }
 
+    /**
+     * @return void
+     */
     public function api()
     {
         echo $this->supervisor->getAPIVersion();
     }
 
+    /**
+     * @return void
+     */
     public function isLocal()
     {
-        echo $this->supervisor->isLocal();
+        if ($this->supervisor->isLocal()) {
+            echo 'local';
+        } else {
+            echo 'remote';
+        }
     }
 
     /**
