@@ -35,14 +35,13 @@ class Module implements
                 ),
             ),
         );
-
     }
 
     public function getConsoleUsage(ConsoleAdapter $adapter)
     {
         return array(
             // Describe available commands
-            'rabbitmq command'    => '',
+            'amqp command'    => '',
 
             'Available commands:',
 
@@ -60,8 +59,8 @@ class Module implements
                 'List all available exchanges'
             ),
             array(
-                'supervisor',
-                'start the supervisor'
+                'supervisor (start|stop|processlist|pid|version|api|islocal)',
+                'start/ stop the supervisor, list all processes, get supervisor pid, get supervisor version, get api version'
             ),
             array(
                 'consumer <name> [<amount>] [arguments]',

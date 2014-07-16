@@ -2,24 +2,24 @@
 
 namespace HumusAmqpModule\Service;
 
-use HumusAmqpModule\Amqp\AmqpPartsHolder;
+use HumusAmqpModule\Amqp\PartsHolder;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class AmqpPartsHolderFactory implements FactoryInterface
+class PartsHolderFactory implements FactoryInterface
 {
     /**
      * Create service
      *
      * @param ServiceLocatorInterface $serviceLocator
-     * @return AmqpPartsHolder
+     * @return PartsHolder
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config = $serviceLocator->get('Config');
         $moduleConfig = $config['humus_amqp_module'];
 
-        $partsHolder = new AmqpPartsHolder();
+        $partsHolder = new PartsHolder();
 
         foreach ($moduleConfig as $key => $value) {
             if (in_array($key, array('connections', 'classes'))) continue;

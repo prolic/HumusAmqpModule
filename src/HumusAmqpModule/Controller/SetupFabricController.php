@@ -2,7 +2,7 @@
 
 namespace HumusAmqpModule\Controller;
 
-use HumusAmqpModule\Amqp\AmqpPartsHolder;
+use HumusAmqpModule\Amqp\PartsHolder;
 use Zend\Console\ColorInterface;
 use Zend\Mvc\Controller\AbstractConsoleController;
 use Zend\Stdlib\RequestInterface;
@@ -11,14 +11,14 @@ use Zend\Stdlib\ResponseInterface;
 class SetupFabricController extends AbstractConsoleController
 {
     /**
-     * @var AmqpPartsHolder
+     * @var PartsHolder
      */
     protected $partsHolder;
 
     /**
-     * @param AmqpPartsHolder $partsHolder
+     * @param PartsHolder $partsHolder
      */
-    public function setPartsHolder(AmqpPartsHolder $partsHolder)
+    public function setPartsHolder(PartsHolder $partsHolder)
     {
         $this->partsHolder = $partsHolder;
     }

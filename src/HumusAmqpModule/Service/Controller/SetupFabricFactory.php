@@ -17,7 +17,7 @@ class SetupFabricFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $controller  = new SetupFabricController();
-        $partsHolder = $serviceLocator->getServiceLocator()->get('HumusAmqpModule\RabbitMq\AmqpPartsHolder');
+        $partsHolder = $serviceLocator->getServiceLocator()->get('HumusAmqpModule\Amqp\PartsHolder');
         $controller->setPartsHolder($partsHolder);
 
         return $controller;
