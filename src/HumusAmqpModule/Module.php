@@ -18,6 +18,7 @@
 
 namespace HumusAmqpModule;
 
+use HumusAmqpModule\Amqp\QueueOptions;
 use Zend\Console\Adapter\AdapterInterface as ConsoleAdapter;
 use Zend\EventManager\EventInterface as Event;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
@@ -239,7 +240,12 @@ class Module implements
     {
         foreach ($config['consumers'] as $name => $options) {
             $serviceManager->setFactory($name, function(ServiceManager $serviceManager) use ($name, $config, $options) {
-                $class = $config['classes']['consumer'];
+
+                if (isset($options['class'])) {
+                    $class = $options['class'];
+                } else {
+                    $class = $config['classes']['consumer'];
+                }
 
                 $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $options['connection']);
                 /** @var  $consumer \HumusAmqpModule\Amqp\Consumer */
@@ -280,9 +286,15 @@ class Module implements
             $serviceManager->setFactory($name, function(ServiceManager $serviceManager) use ($name, $config, $options) {
                 $queues = array();
 
+                if (isset($options['class'])) {
+                    $class = $options['class'];
+                } else {
+                    $class = $config['classes']['multi_consumer'];
+                }
+
                 foreach ($options['queues'] as $queueName => $queueOptions) {
                     $qo = new QueueOptions($queueOptions);
-                    $queues[$queueOptions['name']]  = $queueOptions;
+                    $queues[$queueOptions['name']]  = $qo;
                     $queues[$queueOptions['name']]['callback'] = array(
                         $serviceManager->get($queueOptions['callback']),
                         'execute'
@@ -291,7 +303,7 @@ class Module implements
 
                 $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $options['connection']);
                 /** @var  $consumer \HumusAmqpModule\Amqp\MultipleConsumer */
-                $consumer = new $config['classes']['multi_consumer']($connection);
+                $consumer = new $class($connection);
 
                 $consumer->setExchangeOptions($options['exchange_options']);
                 $consumer->setQueues($queues);
@@ -324,9 +336,15 @@ class Module implements
         foreach ($config['anon_consumers'] as $name => $options) {
             $serviceManager->setFactory($name, function(ServiceManager $serviceManager) use ($name, $config, $options) {
 
+                if (isset($options['class'])) {
+                    $class = $options['class'];
+                } else {
+                    $class = $config['classes']['anon_consumer'];
+                }
+
                 $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $options['connection']);
                 /** @var  $consumer \HumusAmqpModule\Amqp\AnonConsumer */
-                $consumer = new $config['classes']['anon_consumer']($connection);
+                $consumer = new $class($connection);
                 $consumer->setExchangeOptions($options['exchange_options']);
                 $consumer->setCallback(array(
                     $serviceManager->get($options['callback']),
@@ -347,9 +365,14 @@ class Module implements
     {
         foreach ($config['rpc_clients'] as $key => $client) {
             $serviceManager->setFactory($key, function(ServiceManager $serviceManager) use ($client, $config) {
-                $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $client['connection']);
 
-                $class = $config['classes']['rpc_client'];
+                if (isset($options['class'])) {
+                    $class = $options['class'];
+                } else {
+                    $class = $config['classes']['rpc_client'];
+                }
+
+                $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $client['connection']);
                 $rpcClient = new $class($connection);
                 $rpcClient->initClient($client['expect_serialized_response']);
 
@@ -366,9 +389,14 @@ class Module implements
     {
         foreach ($config['rpc_servers'] as $key => $server) {
             $serviceManager->setFactory($key, function(ServiceManager $serviceManager) use ($server, $key, $config) {
-                $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $server['connection']);
 
-                $class = $config['classes']['rpc_server'];
+                if (isset($options['class'])) {
+                    $class = $options['class'];
+                } else {
+                    $class = $config['classes']['rpc_server'];
+                }
+
+                $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $server['connection']);
                 $rpcServer = new $class($connection);
                 $rpcServer->initServer($key);
 
