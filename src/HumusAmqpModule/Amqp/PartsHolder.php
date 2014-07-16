@@ -2,7 +2,7 @@
 
 namespace HumusAmqpModule\Amqp;
 
-class AmqpPartsHolder
+class PartsHolder
 {
     protected $parts = array();
 
