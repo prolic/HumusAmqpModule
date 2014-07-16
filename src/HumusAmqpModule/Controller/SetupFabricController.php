@@ -36,14 +36,18 @@ class SetupFabricController extends AbstractConsoleController
             define('AMQP_DEBUG', true);
         }
 
-        $this->console->writeLine('Setting up the RabbitMQ fabric', ColorInterface::RED);
+        $this->console->writeLine('Setting up the AMQP fabric');
 
         array_map(
             function($name) {
-                foreach ($this->partsHolder->getParts($name) as $part) {
-                    $this->console->write('Declaring exchanges and queues for ' . $name);
-                    $part->setupFabric();
-                    $this->console->writeLine(' OK', ColorInterface::GREEN);
+                if ($this->partsHolder->hasParts($name)) {
+                    foreach ($this->partsHolder->getParts($name) as $part) {
+                        $this->console->write('Declaring exchanges and queues for ' . $name . ' ');
+                        $part->setupFabric();
+                        $this->console->writeLine('OK', ColorInterface::GREEN);
+                    }
+                } else {
+                    $this->console->writeLine('No ' . $name . ' found to configure', ColorInterface::YELLOW);
                 }
             }, array(
                 'consumers',
