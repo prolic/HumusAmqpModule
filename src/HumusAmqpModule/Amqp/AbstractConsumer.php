@@ -20,21 +20,47 @@ namespace HumusAmqpModule\Amqp;
 
 abstract class AbstractConsumer extends AbstractAmqp
 {
+    /**
+     * @var int
+     */
     protected $target;
 
+    /**
+     * @var int
+     */
     protected $consumed = 0;
 
+    /**
+     * @var callback
+     */
     protected $callback;
 
+    /**
+     * @var bool
+     */
     protected $forceStop = false;
 
+    /**
+     * @var int
+     */
     protected $idleTimeout = 0;
 
+    /**
+     * Set callback
+     *
+     * @param $callback
+     * @return void
+     */
     public function setCallback($callback)
     {
         $this->callback = $callback;
     }
 
+    /**
+     * Start consumer
+     *
+     * @param int $msgAmount
+     */
     public function start($msgAmount = 0)
     {
         $this->target = $msgAmount;
@@ -46,11 +72,21 @@ abstract class AbstractConsumer extends AbstractAmqp
         }
     }
 
+    /**
+     * Stop consuming
+     *
+     * @return void
+     */
     public function stopConsuming()
     {
         $this->getChannel()->basic_cancel($this->getConsumerTag());
     }
 
+    /**
+     * Setup consumer
+     *
+     * @return void
+     */
     protected function setupConsumer()
     {
         if ($this->autoSetupFabric) {
@@ -59,6 +95,12 @@ abstract class AbstractConsumer extends AbstractAmqp
         $this->getChannel()->basic_consume($this->queueOptions->getName(), $this->getConsumerTag(), false, false, false, false, array($this, 'processMessage'));
     }
 
+    /**
+     * Maybe stop consumer
+     *
+     * @return void
+     * @throws Exception\BadFunctionCallException
+     */
     protected function maybeStopConsumer()
     {
         if (extension_loaded('pcntl') && (defined('AMQP_WITHOUT_SIGNALS') ? !AMQP_WITHOUT_SIGNALS : true)) {
@@ -76,16 +118,32 @@ abstract class AbstractConsumer extends AbstractAmqp
         }
     }
 
+    /**
+     * Set consumer tag
+     *
+     * @param string $tag
+     * @return void
+     */
     public function setConsumerTag($tag)
     {
         $this->consumerTag = $tag;
     }
 
+    /**
+     * Get consumer tag
+     *
+     * @return null|string
+     */
     public function getConsumerTag()
     {
         return $this->consumerTag;
     }
 
+    /**
+     * Force stop consumer
+     *
+     * @return void
+     */
     public function forceStopConsumer()
     {
         $this->forceStop = true;
@@ -104,11 +162,22 @@ abstract class AbstractConsumer extends AbstractAmqp
         $this->getChannel()->basic_qos($prefetchSize, $prefetchCount, $global);
     }
 
+    /**
+     * Set idle timeout
+     *
+     * @param int $idleTimeout
+     * @return void
+     */
     public function setIdleTimeout($idleTimeout)
     {
         $this->idleTimeout = $idleTimeout;
     }
 
+    /**
+     * Get idle timeout
+     *
+     * @return int
+     */
     public function getIdleTimeout()
     {
         return $this->idleTimeout;
