@@ -32,6 +32,11 @@ class Module implements
     ConfigProviderInterface,
     ConsoleUsageProviderInterface
 {
+    /**
+     * Get config
+     *
+     * @return array|mixed|\Traversable
+     */
     public function getConfig()
     {
         return include __DIR__ . '/../../config/module.config.php';
@@ -163,7 +168,7 @@ class Module implements
         foreach ($config['connections'] as $name => $options) {
             $serviceManager->setFactory(__NAMESPACE__ . '\\' . $name, function() use ($config, $options) {
 
-                if (isset($options['lazy']) && true == $options['lazy']) {
+                if (!isset($options['lazy']) || true == $options['lazy']) {
                     $class = $config['classes']['lazy_connection'];
                 } else {
                     $class = $config['classes']['connection'];

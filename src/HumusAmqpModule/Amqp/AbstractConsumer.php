@@ -153,13 +153,14 @@ abstract class AbstractConsumer extends AbstractAmqp
      * Sets the qos settings for the current channel
      * Consider that prefetchSize and global do not work with rabbitMQ version <= 8.0
      *
-     * @param int $prefetchSize
-     * @param int $prefetchCount
-     * @param bool $global
+     * @param array|\Traversable|QosOptions $options
      */
-    public function setQosOptions($prefetchSize = 0, $prefetchCount = 0, $global = false)
+    public function setQosOptions($options)
     {
-        $this->getChannel()->basic_qos($prefetchSize, $prefetchCount, $global);
+        if (!$options instanceof QosOptions) {
+            $options = new QosOptions($options);
+        }
+        $this->getChannel()->basic_qos($options->getPrefetchSize(), $options->getPrefetchCount(), $options->getGlobal());
     }
 
     /**
