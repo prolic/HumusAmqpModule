@@ -34,11 +34,24 @@ Installation
 Configuration
 -------------
 
+@todo
 
 Controller-Usage
 ----------------
+
+@todo
 
 Cli-Usage
 ---------
 
 see: php public/index.php
+
+TODOS:
+------
+
+ - Write more tests
+ - Move factories to AbstractServiceFactory
+ - Add documentation
+ - Add data collectors
+ - Restart consumers
+ - Add logged channel
