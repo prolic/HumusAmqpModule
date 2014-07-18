@@ -20,7 +20,7 @@ A lot of ideas and even implementation details came from the [RabbitMqBundle](ht
 Dependencies
 ------------
 
- - PHP 5.3.23
+ - PHP 5.3.3
  - [php-amqplib](https://github.com/videlalvaro/php-amqplib)
  - [HumusSupervisorModule](https://github.com/prolic/HumusSupervisorModule) (optional)
 
@@ -34,9 +34,11 @@ Installation
 Configuration
 -------------
 
-@todo
 
-Usage
------
+Controller-Usage
+----------------
 
-@todo
+Cli-Usage
+---------
+
+see: php public/index.php

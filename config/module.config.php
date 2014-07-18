@@ -45,6 +45,14 @@ return array(
                             'controller' => __NAMESPACE__ . '\\Controller\\Supervisor',
                         )
                     )
+                ),
+                'humus_amqp_module-stdin-producer' => array(
+                    'options' => array(
+                        'route'    => 'amqp  stdin-producer <name> [<msg>]',
+                        'defaults' => array(
+                            'controller' => __NAMESPACE__ . '\\Controller\\StdInProducer',
+                        )
+                    )
                 )
             )
         )
@@ -54,6 +62,7 @@ return array(
             __NAMESPACE__ . '\\Controller\\Consumer' => __NAMESPACE__ . '\\Controller\\ConsumerController',
             __NAMESPACE__ . '\\Controller\\List' => __NAMESPACE__ . '\\Controller\\ListController',
             __NAMESPACE__ . '\\Controller\\Exchanges' => __NAMESPACE__ . '\\Controller\\ExchangesController',
+            __NAMESPACE__ . '\\Controller\\StdInProducer' => __NAMESPACE__ . '\\Controller\\StdInProducerController'
         ),
         'factories' => array(
             __NAMESPACE__ . '\\Controller\\SetupFabric' => __NAMESPACE__ . '\\Service\\Controller\\SetupFabricFactory',

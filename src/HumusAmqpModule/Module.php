@@ -99,22 +99,27 @@ class Module implements
                 'consumer <name> [<amount>] [arguments]',
                 'Start a consumer by name, msg limits the messages of available'
             ),
-            'Available arguments:',
+            '    Available arguments:',
             array(
-                '--route|-r',
-                'Routing key to use',
+                '    --route|-r',
+                '    Routing key to use',
             ),
             array(
-                '--memory_limit|-l',
-                'Memory limit',
+                '    --memory_limit|-l',
+                '    Memory limit',
             ),
             array(
-                '--without-signals|-w',
-                'Without signals',
+                '    --without-signals|-w',
+                '    Without signals',
             ),
             array(
-                '--debug|-d',
-                'Protocol level debug'
+                '    --debug|-d',
+                '    Protocol level debug',
+                ''
+            ),
+            array(
+                'stdin-producer <name> [<msg>]',
+                'Produce a with a consumer by bame'
             ),
         );
     }
