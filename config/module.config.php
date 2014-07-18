@@ -48,7 +48,7 @@ return array(
                 ),
                 'humus_amqp_module-stdin-producer' => array(
                     'options' => array(
-                        'route'    => 'amqp stdin-producer <name> <msg>',
+                        'route'    => 'amqp stdin-producer <name> <msg> [--debug|-d]',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\StdInProducer',
                         )
@@ -56,7 +56,7 @@ return array(
                 ),
                 'humus_amqp_module-purge-queue' => array(
                     'options' => array(
-                        'route' => 'amqp purge <consumer-name>',
+                        'route' => 'amqp purge <consumer-name> [--no-confirmation]',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\PurgeConsumer',
                         )

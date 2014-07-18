@@ -26,7 +26,9 @@ class PurgeConsumerController extends AbstractConsoleController
             );
         }
 
-        if (Prompt\Confirm::prompt('Are you sure you want to purge? [y/n]')) {
+        if ($request->getParam('no-confirmation', false)
+            || Prompt\Confirm::prompt('Are you sure you want to purge? [y/n]')
+        ) {
             $consumer = $this->getServiceLocator()->get($consumerName);
             $consumer->purge();
             return $this->getConsole()->writeLine(
