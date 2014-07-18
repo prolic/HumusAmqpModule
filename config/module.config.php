@@ -8,7 +8,7 @@ return array(
             'routes' => array(
                 'humus_amqp_module-setup-fabric' => array(
                     'options' => array(
-                        'route'    => 'amqp  setup-fabric [--debug|-d]',
+                        'route'    => 'amqp setup-fabric [--debug|-d]',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\SetupFabric',
                         )
@@ -16,7 +16,7 @@ return array(
                 ),
                 'humus_amqp_module-consumer' => array(
                     'options' => array(
-                        'route'    => 'amqp  consumer <name> [<amount>] [--route=] [--memory_limit=] [--without-signals|-w] [--debug|-d]',
+                        'route'    => 'amqp consumer <name> [<amount>] [--route=] [--memory_limit=] [--without-signals|-w] [--debug|-d]',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\Consumer',
                         )
@@ -24,7 +24,7 @@ return array(
                 ),
                 'humus_amqp_module-list' => array(
                     'options' => array(
-                        'route'    => 'amqp  list (consumers|multiple_consumers|anon_consumers|producers|rpc_clients|rpc_servers|connections):type',
+                        'route'    => 'amqp list (consumers|multiple_consumers|anon_consumers|producers|rpc_clients|rpc_servers|connections):type',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\List',
                         )
@@ -32,7 +32,7 @@ return array(
                 ),
                 'humus_amqp_module-exchanges' => array(
                     'options' => array(
-                        'route'    => 'amqp  list-exchanges',
+                        'route'    => 'amqp list-exchanges',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\Exchanges',
                         )
@@ -40,7 +40,7 @@ return array(
                 ),
                 'humus_amqp_module-supervisor' => array(
                     'options' => array(
-                        'route'    => 'amqp  supervisor (start|stop|processlist|pid|version|api|islocal):action',
+                        'route'    => 'amqp supervisor (start|stop|processlist|pid|version|api|islocal):action',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\Supervisor',
                         )
@@ -48,7 +48,7 @@ return array(
                 ),
                 'humus_amqp_module-stdin-producer' => array(
                     'options' => array(
-                        'route'    => 'amqp  stdin-producer <name> <msg>',
+                        'route'    => 'amqp stdin-producer <name> <msg>',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\StdInProducer',
                         )
