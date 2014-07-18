@@ -26,7 +26,7 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
-class ConsumerController extends AbstractConsoleController
+abstract class ConsumerController extends AbstractConsoleController
 {
 
     /**
@@ -88,11 +88,6 @@ class ConsumerController extends AbstractConsoleController
         }
 
         $consumer = $serviceLocator->get($name);
-
-        if (!$consumer instanceof Consumer) {
-            $this->getConsole()->writeLine('Error: "' . $name. '" is not a consumer', ColorInterface::RED);
-            return null;
-        }
 
         return $consumer;
     }
