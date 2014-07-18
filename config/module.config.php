@@ -61,7 +61,15 @@ return array(
                             'controller' => __NAMESPACE__ . '\\Controller\\PurgeConsumer',
                         )
                     )
-                )
+                ),
+                'humus_amqp_module-rpc-server' => array(
+                    'options' => array(
+                        'route' => 'amqp rpc-server <name> [<amount>] [--debug|-d]',
+                        'defaults' => array(
+                            'controller' => __NAMESPACE__ . '\\Controller\\RpcServer',
+                        )
+                    )
+                ),
             )
         )
     ),
@@ -71,7 +79,8 @@ return array(
             __NAMESPACE__ . '\\Controller\\List' => __NAMESPACE__ . '\\Controller\\ListController',
             __NAMESPACE__ . '\\Controller\\Exchanges' => __NAMESPACE__ . '\\Controller\\ExchangesController',
             __NAMESPACE__ . '\\Controller\\StdInProducer' => __NAMESPACE__ . '\\Controller\\StdInProducerController',
-            __NAMESPACE__ . '\\Controller\\PurgeConsumer' => __NAMESPACE__ . '\\Controller\\PurgeConsumerController'
+            __NAMESPACE__ . '\\Controller\\PurgeConsumer' => __NAMESPACE__ . '\\Controller\\PurgeConsumerController',
+            __NAMESPACE__ . '\\Controller\\RpcServer' => __NAMESPACE__ . '\\Controller\\RpcServerController'
         ),
         'factories' => array(
             __NAMESPACE__ . '\\Controller\\SetupFabric' => __NAMESPACE__ . '\\Service\\Controller\\SetupFabricFactory',

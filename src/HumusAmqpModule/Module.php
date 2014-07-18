@@ -125,6 +125,10 @@ class Module implements
                 'purge <consumer-name>',
                 'Purge a queue'
             ),
+            array(
+                'rpc-server <name> [<amount>] [--debug|-d]',
+                'Start an rpc server by name'
+            ),
         );
     }
 
