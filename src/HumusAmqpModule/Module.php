@@ -121,6 +121,10 @@ class Module implements
                 'stdin-producer <name> [<msg>]',
                 'Produce a with a consumer by bame'
             ),
+            array(
+                'purge <consumer-name>',
+                'Purge a queue'
+            ),
         );
     }
 
