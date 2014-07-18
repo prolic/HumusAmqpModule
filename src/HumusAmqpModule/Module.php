@@ -302,7 +302,7 @@ class Module implements
                 }
 
                 $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $options['connection']);
-                /** @var  $consumer \HumusAmqpModule\Amqp\MultipleConsumer */
+                /* @var  $consumer \HumusAmqpModule\Amqp\MultipleConsumer */
                 $consumer = new $class($connection);
 
                 $consumer->setExchangeOptions($options['exchange_options']);
@@ -319,7 +319,6 @@ class Module implements
                 if (isset($options['auto_setup_fabric']) && true == $options['auto_setup_fabric']) {
                     $consumer->disableAutoSetupFabric();
                 }
-
 
                 return $consumer;
             });
@@ -343,7 +342,7 @@ class Module implements
                 }
 
                 $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $options['connection']);
-                /** @var  $consumer \HumusAmqpModule\Amqp\AnonConsumer */
+                /* @var  $consumer \HumusAmqpModule\Amqp\AnonConsumer */
                 $consumer = new $class($connection);
                 $consumer->setExchangeOptions($options['exchange_options']);
                 $consumer->setCallback(array(

@@ -1,24 +1,19 @@
 language: php
 
 php:
- - 5.3
- - 5.4
- - 5.5
- - 5.6
- - hhvm
-
-before_script:
- - composer self-update -n
- - composer install --dev -n
-
-script:
-# Issue with ocular.phar together with HHVM
- - if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then php vendor/bin/phpunit --verbose --coverage-clover=coverage.clover; else php vendor/bin/phpunit --verbose; fi;
- - if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then wget "https://scrutinizer-ci.com/ocular.phar"; fi;
- - if [ "$TRAVIS_PHP_VERSION" != "hhvm" ]; then php ocular.phar code-coverage:upload --format=php-clover coverage.clover; fi;
+  - 5.3
+  - 5.4
+  - 5.5
+  - hhvm
 
 matrix:
-  fast_finish: true
+  allow_failures:
+    - php: hhvm
 
-notifications:
-  email: false
+before_script:
+  - composer update --prefer-source
+
+script:
+  - ./vendor/bin/phpunit --coverage-clover ./build/clover.xml
+  - sh -c "if [ '$TRAVIS_PHP_VERSION' != 'hhvm' ]; then php build/coverage-checker.php build/clover.xml 70; fi"
+  - sh -c "if [ '$TRAVIS_PHP_VERSION' != '5.3' ]; then ./vendor/bin/phpcs --standard=PSR2 ./src/ ./tests/; fi"
