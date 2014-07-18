@@ -12,17 +12,18 @@
         }
     ],
     "require": {
-        "php": ">=5.3.23",
+        "php": ">=5.3.3",
         "videlalvaro/php-amqplib"  : "~2.4.0",
         "zendframework/zend-console": "~2.3.0",
         "zendframework/zend-eventmanager": "~2.3.0",
         "zendframework/zend-mvc": "~2.3.0",
         "zendframework/zend-modulemanager": "~2.3.0",
         "zendframework/zend-servicemanager": "~2.3.0",
-        "zendframework/zend-text": "~2.3.0"
+        "zendframework/zend-text": "2.*"
     },
     "require-dev": {
-        "phpunit/PHPUnit": ">=4.0"
+        "phpunit/PHPUnit": ">=4.0",
+        "squizlabs/php_codesniffer":   "1.5.*"
     },
     "suggest": {
         "prolic/humus-supervisor-module": "For supervisor usage"
