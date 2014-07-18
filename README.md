@@ -36,6 +36,11 @@ Configuration
 
 @todo
 
+Usage
+-----
+
+Sending SIGTERM or SIGINT stops a running consumer.
+
 Controller-Usage
 ----------------
 

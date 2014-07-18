@@ -39,13 +39,11 @@ class ListController extends AbstractConsoleController
 
         $this->getConsole()->writeLine('List of all available ' . $type, ColorInterface::GREEN);
 
-        if (!isset($moduleConfig[$type])) {
+        if (!isset($moduleConfig[str_replace('-', '_', $type)])) {
             return $this->getConsole()->writeLine('No ' . $type . ' found', ColorInterface::RED);
         }
 
-        $list = array_keys($moduleConfig[$type]);
-
-
+        $list = array_keys($moduleConfig[str_replace('-', '_', $type)]);
 
         foreach ($list as $entry) {
             $this->getConsole()->writeLine($entry);

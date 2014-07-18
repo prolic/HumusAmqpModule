@@ -32,7 +32,7 @@ return array(
                 ),
                 'humus_amqp_module-list' => array(
                     'options' => array(
-                        'route'    => 'amqp list (consumers|multiple_consumers|anon_consumers|producers|rpc_clients|rpc_servers|connections):type',
+                        'route'    => 'amqp list (consumers|multiple-consumers|anon-consumers|producers|rpc-clients|rpc-servers|connections):type',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\List',
                         )
@@ -43,14 +43,6 @@ return array(
                         'route'    => 'amqp list-exchanges',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\Exchanges',
-                        )
-                    )
-                ),
-                'humus_amqp_module-supervisor' => array(
-                    'options' => array(
-                        'route'    => 'amqp supervisor (start|stop|processlist|pid|version|api|islocal):action',
-                        'defaults' => array(
-                            'controller' => __NAMESPACE__ . '\\Controller\\Supervisor',
                         )
                     )
                 ),
@@ -92,12 +84,9 @@ return array(
         ),
         'factories' => array(
             __NAMESPACE__ . '\\Controller\\SetupFabric' => __NAMESPACE__ . '\\Service\\Controller\\SetupFabricFactory',
-            __NAMESPACE__ . '\\Controller\\Supervisor' => __NAMESPACE__ . '\\Service\\Controller\\SupervisorFactory'
         )
     ),
     'humus_supervisor_module' => array(
-        'humus-amqp-supervisor' => array(
-        )
     ),
     'humus_amqp_module' => array(
         'classes' => array(

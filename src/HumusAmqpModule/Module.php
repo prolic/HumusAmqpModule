@@ -91,11 +91,6 @@ class Module implements
                 'List all available exchanges'
             ),
             array(
-                'supervisor (start|stop|processlist|pid|version|api|islocal)',
-                'start/ stop the supervisor, list all processes, get supervisor pid, "
-                . "get supervisor version, get api version'
-            ),
-            array(
                 'consumer <name> [<amount>] [arguments]',
                 'Start a consumer by name, msg limits the messages of available'
             ),
