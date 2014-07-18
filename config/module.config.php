@@ -22,6 +22,14 @@ return array(
                         )
                     )
                 ),
+                'humus_amqp_module-multiple-consumer' => array(
+                    'options' => array(
+                        'route'    => 'amqp multiple-consumer <name> [<amount>] [--route=] [--memory_limit=] [--without-signals|-w] [--debug|-d]',
+                        'defaults' => array(
+                            'controller' => __NAMESPACE__ . '\\Controller\\Consumer',
+                        )
+                    )
+                ),
                 'humus_amqp_module-list' => array(
                     'options' => array(
                         'route'    => 'amqp list (consumers|multiple_consumers|anon_consumers|producers|rpc_clients|rpc_servers|connections):type',
@@ -48,7 +56,7 @@ return array(
                 ),
                 'humus_amqp_module-stdin-producer' => array(
                     'options' => array(
-                        'route'    => 'amqp stdin-producer <name> <msg> [--debug|-d]',
+                        'route'    => 'amqp stdin-producer <name> [--route=] <msg> [--debug|-d]',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\StdInProducer',
                         )

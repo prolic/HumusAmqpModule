@@ -18,6 +18,7 @@
 
 namespace HumusAmqpModule\Controller;
 
+use HumusAmqpModule\Amqp\MultipleConsumer;
 use HumusAmqpModule\Exception;
 use HumusAmqpModule\Amqp\Consumer;
 use Zend\Console\ColorInterface;
@@ -26,7 +27,7 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
-abstract class ConsumerController extends AbstractConsoleController
+class ConsumerController extends AbstractConsoleController
 {
 
     /**
@@ -34,12 +35,16 @@ abstract class ConsumerController extends AbstractConsoleController
      */
     protected $consumer;
 
+    protected $type;
+
     /**
      * {@inheritdoc}
      */
     public function dispatch(RequestInterface $request, ResponseInterface $response = null)
     {
         parent::dispatch($request, $response);
+
+        $this->type = $request->getContent()[1];
 
         if (false === defined('AMQP_WITHOUT_SIGNALS')) {
             define('AMQP_WITHOUT_SIGNALS', $request->getParam('without-signals'));
@@ -88,6 +93,21 @@ abstract class ConsumerController extends AbstractConsoleController
         }
 
         $consumer = $serviceLocator->get($name);
+
+        switch (strtolower($this->type)) {
+            case 'consumer':
+                if (!$consumer instanceof Consumer) {
+                    $this->getConsole()->writeLine('Error: unknown consumer "' . $name .'"', ColorInterface::RED);
+                    return null;
+                }
+                break;
+            case 'multiple-consumer':
+                if (!$consumer instanceof MultipleConsumer) {
+                    $this->getConsole()->writeLine('Error: unknown multiple-consumer "' . $name .'"', ColorInterface::RED);
+                    return null;
+                }
+                break;
+        }
 
         return $consumer;
     }

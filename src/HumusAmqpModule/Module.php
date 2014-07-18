@@ -118,8 +118,13 @@ class Module implements
                 ''
             ),
             array(
-                'stdin-producer <name> [<msg>]',
+                'stdin-producer <name> [--route] <msg>',
                 'Produce a with a consumer by bame'
+            ),
+            '    Available arguments:',
+            array(
+                '    --route|-r',
+                '    Routing key to use',
             ),
             array(
                 'purge <consumer-name>',
@@ -304,21 +309,23 @@ class Module implements
     {
         foreach ($config['multiple_consumers'] as $name => $options) {
             $serviceManager->setFactory($name, function ($serviceManager) use ($name, $config, $options) {
+
                 $queues = array();
+
+                foreach ($options['queues'] as $queueOptions) {
+                    $qo = new QueueOptions($queueOptions);
+                    $callback = array(
+                        $serviceManager->get($qo->getCallback()),
+                        'execute'
+                    );
+                    $qo->setCallback($callback);
+                    $queues[$qo->getName()] = $qo;
+                }
 
                 if (isset($options['class'])) {
                     $class = $options['class'];
                 } else {
                     $class = $config['classes']['multi_consumer'];
-                }
-
-                foreach ($options['queues'] as $queueOptions) {
-                    $qo = new QueueOptions($queueOptions);
-                    $queues[$queueOptions['name']]  = $qo;
-                    $queues[$queueOptions['name']]['callback'] = array(
-                        $serviceManager->get($queueOptions['callback']),
-                        'execute'
-                    );
                 }
 
                 $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $options['connection']);

@@ -33,8 +33,9 @@ class StdInProducerController extends AbstractConsoleController
 
         $producer = $this->getServiceLocator()->get($producerName);
 
+        $route = $request->getParam('route', '');
         $msg = trim($request->getParam('msg'));
 
-        $producer->publish($msg);
+        $producer->publish($msg, $route);
     }
 }
