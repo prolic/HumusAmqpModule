@@ -103,7 +103,9 @@ class ConsumerController extends AbstractConsoleController
                 break;
             case 'multiple-consumer':
                 if (!$consumer instanceof MultipleConsumer) {
-                    $this->getConsole()->writeLine('Error: unknown multiple-consumer "' . $name .'"', ColorInterface::RED);
+                    $this->getConsole()->writeLine(
+                        'Error: unknown multiple-consumer "' . $name .'"', ColorInterface::RED
+                    );
                     return null;
                 }
                 break;
