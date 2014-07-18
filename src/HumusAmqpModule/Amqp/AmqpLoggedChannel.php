@@ -24,8 +24,15 @@ class AmqpLoggedChannel extends AMQPChannel
 {
     private $basicPublishLog = array();
 
-    public function basic_publish($msg, $exchange = '', $routingKey = '', $mandatory = false, $immediate = false, $ticket = NULL)
-    {
+    // @codingStandardsIgnoreStart
+    public function basic_publish(
+        $msg,
+        $exchange = '',
+        $routingKey = '',
+        $mandatory = false,
+        $immediate = false,
+        $ticket = null
+    ) {
         $this->basicPublishLog[] = array(
             'msg' => $msg,
             'exchange' => $exchange,
@@ -37,6 +44,7 @@ class AmqpLoggedChannel extends AMQPChannel
 
         parent::basic_publish($msg, $exchange, $routingKey, $mandatory, $immediate, $ticket);
     }
+    // @codingStandardsIgnoreEnd
 
     public function getBasicPublishLog()
     {

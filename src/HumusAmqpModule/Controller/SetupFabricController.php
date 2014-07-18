@@ -55,7 +55,7 @@ class SetupFabricController extends AbstractConsoleController
         $this->console->writeLine('Setting up the AMQP fabric');
 
         array_map(
-            function($name) {
+            function ($name) {
                 if ($this->partsHolder->hasParts($name)) {
                     foreach ($this->partsHolder->getParts($name) as $part) {
                         $this->console->write('Declaring exchanges and queues for ' . $name . ' ');
@@ -65,7 +65,8 @@ class SetupFabricController extends AbstractConsoleController
                 } else {
                     $this->console->writeLine('No ' . $name . ' found to configure', ColorInterface::YELLOW);
                 }
-            }, array(
+            },
+            array(
                 'consumers',
                 'multiple_consumers',
                 'anon_consumers',

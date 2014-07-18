@@ -79,7 +79,8 @@ class Module implements
             // Describe expected parameters
             array(
                 'list <type>',
-                'List all available types, possible types are: ' . "\n" . 'consumers, multiple_consumers, anon_consumers, producers, rpc_clients, rpc_servers, connections'
+                'List all available types, possible types are: ' . "\n"
+                . 'consumers, multiple_consumers, anon_consumers, producers, rpc_clients, rpc_servers, connections'
             ),
             array(
                 'setup-fabric',
@@ -91,7 +92,8 @@ class Module implements
             ),
             array(
                 'supervisor (start|stop|processlist|pid|version|api|islocal)',
-                'start/ stop the supervisor, list all processes, get supervisor pid, get supervisor version, get api version'
+                'start/ stop the supervisor, list all processes, get supervisor pid, "
+                . "get supervisor version, get api version'
             ),
             array(
                 'consumer <name> [<amount>] [arguments]',
@@ -164,10 +166,10 @@ class Module implements
      * @param ServiceManager $serviceManager
      * @param array $config
      */
-    protected function buildConnections(ServiceManager $serviceManager, array $config)
+    protected function buildConnections($serviceManager, array $config)
     {
         foreach ($config['connections'] as $name => $options) {
-            $serviceManager->setFactory(__NAMESPACE__ . '\\' . $name, function() use ($config, $options) {
+            $serviceManager->setFactory(__NAMESPACE__ . '\\' . $name, function () use ($config, $options) {
 
                 if (!isset($options['lazy']) || true == $options['lazy']) {
                     $class = $config['classes']['lazy_connection'];
@@ -195,7 +197,7 @@ class Module implements
     protected function buildProducers(ServiceManager $serviceManager, array $config)
     {
         foreach ($config['producers'] as $name => $options) {
-            $serviceManager->setFactory($name, function(ServiceManager $serviceManager) use ($name, $config, $options) {
+            $serviceManager->setFactory($name, function ($serviceManager) use ($name, $config, $options) {
 
                 if (isset($options['class'])) {
                     $class = $options['class'];
@@ -244,7 +246,7 @@ class Module implements
     protected function buildConsumers(ServiceManager $serviceManager, array $config)
     {
         foreach ($config['consumers'] as $name => $options) {
-            $serviceManager->setFactory($name, function(ServiceManager $serviceManager) use ($name, $config, $options) {
+            $serviceManager->setFactory($name, function ($serviceManager) use ($name, $config, $options) {
 
                 if (isset($options['class'])) {
                     $class = $options['class'];
@@ -288,7 +290,7 @@ class Module implements
     protected function buildMultipleConsumers(ServiceManager $serviceManager, array $config)
     {
         foreach ($config['multiple_consumers'] as $name => $options) {
-            $serviceManager->setFactory($name, function(ServiceManager $serviceManager) use ($name, $config, $options) {
+            $serviceManager->setFactory($name, function ($serviceManager) use ($name, $config, $options) {
                 $queues = array();
 
                 if (isset($options['class'])) {
@@ -338,7 +340,7 @@ class Module implements
     protected function buildAnonConsumers(ServiceManager $serviceManager, array $config)
     {
         foreach ($config['anon_consumers'] as $name => $options) {
-            $serviceManager->setFactory($name, function(ServiceManager $serviceManager) use ($name, $config, $options) {
+            $serviceManager->setFactory($name, function ($serviceManager) use ($name, $config, $options) {
 
                 if (isset($options['class'])) {
                     $class = $options['class'];
@@ -368,7 +370,7 @@ class Module implements
     protected function buildRpcClients(ServiceManager $serviceManager, array $config)
     {
         foreach ($config['rpc_clients'] as $key => $client) {
-            $serviceManager->setFactory($key, function(ServiceManager $serviceManager) use ($client, $config) {
+            $serviceManager->setFactory($key, function ($serviceManager) use ($client, $config) {
 
                 if (isset($options['class'])) {
                     $class = $options['class'];
@@ -392,7 +394,7 @@ class Module implements
     protected function buildRpcServers(ServiceManager $serviceManager, array $config)
     {
         foreach ($config['rpc_servers'] as $key => $server) {
-            $serviceManager->setFactory($key, function(ServiceManager $serviceManager) use ($server, $key, $config) {
+            $serviceManager->setFactory($key, function ($serviceManager) use ($server, $key, $config) {
 
                 if (isset($options['class'])) {
                     $class = $options['class'];

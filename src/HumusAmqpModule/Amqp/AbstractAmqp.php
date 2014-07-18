@@ -57,7 +57,9 @@ abstract class AbstractAmqp
             $this->getChannel();
         }
 
-        $this->consumerTag = empty($consumerTag) ? sprintf("PHPPROCESS_%s_%s", gethostname(), getmypid()) : $consumerTag;
+        $this->consumerTag = empty($consumerTag)
+            ? sprintf("PHPPROCESS_%s_%s", gethostname(), getmypid())
+            : $consumerTag;
     }
 
     public function __destruct()

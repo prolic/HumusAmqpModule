@@ -73,7 +73,18 @@ class RpcClient extends AbstractAmqp
     public function getReplies()
     {
         $this->replies = array();
-        $this->getChannel()->basic_consume($this->getQueueName(), '', false, true, false, false, array($this, 'processMessage'));
+        $this->getChannel()->basic_consume(
+            $this->getQueueName(),
+            '',
+            false,
+            true,
+            false,
+            false,
+            array(
+                $this,
+                'processMessage'
+            )
+        );
 
         while (count($this->replies) < $this->requests) {
             $this->getChannel()->wait(null, false, $this->timeout);

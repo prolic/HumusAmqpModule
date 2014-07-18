@@ -92,7 +92,18 @@ abstract class AbstractConsumer extends AbstractAmqp
         if ($this->autoSetupFabric) {
             $this->setupFabric();
         }
-        $this->getChannel()->basic_consume($this->queueOptions->getName(), $this->getConsumerTag(), false, false, false, false, array($this, 'processMessage'));
+        $this->getChannel()->basic_consume(
+            $this->queueOptions->getName(),
+            $this->getConsumerTag(),
+            false,
+            false,
+            false,
+            false,
+            array(
+                $this,
+                'processMessage'
+            )
+        );
     }
 
     /**
@@ -105,7 +116,10 @@ abstract class AbstractConsumer extends AbstractAmqp
     {
         if (extension_loaded('pcntl') && (defined('AMQP_WITHOUT_SIGNALS') ? !AMQP_WITHOUT_SIGNALS : true)) {
             if (!function_exists('pcntl_signal_dispatch')) {
-                throw new Exception\BadFunctionCallException("Function 'pcntl_signal_dispatch' is referenced in the php.ini 'disable_functions' and can't be called.");
+                throw new Exception\BadFunctionCallException(
+                    "Function 'pcntl_signal_dispatch' is referenced in the php.ini "
+                    . "'disable_functions' and can't be called."
+                );
             }
 
             pcntl_signal_dispatch();
@@ -160,7 +174,11 @@ abstract class AbstractConsumer extends AbstractAmqp
         if (!$options instanceof QosOptions) {
             $options = new QosOptions($options);
         }
-        $this->getChannel()->basic_qos($options->getPrefetchSize(), $options->getPrefetchCount(), $options->getGlobal());
+        $this->getChannel()->basic_qos(
+            $options->getPrefetchSize(),
+            $options->getPrefetchCount(),
+            $options->getGlobal()
+        );
     }
 
     /**

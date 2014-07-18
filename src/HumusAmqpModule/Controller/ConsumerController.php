@@ -47,7 +47,9 @@ class ConsumerController extends AbstractConsoleController
 
         if (!AMQP_WITHOUT_SIGNALS && extension_loaded('pcntl')) {
             if (!function_exists('pcntl_signal')) {
-                throw new Exception\BadFunctionCallException("Function 'pcntl_signal' is referenced in the php.ini 'disable_functions' and can't be called.");
+                throw new Exception\BadFunctionCallException(
+                    "Function 'pcntl_signal' is referenced in the php.ini 'disable_functions' and can't be called."
+                );
             }
 
             pcntl_signal(SIGTERM, array(&$this, 'stopConsumer'));
@@ -69,7 +71,10 @@ class ConsumerController extends AbstractConsoleController
         $amount = $request->getParam('amount', 0);
 
         if (!is_numeric($amount)) {
-            return $this->getConsole()->writeLine('Error: amount should be null or greater than 0', ColorInterface::RED);
+            return $this->getConsole()->writeLine(
+                'Error: amount should be null or greater than 0',
+                ColorInterface::RED
+            );
         }
 
         $this->consumer->consume($amount);

@@ -38,7 +38,10 @@ class PartsHolderFactory implements FactoryInterface
         $partsHolder = new PartsHolder();
 
         foreach ($moduleConfig as $key => $value) {
-            if (in_array($key, array('connections', 'classes'))) continue;
+
+            if (in_array($key, array('connections', 'classes'))) {
+                continue;
+            }
 
             foreach ($value as $name => $producer) {
                 $partsHolder->addPart($key, $serviceLocator->get($name));
