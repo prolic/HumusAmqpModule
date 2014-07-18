@@ -220,8 +220,13 @@ class Module implements
                 /** @var  $producer \HumusAmqpModule\Amqp\Producer */
                 $producer = new $class($connection);
 
-                $producer->setExchangeOptions($options['exchange_options']);
-                $producer->setQueueOptions($options['queue_options']);
+                if (isset($options['exchange_options'])) {
+                    $producer->setExchangeOptions($options['exchange_options']);
+                }
+
+                if (isset($options['queue_options'])) {
+                    $producer->setQueueOptions($options['queue_options']);
+                }
 
                 if (isset($options['auto_setup_fabric']) && !$options['auto_setup_fabric']) {
                     $producer->disableAutoSetupFabric();
