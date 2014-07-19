@@ -17,6 +17,11 @@ This module implements several messaging patterns as seen on the [Thumper](https
 
 A lot of ideas and even implementation details came from the [RabbitMqBundle](https://github.com/videlalvaro/RabbitMqBundle), special thanks to [Alvaro Videla](https://github.com/videlalvaro) and the contributors of this project.
 
+Demo
+----
+
+You can install the [Demo-Module](https://github.com/prolic/HumusAmqpDemoModule) additionally. That should help you getting started. Just remove the demo module, when you're ready to go!
+
 Dependencies
 ------------
 
