@@ -4,7 +4,7 @@ before_commands:
 tools:
     external_code_coverage:
         enabled: true
-        runs: 4
+        runs: 5
     php_code_sniffer:
         enabled: true
         config:
