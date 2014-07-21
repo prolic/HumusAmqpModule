@@ -25,7 +25,7 @@ You can install the [Demo-Module](https://github.com/prolic/HumusAmqpDemoModule)
 Dependencies
 ------------
 
- - PHP 5.3.3
+ - PHP 5.3.23
  - [php-amqplib](https://github.com/videlalvaro/php-amqplib)
  - [HumusSupervisorModule](https://github.com/prolic/HumusSupervisorModule) (optional)
 
