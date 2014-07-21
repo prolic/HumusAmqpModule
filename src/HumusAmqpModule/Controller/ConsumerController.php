@@ -57,13 +57,9 @@ class ConsumerController extends AbstractConsoleController
                 );
             }
 
-            //declare(ticks=1);
-
-            pcntl_signal(SIGUSR1, array($this, 'stopConsumer'));
-            pcntl_signal(SIGINT, array($this, 'stopConsumer'));
             pcntl_signal(SIGTERM, array($this, 'stopConsumer'));
+            pcntl_signal(SIGINT, array($this, 'stopConsumer'));
             pcntl_signal(SIGHUP, array($this, 'restartConsumer'));
-
         }
 
         if (!defined('AMQP_DEBUG') && ($request->getParam('debug') || $request->getParam('d'))) {
