@@ -73,7 +73,7 @@ class AmqpAbstractServiceFactoryTest extends TestCase
             )
         );
 
-        $callback = function($msg) {
+        $callback = function ($msg) {
             echo $msg->body . "\n";
         };
 
@@ -107,17 +107,33 @@ class AmqpAbstractServiceFactoryTest extends TestCase
     public function testEmptyConsumerConfigIndicatesCannotCreateConsumer()
     {
         $this->services->setService('Config', array('forms' => array()));
-        $this->assertFalse($this->components->canCreateServiceWithName($this->services, 'test-consumer', 'test-consumer'));
+        $this->assertFalse(
+            $this->components->canCreateServiceWithName($this->services, 'test-consumer', 'test-consumer')
+        );
     }
 
     public function testLazyConnectionFactory()
     {
-        $connection = $this->components->createServiceWithName($this->services, 'HumusAmqpModule\default', 'HumusAmqpModule\default');
+        $connection = $this->components->createServiceWithName(
+            $this->services,
+            'HumusAmqpModule\default',
+            'HumusAmqpModule\default'
+        );
         $this->assertInstanceOf('PhpAmqpLib\Connection\AMQPLazyConnection', $connection);
 
-        $this->assertTrue($this->components->canCreateServiceWithName($this->services, 'HumusAmqpModule\default', 'HumusAmqpModule\default'));
+        $this->assertTrue(
+            $this->components->canCreateServiceWithName(
+                $this->services,
+                'HumusAmqpModule\default',
+                'HumusAmqpModule\default'
+            )
+        );
 
-        $connection2 = $this->components->createServiceWithName($this->services, 'HumusAmqpModule\default', 'HumusAmqpModule\default');
+        $connection2 = $this->components->createServiceWithName(
+            $this->services,
+            'HumusAmqpModule\default',
+            'HumusAmqpModule\default'
+        );
 
         $this->assertSame($connection, $connection2);
     }
@@ -129,7 +145,11 @@ class AmqpAbstractServiceFactoryTest extends TestCase
 
         $this->services->setService('Config', $config);
 
-        $connection = $this->components->createServiceWithName($this->services, 'HumusAmqpModule\default', 'HumusAmqpModule\default');
+        $connection = $this->components->createServiceWithName(
+            $this->services,
+            'HumusAmqpModule\default',
+            'HumusAmqpModule\default'
+        );
         $this->assertInstanceOf('PhpAmqpLib\Connection\AMQPLazyConnection', $connection);
     }
 
@@ -140,7 +160,11 @@ class AmqpAbstractServiceFactoryTest extends TestCase
 
         $this->services->setService('Config', $config);
 
-        $connection = $this->components->createServiceWithName($this->services, 'HumusAmqpModule\default', 'HumusAmqpModule\default');
+        $connection = $this->components->createServiceWithName(
+            $this->services,
+            'HumusAmqpModule\default',
+            'HumusAmqpModule\default'
+        );
         $this->assertInstanceOf('PhpAmqpLib\Connection\AMQPConnection', $connection);
     }
 
@@ -153,7 +177,13 @@ class AmqpAbstractServiceFactoryTest extends TestCase
                 ),
             ),
         ));
-        $this->assertFalse($this->components->canCreateServiceWithName($this->services, 'test-consumer', 'test-consumer'));
+        $this->assertFalse(
+            $this->components->canCreateServiceWithName(
+                $this->services,
+                'test-consumer',
+                'test-consumer'
+            )
+        );
     }
 
     public function testInvalidConsumerConfigIndicatesCannotCreateConsumer()
@@ -165,12 +195,24 @@ class AmqpAbstractServiceFactoryTest extends TestCase
                 ),
             ),
         ));
-        $this->assertFalse($this->components->canCreateServiceWithName($this->services, 'test-consumer', 'test-consumer'));
+        $this->assertFalse(
+            $this->components->canCreateServiceWithName(
+                $this->services,
+                'test-consumer',
+                'test-consumer'
+            )
+        );
     }
 
     public function testValidConsumerCanBeCreated()
     {
-        $this->assertTrue($this->components->canCreateServiceWithName($this->services, 'test-consumer', 'test-consumer'));
+        $this->assertTrue(
+            $this->components->canCreateServiceWithName(
+                $this->services,
+                'test-consumer',
+                'test-consumer'
+            )
+        );
     }
 
     public function testValidConsumerCreation()
