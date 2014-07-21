@@ -57,7 +57,10 @@ class AmqpAbstractServiceFactory implements AbstractFactoryInterface
                 }
 
                 // found, return true
-                if ($amqpName == $requestedName) {
+                if ($amqpName == $requestedName
+                    && (is_array($spec) || $spec instanceof Traversable)
+                    && !empty($spec)
+                ) {
                     return true;
                 }
             }
@@ -102,29 +105,27 @@ class AmqpAbstractServiceFactory implements AbstractFactoryInterface
 
         switch ($amqpType) {
             case 'connections':
-                return $this->createConnection($serviceLocator, $spec);
-                break;
+                $instance = $this->createConnection($serviceLocator, $spec);
+                $this->instances[$requestedName] = $instance;
+                return $instance;
             case 'consumers':
-                $instance = $this->createConsumer($serviceLocator, $spec);
-                $this->instances[$requestedName] = $instance;
-                return $instance;
+                return $this->createConsumer($serviceLocator, $spec);
             case 'producers':
-                return $this->createProducer($serviceLocator, $spec);
+                $instance = $this->createProducer($serviceLocator, $spec);
+                $this->instances[$requestedName] = $instance;
+                return $instance;
             case 'anon_consumers':
-                $instance = $this->createAnonConsumer($serviceLocator, $spec);
-                $this->instances[$requestedName] = $instance;
-                return $instance;
+                return $this->createAnonConsumer($serviceLocator, $spec);
             case 'multiple_consumers':
-                $instance = $this->createMultipleConsumer($serviceLocator, $spec);
-                $this->instances[$requestedName] = $instance;
-                return $instance;
+                return $this->createMultipleConsumer($serviceLocator, $spec);
             case 'rpc_servers':
                 $instance = $this->createRpcServer($serviceLocator, $spec);
                 $instance->initServer($requestedName);
-                $this->instances[$requestedName] = $instance;
                 return $instance;
             case 'rpc_clients':
-                return $this->createRpcClient($serviceLocator, $spec);
+                $instance = $this->createRpcClient($serviceLocator, $spec);
+                $this->instances[$requestedName] = $instance;
+                return $instance;
         }
     }
 

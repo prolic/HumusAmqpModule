@@ -102,7 +102,6 @@ class ModuleTest extends \PHPUnit_Framework_TestCase
     public function testGetConsoleUsage()
     {
         $module = new Module();
-        $module->onBootstrap($this->event);
 
         $usage = $module->getConsoleUsage($this->getMock('Zend\Console\Adapter\AdapterInterface'));
 
