@@ -146,10 +146,6 @@ class Module implements
         $config = $serviceManager->get('Config');
         $moduleConfig = $config['humus_amqp_module'];
 
-        if (isset($moduleConfig['connections'])) {
-            $this->buildConnections($serviceManager, $moduleConfig);
-        }
-
         if (isset($moduleConfig['producers'])) {
             $this->buildProducers($serviceManager, $moduleConfig);
         }
@@ -172,34 +168,6 @@ class Module implements
 
         if (isset($moduleConfig['rpc_servers'])) {
             $this->buildRpcServers($serviceManager, $moduleConfig);
-        }
-    }
-
-    /**
-     * @param ServiceManager $serviceManager
-     * @param array $config
-     */
-    protected function buildConnections($serviceManager, array $config)
-    {
-        foreach ($config['connections'] as $name => $options) {
-            $serviceManager->setFactory(__NAMESPACE__ . '\\' . $name, function () use ($config, $options) {
-
-                if (!isset($options['lazy']) || true == $options['lazy']) {
-                    $class = $config['classes']['lazy_connection'];
-                } else {
-                    $class = $config['classes']['connection'];
-                }
-
-                $connection = new $class(
-                    $options['host'],
-                    $options['port'],
-                    $options['user'],
-                    $options['password'],
-                    $options['vhost']
-                );
-
-                return $connection;
-            });
         }
     }
 
@@ -231,7 +199,7 @@ class Module implements
                     $producer['queue_options']['name'] = null;
                 }
 
-                $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $options['connection']);
+                $connection = $serviceManager->get($options['connection']);
                 /** @var  $producer \HumusAmqpModule\Amqp\Producer */
                 $producer = new $class($connection);
 
@@ -267,7 +235,7 @@ class Module implements
                     $class = $config['classes']['consumer'];
                 }
 
-                $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $options['connection']);
+                $connection = $serviceManager->get($options['connection']);
                 /** @var  $consumer \HumusAmqpModule\Amqp\Consumer */
                 $consumer = new $class($connection);
 
@@ -323,7 +291,7 @@ class Module implements
                     $class = $config['classes']['multi_consumer'];
                 }
 
-                $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $options['connection']);
+                $connection = $serviceManager->get($options['connection']);
                 /* @var  $consumer \HumusAmqpModule\Amqp\MultipleConsumer */
                 $consumer = new $class($connection);
 
@@ -363,7 +331,7 @@ class Module implements
                     $class = $config['classes']['anon_consumer'];
                 }
 
-                $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $options['connection']);
+                $connection = $serviceManager->get($options['connection']);
                 /* @var  $consumer \HumusAmqpModule\Amqp\AnonConsumer */
                 $consumer = new $class($connection);
                 $consumer->setExchangeOptions($options['exchange_options']);
@@ -393,7 +361,7 @@ class Module implements
                     $class = $config['classes']['rpc_client'];
                 }
 
-                $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $client['connection']);
+                $connection = $serviceManager->get($client['connection']);
                 $rpcClient = new $class($connection);
                 $rpcClient->initClient($client['expect_serialized_response']);
 
@@ -417,7 +385,7 @@ class Module implements
                     $class = $config['classes']['rpc_server'];
                 }
 
-                $connection = $serviceManager->get(__NAMESPACE__ . '\\' . $server['connection']);
+                $connection = $serviceManager->get($server['connection']);
                 $rpcServer = new $class($connection);
                 $rpcServer->initServer($key);
 
