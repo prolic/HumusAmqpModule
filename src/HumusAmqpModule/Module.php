@@ -146,10 +146,6 @@ class Module implements
         $config = $serviceManager->get('Config');
         $moduleConfig = $config['humus_amqp_module'];
 
-        if (isset($moduleConfig['producers'])) {
-            $this->buildProducers($serviceManager, $moduleConfig);
-        }
-
         if (isset($moduleConfig['consumers'])) {
             $this->buildConsumers($serviceManager, $moduleConfig);
         }
@@ -168,55 +164,6 @@ class Module implements
 
         if (isset($moduleConfig['rpc_servers'])) {
             $this->buildRpcServers($serviceManager, $moduleConfig);
-        }
-    }
-
-    /**
-     * @param ServiceManager $serviceManager
-     * @param array $config
-     */
-    protected function buildProducers(ServiceManager $serviceManager, array $config)
-    {
-        foreach ($config['producers'] as $name => $options) {
-            $serviceManager->setFactory($name, function ($serviceManager) use ($name, $config, $options) {
-
-                if (isset($options['class'])) {
-                    $class = $options['class'];
-                } else {
-                    $class = $config['classes']['producer'];
-                }
-
-                //this producer doesn't define an exchange -> using AMQP Default
-                if (!isset($options['exchange_options'])) {
-                    $options['exchange_options']['name'] = '';
-                    $options['exchange_options']['type'] = 'direct';
-                    $options['exchange_options']['passive'] = true;
-                    $options['exchange_options']['declare'] = false;
-                }
-
-                //this producer doesn't define a queue
-                if (!isset($producer['queue_options'])) {
-                    $producer['queue_options']['name'] = null;
-                }
-
-                $connection = $serviceManager->get($options['connection']);
-                /** @var  $producer \HumusAmqpModule\Amqp\Producer */
-                $producer = new $class($connection);
-
-                if (isset($options['exchange_options'])) {
-                    $producer->setExchangeOptions($options['exchange_options']);
-                }
-
-                if (isset($options['queue_options'])) {
-                    $producer->setQueueOptions($options['queue_options']);
-                }
-
-                if (isset($options['auto_setup_fabric']) && !$options['auto_setup_fabric']) {
-                    $producer->disableAutoSetupFabric();
-                }
-
-                return $producer;
-            });
         }
     }
 

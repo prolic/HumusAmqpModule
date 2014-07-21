@@ -35,8 +35,15 @@ class AmqpAbstractServiceFactory implements AbstractFactoryInterface
             return false;
         }
 
-        foreach ($config as $data) {
+        foreach ($config as $amqpType => $data) {
             foreach ($data as $amqpName => $spec) {
+
+                // default connection gets a namespace prefix
+                if ($amqpType == 'connections' && $amqpName == 'default') {
+                    $amqpName = __NAMESPACE__ . '\\default';
+                }
+
+                // found, return true
                 if ($amqpName == $name) {
                     return true;
                 }
@@ -59,6 +66,7 @@ class AmqpAbstractServiceFactory implements AbstractFactoryInterface
         $config  = $this->getConfig($serviceLocator);
 
         $amqpType = '';
+        $amqpName = '';
         $spec = array();
         foreach ($config as $amqpType => $data) {
             foreach ($data as $amqpName => $spec) {
@@ -68,13 +76,18 @@ class AmqpAbstractServiceFactory implements AbstractFactoryInterface
             }
         }
 
+        // default connection gets a namespace prefix
+        if ($amqpType == 'connections' && $amqpName == 'default') {
+            $amqpName = __NAMESPACE__ . '\\default';
+        }
+
         $method = 'create' . ucfirst(substr($amqpType, 0, -1));
-        return $this->{$method}($serviceLocator, $name, $spec);
+        return $this->{$method}($serviceLocator, $spec);
     }
 
-    public function createConnection(ServiceLocatorInterface $serviceLocator, $name, $spec)
+    protected function createConnection(ServiceLocatorInterface $serviceLocator, $spec)
     {
-        $config  = $this->getConfig($serviceLocator);
+        $config = $this->config;
 
         if (!isset($spec['lazy']) || true == $spec['lazy']) {
             $class = $config['classes']['lazy_connection'];
@@ -91,6 +104,42 @@ class AmqpAbstractServiceFactory implements AbstractFactoryInterface
         );
 
         return $connection;
+    }
+
+    protected function createProducer(ServiceLocatorInterface $serviceLocator, $spec)
+    {
+        $config = $this->config;
+
+        if (isset($spec['class'])) {
+            $class = $spec['class'];
+        } else {
+            $class = $config['classes']['producer'];
+        }
+
+        if (!isset($spec['connection'])) {
+            $spec['connection'] = 'default';
+        }
+        if ($spec['connection'] == 'default') {
+            $spec['connection'] = __NAMESPACE__ . '\\default';
+        }
+
+        $connection = $serviceLocator->get($spec['connection']);
+        /** @var  $producer \HumusAmqpModule\Amqp\Producer */
+        $producer = new $class($connection);
+
+        if (isset($options['exchange_options'])) {
+            $producer->setExchangeOptions($options['exchange_options']);
+        }
+
+        if (isset($options['queue_options'])) {
+            $producer->setQueueOptions($options['queue_options']);
+        }
+
+        if (isset($options['auto_setup_fabric']) && !$options['auto_setup_fabric']) {
+            $producer->disableAutoSetupFabric();
+        }
+
+        return $producer;
     }
 
     /**

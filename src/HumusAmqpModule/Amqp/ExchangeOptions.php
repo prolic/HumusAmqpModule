@@ -23,7 +23,7 @@ use Zend\Stdlib\AbstractOptions;
 class ExchangeOptions extends AbstractOptions
 {
     protected $name = '';
-    protected $type = '';
+    protected $type = 'direct';
     protected $passive = false;
     protected $durable = true;
     protected $auto_delete = false;
