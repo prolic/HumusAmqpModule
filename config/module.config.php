@@ -106,6 +106,9 @@ return array(
     'service_manager' => array(
         'factories' => array(
             __NAMESPACE__ . '\\Amqp\PartsHolder' => 'HumusAmqpModule\Service\PartsHolderFactory'
+        ),
+        'abstract_factories' => array(
+            'HumusAmqpModule\AmqpAbstractServiceFactory'
         )
     )
 );
