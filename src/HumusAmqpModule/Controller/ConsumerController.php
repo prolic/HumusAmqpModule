@@ -43,7 +43,7 @@ class ConsumerController extends AbstractConsoleController
     public function dispatch(RequestInterface $request, ResponseInterface $response = null)
     {
         parent::dispatch($request, $response);
-
+        /* @var $request \Zend\Console\Request */
         $this->type = $request->getContent()[1];
 
         if (false === defined('AMQP_WITHOUT_SIGNALS')) {
@@ -85,6 +85,11 @@ class ConsumerController extends AbstractConsoleController
         $this->consumer->consume($amount);
     }
 
+    /**
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param string $name
+     * @return \HumusAmqpModule\Amqp\Consumer|null
+     */
     protected function loadConsumer(ServiceLocatorInterface $serviceLocator, $name)
     {
         if (!$serviceLocator->has($name)) {
