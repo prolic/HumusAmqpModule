@@ -15,7 +15,7 @@ class StdInProducerController extends AbstractConsoleController
     public function dispatch(RequestInterface $request, ResponseInterface $response = null)
     {
         parent::dispatch($request, $response);
-
+        /* @var $request \Zend\Console\Request */
         $producerName = $request->getParam('name');
 
         if (!$this->getServiceLocator()->has($producerName)) {
