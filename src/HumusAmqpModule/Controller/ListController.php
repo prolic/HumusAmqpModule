@@ -31,6 +31,7 @@ class ListController extends AbstractConsoleController
     public function dispatch(RequestInterface $request, ResponseInterface $response = null)
     {
         parent::dispatch($request, $response);
+        /* @var $request \Zend\Console\Request */
 
         $type = $this->getRequest()->getParam('type');
 
