@@ -22,7 +22,7 @@ class AmqpAbstractServiceFactory implements AbstractFactoryInterface
     /**
      * @var string Top-level configuration key indicating amqp configuration
      */
-    protected $configKey     = 'humus_amqp_module';
+    protected $configKey = 'humus_amqp_module';
 
     /**
      * @var array
@@ -410,37 +410,5 @@ class AmqpAbstractServiceFactory implements AbstractFactoryInterface
 
         $this->config = $config[$this->configKey];
         return $this->config;
-    }
-
-    /**
-     * Validate a provided specification
-     *
-     * Ensures we have an array, Traversable, or ArrayAccess object, and returns it.
-     *
-     * @param  array|Traversable|ArrayAccess $spec
-     * @param  string $method Method invoking the validator
-     * @return array|ArrayAccess
-     * @throws Exception\InvalidArgumentException for invalid $spec
-     */
-    protected function validateSpecification($spec, $method)
-    {
-        if (is_array($spec)) {
-            return $spec;
-        }
-
-        if ($spec instanceof Traversable) {
-            $spec = ArrayUtils::iteratorToArray($spec);
-            return $spec;
-        }
-
-        if (!$spec instanceof ArrayAccess) {
-            throw new Exception\InvalidArgumentException(sprintf(
-                '%s expects an array, or object implementing Traversable or ArrayAccess; received "%s"',
-                $method,
-                (is_object($spec) ? get_class($spec) : gettype($spec))
-            ));
-        }
-
-        return $spec;
     }
 }

@@ -98,15 +98,15 @@ class AmqpAbstractServiceFactoryTest extends TestCase
         $this->assertFalse($this->components->canCreateServiceWithName($this->services, 'foo', 'foo'));
     }
 
-    public function testInvalidFormManagerConfigIndicatesCannotCreateInstance()
+    public function testInvalidConfigIndicatesCannotCreateInstance()
     {
-        $this->services->setService('Config', array('forms' => 'string'));
+        $this->services->setService('Config', array('humus_amqp_module' => 'string'));
         $this->assertFalse($this->components->canCreateServiceWithName($this->services, 'foo', 'foo'));
     }
 
     public function testEmptyConsumerConfigIndicatesCannotCreateConsumer()
     {
-        $this->services->setService('Config', array('forms' => array()));
+        $this->services->setService('Config', array('humus_amqp_module' => array()));
         $this->assertFalse(
             $this->components->canCreateServiceWithName($this->services, 'test-consumer', 'test-consumer')
         );

@@ -86,8 +86,6 @@ return array(
             __NAMESPACE__ . '\\Controller\\SetupFabric' => __NAMESPACE__ . '\\Service\\Controller\\SetupFabricFactory',
         )
     ),
-    'humus_supervisor_module' => array(
-    ),
     'humus_amqp_module' => array(
         'classes' => array(
             'connection' => 'PhpAmqpLib\Connection\AMQPConnection',
@@ -101,6 +99,14 @@ return array(
             'logged_channel' => __NAMESPACE__ . '\Amqp\AMQPLoggedChannel',
             'parts_holder' => __NAMESPACE__ . '\Amqp\PartsHolder',
             'fallback' => __NAMESPACE__ . '\Amqp\Fallback'
+        )
+    ),
+    'humus_supervisor_module' => array(
+        'humus-amqp-supervisor' => array(
+            'host' => 'localhost',
+            'port' => 19005,
+            'username' => 'user',
+            'password' => '123'
         )
     ),
     'service_manager' => array(
