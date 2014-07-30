@@ -153,20 +153,21 @@ class AmqpAbstractServiceFactoryTest extends TestCase
         $this->assertInstanceOf('PhpAmqpLib\Connection\AMQPLazyConnection', $connection);
     }
 
-    /**
-     * @expectedException PhpAmqpLib\Exception\AMQPRuntimeException
-     */
     public function testNonLazyConnectionFactory()
     {
         $config = $this->services->get('Config');
         $config['humus_amqp_module']['connections']['default']['lazy'] = false;
 
         $this->services->setService('Config', $config);
-        $this->components->createServiceWithName(
-            $this->services,
-            'HumusAmqpModule\default',
-            'HumusAmqpModule\default'
-        );
+
+        try {
+            $this->components->createServiceWithName(
+                $this->services,
+                'HumusAmqpModule\default',
+                'HumusAmqpModule\default'
+            );
+        } catch (\PhpAmqpLib\Exception\AMQPRuntimeException $e) {
+        }
     }
 
     public function testMissingSpecIndicatesCannotCreateConsumer()
