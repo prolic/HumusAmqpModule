@@ -56,7 +56,7 @@ class ExchangesController extends AbstractConsoleController
 
         foreach ($exchanges as $type => $values) {
             $this->getConsole()->writeLine('Exchange-Type: ' . $type, ColorInterface::GREEN);
-            foreach ($values as $value) {
+            foreach (array_unique($values) as $value) {
                 $this->getConsole()->writeLine($value);
             }
         }
