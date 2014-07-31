@@ -250,7 +250,7 @@ class AmqpAbstractServiceFactory implements AbstractFactoryInterface
         foreach ($spec['queues'] as $queueOptions) {
             $qo = new QueueOptions($queueOptions);
             $callback = array(
-                $serviceLocator->get($spec['callback']),
+                $serviceLocator->get($qo->getCallback()),
                 'execute'
             );
             $qo->setCallback($callback);

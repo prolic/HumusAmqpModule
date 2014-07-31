@@ -43,7 +43,7 @@ class PartsHolderFactory implements FactoryInterface
                 continue;
             }
 
-            foreach ($value as $name => $producer) {
+            foreach ($value as $name => $amqp) {
                 $partsHolder->addPart($key, $serviceLocator->get($name));
             };
         }

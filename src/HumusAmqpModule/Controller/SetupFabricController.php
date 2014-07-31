@@ -57,11 +57,11 @@ class SetupFabricController extends AbstractConsoleController
         array_map(
             function ($name) {
                 if ($this->partsHolder->hasParts($name)) {
+                    $this->console->write('Declaring exchanges and queues for ' . $name . ' ');
                     foreach ($this->partsHolder->getParts($name) as $part) {
-                        $this->console->write('Declaring exchanges and queues for ' . $name . ' ');
                         $part->setupFabric();
-                        $this->console->writeLine('OK', ColorInterface::GREEN);
                     }
+                    $this->console->writeLine('OK', ColorInterface::GREEN);
                 } else {
                     $this->console->writeLine('No ' . $name . ' found to configure', ColorInterface::YELLOW);
                 }
