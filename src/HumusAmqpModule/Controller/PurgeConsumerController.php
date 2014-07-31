@@ -17,6 +17,8 @@ class PurgeConsumerController extends AbstractConsoleController
     {
         parent::dispatch($request, $response);
 
+        /* @var $request \Zend\Console\Request */
+
         $consumerName = $request->getParam('consumer-name');
 
         if (!$this->getServiceLocator()->has($consumerName)) {
