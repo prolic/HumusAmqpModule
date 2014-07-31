@@ -19,6 +19,7 @@ return array(
                         'route'    => 'humus amqp consumer <name> [<amount>] [--route=] [--memory_limit=] [--without-signals|-w] [--debug|-d]',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\Consumer',
+                            'type' => 'consumer'
                         )
                     )
                 ),
@@ -27,6 +28,7 @@ return array(
                         'route'    => 'humus amqp multiple-consumer <name> [<amount>] [--route=] [--memory_limit=] [--without-signals|-w] [--debug|-d]',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\Consumer',
+                            'type' => 'multiple-consumer'
                         )
                     )
                 ),

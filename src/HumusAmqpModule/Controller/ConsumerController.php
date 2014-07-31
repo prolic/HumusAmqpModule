@@ -44,7 +44,8 @@ class ConsumerController extends AbstractConsoleController
     {
         parent::dispatch($request, $response);
         /* @var $request \Zend\Console\Request */
-        $this->type = $request->getContent()[1];
+
+        $this->type = $request->getParam('type');
 
         if (false === defined('AMQP_WITHOUT_SIGNALS')) {
             define('AMQP_WITHOUT_SIGNALS', $request->getParam('without-signals'));
