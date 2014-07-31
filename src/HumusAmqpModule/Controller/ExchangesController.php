@@ -46,7 +46,6 @@ class ExchangesController extends AbstractConsoleController
                 }
 
                 foreach ($configPart as $key => $value) {
-
                     if ($key == 'exchange_options') {
                         $exchanges[$value['type']][] = $value['name'];
                     }

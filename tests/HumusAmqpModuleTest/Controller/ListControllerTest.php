@@ -36,9 +36,10 @@ class ListControllerTest extends AbstractConsoleControllerTestCase
         $this->assertResponseStatusCode(0);
         $res = ob_get_clean();
 
-        $this->assertNotFalse(strstr($res, 'List of all available consumers'));
-        $this->assertNotFalse(strstr($res, 'testconsumer-1'));
-        $this->assertNotFalse(strstr($res, 'testconsumer-2'));
+        $this->assertRegExp(
+            '/.+List of all available consumers.+\ntestconsumer-1\ntestconsumer-2/',
+            $res
+        );
     }
 
     public function testDispatchWithoutConsumers()
@@ -56,8 +57,10 @@ class ListControllerTest extends AbstractConsoleControllerTestCase
         $this->dispatch('humus amqp list consumers');
         $res = ob_get_clean();
 
-        $this->assertNotFalse(strstr($res, 'List of all available consumers'));
-        $this->assertNotFalse(strstr($res, 'No consumers found'));
+        $this->assertRegExp(
+            '/.+List of all available consumers.+\n.+No consumers found.+/',
+            $res
+        );
     }
 
     public function testDispatchWithoutRpcServersInStack()
@@ -75,7 +78,9 @@ class ListControllerTest extends AbstractConsoleControllerTestCase
         $this->dispatch('humus amqp list rpc-servers');
         $res = ob_get_clean();
 
-        $this->assertNotFalse(strstr($res, 'List of all available rpc-servers'));
-        $this->assertNotFalse(strstr($res, 'No rpc-servers found'));
+        $this->assertRegExp(
+            '/.+List of all available rpc-servers.+\n.+No rpc-servers found.+/',
+            $res
+        );
     }
 }
