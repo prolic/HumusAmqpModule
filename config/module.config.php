@@ -8,7 +8,7 @@ return array(
             'routes' => array(
                 'humus_amqp_module-setup-fabric' => array(
                     'options' => array(
-                        'route'    => 'amqp setup-fabric [--debug|-d]',
+                        'route'    => 'humus amqp setup-fabric [--debug|-d]',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\SetupFabric',
                         )
@@ -16,7 +16,7 @@ return array(
                 ),
                 'humus_amqp_module-consumer' => array(
                     'options' => array(
-                        'route'    => 'amqp consumer <name> [<amount>] [--route=] [--memory_limit=] [--without-signals|-w] [--debug|-d]',
+                        'route'    => 'humus amqp consumer <name> [<amount>] [--route=] [--memory_limit=] [--without-signals|-w] [--debug|-d]',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\Consumer',
                         )
@@ -24,7 +24,7 @@ return array(
                 ),
                 'humus_amqp_module-multiple-consumer' => array(
                     'options' => array(
-                        'route'    => 'amqp multiple-consumer <name> [<amount>] [--route=] [--memory_limit=] [--without-signals|-w] [--debug|-d]',
+                        'route'    => 'humus amqp multiple-consumer <name> [<amount>] [--route=] [--memory_limit=] [--without-signals|-w] [--debug|-d]',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\Consumer',
                         )
@@ -32,7 +32,7 @@ return array(
                 ),
                 'humus_amqp_module-list' => array(
                     'options' => array(
-                        'route'    => 'amqp list (consumers|multiple-consumers|anon-consumers|producers|rpc-clients|rpc-servers|connections):type',
+                        'route'    => 'humus amqp list (consumers|multiple-consumers|anon-consumers|producers|rpc-clients|rpc-servers|connections):type',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\List',
                         )
@@ -40,7 +40,7 @@ return array(
                 ),
                 'humus_amqp_module-exchanges' => array(
                     'options' => array(
-                        'route'    => 'amqp list-exchanges',
+                        'route'    => 'humus amqp list-exchanges',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\Exchanges',
                         )
@@ -48,7 +48,7 @@ return array(
                 ),
                 'humus_amqp_module-stdin-producer' => array(
                     'options' => array(
-                        'route'    => 'amqp stdin-producer <name> [--route=] <msg> [--debug|-d]',
+                        'route'    => 'humus amqp stdin-producer <name> [--route=] <msg> [--debug|-d]',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\StdInProducer',
                         )
@@ -56,7 +56,7 @@ return array(
                 ),
                 'humus_amqp_module-purge-queue' => array(
                     'options' => array(
-                        'route' => 'amqp purge <consumer-name> [--no-confirmation]',
+                        'route' => 'humus amqp purge <consumer-name> [--no-confirmation]',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\PurgeConsumer',
                         )
@@ -64,7 +64,7 @@ return array(
                 ),
                 'humus_amqp_module-rpc-server' => array(
                     'options' => array(
-                        'route' => 'amqp rpc-server <name> [<amount>] [--debug|-d]',
+                        'route' => 'humus amqp rpc-server <name> [<amount>] [--debug|-d]',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\RpcServer',
                         )

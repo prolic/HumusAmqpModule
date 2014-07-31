@@ -67,7 +67,7 @@ class Module implements
     {
         return array(
             // Describe available commands
-            'amqp command'    => '',
+            'humus amqp command'    => '',
 
             'Available commands:',
 
