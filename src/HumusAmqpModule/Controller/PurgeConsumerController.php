@@ -20,10 +20,11 @@ class PurgeConsumerController extends AbstractConsoleController
         $consumerName = $request->getParam('consumer-name');
 
         if (!$this->getServiceLocator()->has($consumerName)) {
-            return $this->getConsole()->writeLine(
+            $this->getConsole()->writeLine(
                 'ERROR: Consumer "' . $consumerName . '" not found',
                 ColorInterface::RED
             );
+            return null;
         }
 
         if ($request->getParam('no-confirmation', false)
@@ -31,10 +32,11 @@ class PurgeConsumerController extends AbstractConsoleController
         ) {
             $consumer = $this->getServiceLocator()->get($consumerName);
             $consumer->purge();
-            return $this->getConsole()->writeLine(
+            $this->getConsole()->writeLine(
                 'OK',
                 ColorInterface::GREEN
             );
+            return null;
         } else {
             return $this->getConsole()->writeLine(
                 'Purging cancelled!',
