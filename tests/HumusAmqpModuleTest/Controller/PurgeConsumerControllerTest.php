@@ -12,7 +12,7 @@ class PurgeConsumerControllerTest extends AbstractConsoleControllerTestCase
 
     protected function setUp()
     {
-        $this->setApplicationConfig(include __DIR__ . '/../../../TestConfiguration.php.dist');
+        $this->setApplicationConfig(include __DIR__ . '/../../TestConfiguration.php.dist');
         parent::setUp();
     }
 
@@ -28,14 +28,25 @@ class PurgeConsumerControllerTest extends AbstractConsoleControllerTestCase
         $serviceManager->setService('test-consumer', $consumer);
 
         ob_start();
-        $this->dispatch('humus amqp purge test-consumer');
+        $this->dispatch('humus amqp purge test-consumer --no-confirmation');
+
         $this->assertResponseStatusCode(0);
         $res = ob_get_clean();
 
-        $this->assertNotFalse(strstr($res, 'No consumers found to configure'));
-        $this->assertNotFalse(strstr($res, 'No multiple_consumers found to configure'));
-        $this->assertNotFalse(strstr($res, 'Declaring exchanges and queues for anon_consumers'));
-        $this->assertNotFalse(strstr($res, 'No rpc_servers found to configure'));
-        $this->assertNotFalse(strstr($res, 'No producers found to configure'));
+        $this->assertNotFalse(strstr($res, 'OK'));
+    }
+
+    public function testDispatchWithInvalidConsumerName()
+    {
+        $serviceManager = $this->getApplicationServiceLocator();
+        $serviceManager->setAllowOverride(true);
+
+        ob_start();
+        $this->dispatch('humus amqp purge invalid-consumer --no-confirmation');
+
+        $this->assertResponseStatusCode(0);
+        $res = ob_get_clean();
+
+        $this->assertNotFalse(strstr($res, 'ERROR: Consumer "invalid-consumer" not found'));
     }
 }
