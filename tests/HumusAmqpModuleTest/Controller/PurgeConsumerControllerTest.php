@@ -12,37 +12,23 @@ class PurgeConsumerControllerTest extends AbstractConsoleControllerTestCase
 
     protected function setUp()
     {
-        $this->setApplicationConfig(include __DIR__ . '/../../TestConfiguration.php.dist');
+        $this->setApplicationConfig(include __DIR__ . '/../../../TestConfiguration.php.dist');
         parent::setUp();
     }
 
     public function testDispatch()
     {
-        $anonConsumer = $this->getMock('HumusAmqp\Amqp\AnonConsumer', array('setupFabric'));
-        $anonConsumer
+        $consumer = $this->getMock('HumusAmqp\Amqp\Consumer', array('purge'));
+        $consumer
             ->expects($this->once())
-            ->method('setupFabric');
-
-        $partsHolder = $this->getMock('HumusAmqpModule\Amqp\PartsHolder');
-        $partsHolder
-            ->expects($this->any())
-            ->method('hasParts')
-            ->with($this->anything())
-            ->willReturnOnConsecutiveCalls(false, false, true,false, false);
-
-        $partsHolder
-            ->expects($this->once())
-            ->method('getParts')
-            ->with($this->anything())
-            ->willReturn(array('foo' => $anonConsumer));
-
+            ->method('purge');
 
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('HumusAmqpModule\Amqp\PartsHolder', $partsHolder);
+        $serviceManager->setService('test-consumer', $consumer);
 
         ob_start();
-        $this->dispatch('humus amqp setup-fabric');
+        $this->dispatch('humus amqp purge test-consumer');
         $this->assertResponseStatusCode(0);
         $res = ob_get_clean();
 
