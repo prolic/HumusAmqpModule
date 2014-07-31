@@ -96,10 +96,10 @@ class AmqpAbstractServiceFactoryTest extends TestCase
                         'queues' => array(
                             array(
                                 'name' => 'multi-1',
+                                'callback' => 'test-callback'
                             ),
                         ),
                         'auto_setup_fabric' => true,
-                        'callback' => 'test-callback'
                     ),
                 ),
                 'rpc_servers' => array(
@@ -211,6 +211,7 @@ class AmqpAbstractServiceFactoryTest extends TestCase
                 'HumusAmqpModule\default'
             );
         } catch (\PhpAmqpLib\Exception\AMQPRuntimeException $e) {
+            // ignore exception
         }
     }
 
