@@ -19,10 +19,12 @@ class StdInProducerController extends AbstractConsoleController
         $producerName = $request->getParam('name');
 
         if (!$this->getServiceLocator()->has($producerName)) {
-            return $this->getConsole()->writeLine(
+            $this->getConsole()->writeLine(
                 'ERROR: Producer "' . $producerName . '" not found',
                 ColorInterface::RED
             );
+
+            return null;
         }
 
         $debug = $request->getParam('debug') || $request->getParam('d');
