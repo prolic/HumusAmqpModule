@@ -16,13 +16,16 @@ class RpcServerController extends AbstractConsoleController
     {
         parent::dispatch($request, $response);
 
+        /* @var $request \Zend\Console\Request */
+
         $rpcServerName = $request->getParam('name');
 
         if (!$this->getServiceLocator()->has($rpcServerName)) {
-            return $this->getConsole()->writeLine(
+            $this->getConsole()->writeLine(
                 'ERROR: RPC-Server "' . $rpcServerName . '" not found',
                 ColorInterface::RED
             );
+            return null;
         }
 
         $debug = $request->getParam('debug') || $request->getParam('d');
@@ -34,13 +37,13 @@ class RpcServerController extends AbstractConsoleController
         $amount =$amount = $request->getParam('amount', 0);
 
         if (!is_numeric($amount)) {
-            return $this->getConsole()->writeLine(
+            $this->getConsole()->writeLine(
                 'Error: amount should be null or greater than 0',
                 ColorInterface::RED
             );
+        } else {
+            $rpcServer = $this->getServiceLocator()->get($rpcServerName);
+            $rpcServer->start($amount);
         }
-
-        $rpcServer = $this->getServiceLocator()->get($rpcServerName);
-        $rpcServer->start($amount);
     }
 }
