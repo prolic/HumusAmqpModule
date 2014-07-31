@@ -57,7 +57,7 @@ class SetupFabricController extends AbstractConsoleController
         $that = $this;
 
         array_map(
-            function ($name) use ($that)  {
+            function ($name) use ($that) {
                 if ($that->partsHolder->hasParts($name)) {
                     $that->console->write('Declaring exchanges and queues for ' . $name . ' ');
                     foreach ($that->partsHolder->getParts($name) as $part) {
