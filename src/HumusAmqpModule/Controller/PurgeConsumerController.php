@@ -38,9 +38,8 @@ class PurgeConsumerController extends AbstractConsoleController
                 'OK',
                 ColorInterface::GREEN
             );
-            return null;
         } else {
-            return $this->getConsole()->writeLine(
+            $this->getConsole()->writeLine(
                 'Purging cancelled!',
                 ColorInterface::YELLOW
             );
