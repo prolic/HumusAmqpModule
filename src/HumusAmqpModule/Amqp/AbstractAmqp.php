@@ -95,6 +95,20 @@ abstract class AbstractAmqp
     }
 
     /**
+     * Reconnect
+     *
+     * @return void
+     */
+    public function reconnect()
+    {
+        if (!$this->conn->isConnected()) {
+            return;
+        }
+
+        $this->conn->reconnect();
+    }
+
+    /**
      * @param ExchangeOptions|array|\Traversable $options
      * @return void
      * @throws Exception\InvalidArgumentException
