@@ -23,7 +23,8 @@
     },
     "require-dev": {
         "phpunit/PHPUnit": ">=4.0",
-        "squizlabs/php_codesniffer":   "1.5.*"
+        "squizlabs/php_codesniffer":   "1.5.*",
+        "zendframework/zendframework": ">=2.3.0"
     },
     "suggest": {
         "prolic/humus-supervisor-module": "For supervisor usage"
