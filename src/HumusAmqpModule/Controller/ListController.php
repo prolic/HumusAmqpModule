@@ -31,20 +31,26 @@ class ListController extends AbstractConsoleController
     public function dispatch(RequestInterface $request, ResponseInterface $response = null)
     {
         parent::dispatch($request, $response);
+
         /* @var $request \Zend\Console\Request */
 
-        $type = $this->getRequest()->getParam('type');
-
+        $type = $request->getParam('type');
         $config = $this->getServiceLocator()->get('Config');
         $moduleConfig = $config['humus_amqp_module'];
 
         $this->getConsole()->writeLine('List of all available ' . $type, ColorInterface::GREEN);
 
-        if (!isset($moduleConfig[str_replace('-', '_', $type)])) {
-            return $this->getConsole()->writeLine('No ' . $type . ' found', ColorInterface::RED);
+        $cType = str_replace('-', '_', $type);
+        if (!isset($moduleConfig[$cType])) {
+            $this->getConsole()->writeLine('No ' . $type . ' found', ColorInterface::RED);
+            return null;
         }
 
         $list = array_keys($moduleConfig[str_replace('-', '_', $type)]);
+
+        if (0 == count($list)) {
+            $this->getConsole()->writeLine('No ' . $type . ' found', ColorInterface::RED);
+        }
 
         foreach ($list as $entry) {
             $this->getConsole()->writeLine($entry);
