@@ -55,17 +55,18 @@ class SetupFabricController extends AbstractConsoleController
         $this->console->writeLine('Setting up the AMQP fabric');
 
         $that = $this;
+        $partsHolder = $this->partsHolder;
 
         array_map(
-            function ($name) use ($that) {
-                if ($that->partsHolder->hasParts($name)) {
-                    $that->console->write('Declaring exchanges and queues for ' . $name . ' ');
-                    foreach ($that->partsHolder->getParts($name) as $part) {
+            function ($name) use ($that, $partsHolder) {
+                if ($partsHolder->hasParts($name)) {
+                    $that->getConsole()->write('Declaring exchanges and queues for ' . $name . ' ');
+                    foreach ($partsHolder->getParts($name) as $part) {
                         $part->setupFabric();
                     }
-                    $that->console->writeLine('OK', ColorInterface::GREEN);
+                    $that->getConsole()->writeLine('OK', ColorInterface::GREEN);
                 } else {
-                    $that->console->writeLine('No ' . $name . ' found to configure', ColorInterface::YELLOW);
+                    $that->getConsole()->writeLine('No ' . $name . ' found to configure', ColorInterface::YELLOW);
                 }
             },
             array(
