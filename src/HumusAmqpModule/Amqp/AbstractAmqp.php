@@ -24,13 +24,44 @@ use PhpAmqpLib\Connection\AMQPLazyConnection;
 
 abstract class AbstractAmqp
 {
+    /**
+     * @var AMQPConnection
+     */
     protected $conn;
+
+    /**
+     * @var AMQPChannel
+     */
     protected $ch;
+
+    /**
+     * @var null|string
+     */
     protected $consumerTag;
+
+    /**
+     * @var bool
+     */
     protected $exchangeDeclared = false;
+
+    /**
+     * @var bool
+     */
     protected $queueDeclared = false;
+
+    /**
+     * @var string
+     */
     protected $routingKey = '';
+
+    /**
+     * @var bool
+     */
     protected $autoSetupFabric = true;
+
+    /**
+     * @var array
+     */
     protected $basicProperties = array('content_type' => 'text/plain', 'delivery_mode' => 2);
 
     /**
@@ -44,6 +75,8 @@ abstract class AbstractAmqp
     protected $queueOptions;
 
     /**
+     * Constructor
+     *
      * @param AMQPConnection $conn
      * @param AMQPChannel|null $ch
      * @param null $consumerTag
@@ -62,6 +95,10 @@ abstract class AbstractAmqp
             : $consumerTag;
     }
 
+    /**
+     * Destructor
+     *
+     */
     public function __destruct()
     {
         if ($this->ch) {
