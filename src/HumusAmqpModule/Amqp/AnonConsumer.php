@@ -22,6 +22,11 @@ use PhpAmqpLib\Connection\AMQPConnection;
 
 class AnonConsumer extends Consumer
 {
+    /**
+     * Constructor
+     *
+     * @param AMQPConnection $conn
+     */
     public function __construct(AMQPConnection $conn)
     {
         parent::__construct($conn);
