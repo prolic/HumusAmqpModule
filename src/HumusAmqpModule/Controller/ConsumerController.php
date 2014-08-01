@@ -77,10 +77,12 @@ class ConsumerController extends AbstractConsoleController
         $amount = $request->getParam('amount', 0);
 
         if (!is_numeric($amount)) {
-            return $this->getConsole()->writeLine(
+            $this->getConsole()->writeLine(
                 'Error: amount should be null or greater than 0',
                 ColorInterface::RED
             );
+
+            return null;
         }
 
         $this->consumer->consume($amount);
