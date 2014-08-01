@@ -46,6 +46,8 @@ class SetupFabricController extends AbstractConsoleController
     {
         parent::dispatch($request, $response);
 
+        /* @var $request \Zend\Console\Request */
+
         $debug = $request->getParam('debug') || $request->getParam('d');
 
         if ($debug && !defined('AMQP_DEBUG')) {

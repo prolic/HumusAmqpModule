@@ -18,12 +18,29 @@
 
 namespace HumusAmqpModuleTest\Amqp;
 
-use HumusAmqpModule\Amqp\Consumer;
 use HumusAmqpModule\Amqp\ConsumerInterface;
+use HumusAmqpModule\Amqp\MultipleConsumer;
 use PhpAmqpLib\Message\AMQPMessage;
 
-class ConsumerTest extends \PHPUnit_Framework_TestCase
+class MultipleConsumerTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @expectedException HumusAmqpModule\Amqp\Exception\QueueNotFoundException
+     */
+    public function testProcessMessageWithInvalidQueueName()
+    {
+        $amqpConnection = $this->getMockBuilder('\PhpAmqpLib\Connection\AMQPConnection')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $amqpChannel = $this->getMockBuilder('\PhpAmqpLib\Channel\AMQPChannel')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $consumer = new MultipleConsumer($amqpConnection, $amqpChannel);
+        $consumer->processQueueMessage('foo', new AMQPMessage('foo body'));
+    }
+
     /**
      * Check if the message is requeued or not correctly.
      *
@@ -39,35 +56,32 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $consumer = new Consumer($amqpConnection, $amqpChannel);
-
-        // Create a callback function with a return value set by the data provider.
-        $callbackFunction = function () use ($processFlag) {
+        $consumer = new MultipleConsumer($amqpConnection, $amqpChannel);
+        $callback = function($msg) use (&$lastQueue, $processFlag) {
             return $processFlag;
         };
-        $consumer->setCallback($callbackFunction);
+
+        $consumer->setQueues(array('test-1' => array('callback' => $callback), 'test-2'  => array('callback' => $callback)));
 
         // Create a default message
         $amqpMessage = new AMQPMessage('foo body');
         $amqpMessage->delivery_info['channel'] = $amqpChannel;
         $amqpMessage->delivery_info['delivery_tag'] = 0;
-
         $amqpChannel->expects($this->any())
             ->method('basic_reject')
-            ->will($this->returnCallback(function ($delivery_tag, $requeue) use ($expectedMethod, $expectedRequeue) {
+            ->will($this->returnCallback(function($delivery_tag, $requeue) use ($expectedMethod, $expectedRequeue) {
                 \PHPUnit_Framework_Assert::assertSame($expectedMethod, 'basic_reject'); // Check if this function should be called.
                 \PHPUnit_Framework_Assert::assertSame($requeue, $expectedRequeue); // Check if the message should be requeued.
             }));
 
         $amqpChannel->expects($this->any())
             ->method('basic_ack')
-            ->will($this->returnCallback(function ($delivery_tag) use ($expectedMethod) {
+            ->will($this->returnCallback(function($delivery_tag) use ($expectedMethod) {
                 \PHPUnit_Framework_Assert::assertSame($expectedMethod, 'basic_ack'); // Check if this function should be called.
             }));
 
-        $consumer->processMessage($amqpMessage);
-
-        $consumer->consume(1);
+        $consumer->processQueueMessage('test-1', $amqpMessage);
+        $consumer->processQueueMessage('test-2', $amqpMessage);
     }
 
     public function processMessageProvider()

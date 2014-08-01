@@ -54,4 +54,3 @@ class PartsHolderFactoryTest extends ServiceManagerTestCase
         $this->assertCount(1, $parts);
     }
 }
-

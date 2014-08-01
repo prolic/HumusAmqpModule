@@ -58,7 +58,6 @@ class ModuleTest extends \PHPUnit_Framework_TestCase
             )
         );
         $this->serviceManager = $this->getMock('Zend\ServiceManager\ServiceManager');
-        $this->supervisor = $this->getMock('Indigo\Supervisor\Supervisor', array(), array(), '', false);
 
         $this
             ->application

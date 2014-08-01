@@ -32,7 +32,13 @@ class MultipleConsumer extends Consumer
 
     public function setQueues(array $queues)
     {
-        $this->queues = $queues;
+        $this->queues = array();
+        foreach ($queues as $name => $queue) {
+            if (!$queue instanceof QueueOptions) {
+                $queue = new QueueOptions($queue);
+            }
+            $this->queues[$name] = $queue;
+        }
     }
 
     protected function setupConsumer()
