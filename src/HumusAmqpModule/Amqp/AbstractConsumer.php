@@ -18,7 +18,7 @@
 
 namespace HumusAmqpModule\Amqp;
 
-abstract class AbstractConsumer extends AbstractAmqp
+abstract class AbstractConsumer extends AbstractAmqp implements ConsumerInterface
 {
     /**
      * @var int

@@ -233,10 +233,7 @@ class AmqpAbstractServiceFactory implements AbstractFactoryInterface
 
         $consumer->setExchangeOptions($spec['exchange_options']);
         $consumer->setQueueOptions($spec['queue_options']);
-        $consumer->setCallback(array(
-            $serviceLocator->get($spec['callback']),
-            'execute'
-        ));
+        $consumer->setCallback($serviceLocator->get($spec['callback']));
 
         if (isset($spec['qos_options'])) {
             $consumer->setQosOptions($spec['qos_options']);
@@ -265,11 +262,7 @@ class AmqpAbstractServiceFactory implements AbstractFactoryInterface
 
         foreach ($spec['queues'] as $queueOptions) {
             $qo = new QueueOptions($queueOptions);
-            $callback = array(
-                $serviceLocator->get($qo->getCallback()),
-                'execute'
-            );
-            $qo->setCallback($callback);
+            $qo->setCallback($serviceLocator->get($qo->getCallback()));
             $queues[$qo->getName()] = $qo;
         }
 
@@ -328,10 +321,7 @@ class AmqpAbstractServiceFactory implements AbstractFactoryInterface
         /* @var  $consumer \HumusAmqpModule\Amqp\AnonConsumer */
         $consumer = new $class($connection);
         $consumer->setExchangeOptions($spec['exchange_options']);
-        $consumer->setCallback(array(
-            $serviceLocator->get($spec['callback']),
-            'execute'
-        ));
+        $consumer->setCallback($serviceLocator->get($spec['callback']));
 
         return $consumer;
     }
@@ -385,10 +375,7 @@ class AmqpAbstractServiceFactory implements AbstractFactoryInterface
         /* @var $rpcServer RpcServer */
 
         if (isset($spec['callback'])) {
-            $rpcServer->setCallback(array(
-                $serviceLocator->get($spec['callback']),
-                'execute'
-            ));
+            $rpcServer->setCallback($serviceLocator->get($spec['callback']));
         }
 
         if (isset($spec['qos_options'])) {

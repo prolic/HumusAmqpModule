@@ -42,10 +42,51 @@ interface ConsumerInterface
      */
     const MSG_REJECT = -1;
 
+    /**
+     * Consume the message
+     *
+     * @param int $msgAmount
+     */
+    public function consume($msgAmount);
 
     /**
-     * @param AMQPMessage $msg The message
-     * @return mixed false to reject and requeue, any other value to aknowledge
+     * Purge the queue
      */
-    public function execute(AMQPMessage $msg);
+    public function purge();
+
+    /**
+     * Start consumer
+     *
+     * @param int $msgAmount
+     */
+    public function start($msgAmount = 0);
+
+    /**
+     * Stop consuming
+     *
+     * @return void
+     */
+    public function stopConsuming();
+
+    /**
+     * Set consumer tag
+     *
+     * @param string $tag
+     * @return void
+     */
+    public function setConsumerTag($tag);
+
+    /**
+     * Get consumer tag
+     *
+     * @return null|string
+     */
+    public function getConsumerTag();
+
+    /**
+     * Force stop consumer
+     *
+     * @return void
+     */
+    public function forceStopConsumer();
 }

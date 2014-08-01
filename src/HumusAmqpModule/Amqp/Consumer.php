@@ -81,13 +81,13 @@ class Consumer extends AbstractConsumer
 
     protected function handleProcessMessage(AMQPMessage $msg, $processFlag)
     {
-        if ($processFlag === ConsumerInterface::MSG_REJECT_REQUEUE || false === $processFlag) {
+        if ($processFlag === self::MSG_REJECT_REQUEUE || false === $processFlag) {
             // Reject and requeue message to RabbitMQ
             $msg->delivery_info['channel']->basic_reject($msg->delivery_info['delivery_tag'], true);
-        } elseif ($processFlag === ConsumerInterface::MSG_SINGLE_NACK_REQUEUE) {
+        } elseif ($processFlag === self::MSG_SINGLE_NACK_REQUEUE) {
             // NACK and requeue message to RabbitMQ
             $msg->delivery_info['channel']->basic_nack($msg->delivery_info['delivery_tag'], false, true);
-        } elseif ($processFlag === ConsumerInterface::MSG_REJECT) {
+        } elseif ($processFlag === self::MSG_REJECT) {
             // Reject and drop
             $msg->delivery_info['channel']->basic_reject($msg->delivery_info['delivery_tag'], false);
         } else {
