@@ -21,8 +21,8 @@ class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatch()
     {
-        $consumer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestConsumer', array('setupFabric'));
-        $consumer
+        $producer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestProducer', array('setupFabric'));
+        $producer
             ->expects($this->once())
             ->method('setupFabric');
 
@@ -31,13 +31,13 @@ class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
             ->expects($this->any())
             ->method('hasParts')
             ->with($this->anything())
-            ->willReturnOnConsecutiveCalls(true, false, false, false, false);
+            ->willReturnOnConsecutiveCalls(false, false, false, false, true);
 
         $partsHolder
             ->expects($this->once())
             ->method('getParts')
             ->with($this->anything())
-            ->willReturn(array('test-producer' => $consumer));
+            ->willReturn(array('test-producer' => $producer));
 
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
@@ -48,10 +48,10 @@ class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
         $this->assertResponseStatusCode(0);
         $res = ob_get_clean();
 
-        $this->assertNotFalse(strstr($res, 'Declaring exchanges and queues for consumers'));
+        $this->assertNotFalse(strstr($res, 'No consumers found to configure'));
         $this->assertNotFalse(strstr($res, 'No multiple_consumers found to configure'));
         $this->assertNotFalse(strstr($res, 'No anon_consumers found to configure'));
         $this->assertNotFalse(strstr($res, 'No rpc_servers found to configure'));
-        $this->assertNotFalse(strstr($res, 'No producers found to configure'));
+        $this->assertNotFalse(strstr($res, 'Declaring exchanges and queues for producers'));
     }
 }
