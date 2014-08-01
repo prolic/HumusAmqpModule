@@ -61,7 +61,7 @@ class Producer extends AbstractAmqp
         }
 
         $msg = new AMQPMessage((string) $msgBody, array_merge($this->getBasicProperties(), $additionalProperties));
-        $this->getChannel()->basic_publish($msg, $this->exchangeOptions->getName(), (string) $routingKey);
+        $this->getChannel()->basic_publish($msg, $this->getExchangeOptions()->getName(), (string) $routingKey);
     }
 
     /**
@@ -78,7 +78,7 @@ class Producer extends AbstractAmqp
         }
 
         $msg = new AMQPMessage((string) $msgBody, array_merge($this->getBasicProperties(), $additionalProperties));
-        $this->getChannel()->batch_basic_publish($msg, $this->exchangeOptions->getName(), (string) $routingKey);
+        $this->getChannel()->batch_basic_publish($msg, $this->getExchangeOptions()->getName(), (string) $routingKey);
     }
 
     /**
