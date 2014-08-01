@@ -2,9 +2,9 @@
 
 namespace HumusAmqpModuleTest\Controller\TestAsset;
 
-use HumusAmqpModule\Amqp\Producer;
+use HumusAmqpModule\Amqp\Consumer;
 
-class TestProducer extends Producer
+class TestConsumer extends Consumer
 {
     public function __construct()
     {
