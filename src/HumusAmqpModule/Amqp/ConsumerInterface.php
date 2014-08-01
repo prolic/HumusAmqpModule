@@ -43,18 +43,6 @@ interface ConsumerInterface
     const MSG_REJECT = -1;
 
     /**
-     * Consume the message
-     *
-     * @param int $msgAmount
-     */
-    public function consume($msgAmount);
-
-    /**
-     * Purge the queue
-     */
-    public function purge();
-
-    /**
      * Start consumer
      *
      * @param int $msgAmount
