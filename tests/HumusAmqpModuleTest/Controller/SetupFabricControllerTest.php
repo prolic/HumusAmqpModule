@@ -2,7 +2,10 @@
 
 namespace HumusAmqpModuleTest\Controller;
 
+use PhpAmqpLib\Channel\AMQPChannel;
+use PhpAmqpLib\Connection\AMQPLazyConnection;
 use Zend\Test\PHPUnit\Controller\AbstractConsoleControllerTestCase;
+
 
 class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
 {
@@ -18,24 +21,23 @@ class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatch()
     {
-        $anonConsumer = $this->getMock('HumusAmqp\Amqp\AnonConsumer', array('setupFabric'));
-        $anonConsumer
+        $consumer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestConsumer', array('setupFabric'));
+        $consumer
             ->expects($this->once())
             ->method('setupFabric');
 
-        $partsHolder = $this->getMock('HumusAmqpModule\Amqp\PartsHolder');
+        $partsHolder = $this->getMock('HumusAmqpModule\Amqp\PartsHolder', array('hasParts', 'getParts'));
         $partsHolder
             ->expects($this->any())
             ->method('hasParts')
             ->with($this->anything())
-            ->willReturnOnConsecutiveCalls(false, false, true,false, false);
+            ->willReturnOnConsecutiveCalls(true, false, false, false, false);
 
         $partsHolder
             ->expects($this->once())
             ->method('getParts')
             ->with($this->anything())
-            ->willReturn(array('foo' => $anonConsumer));
-
+            ->willReturn(array('test-producer' => $consumer));
 
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
@@ -46,9 +48,9 @@ class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
         $this->assertResponseStatusCode(0);
         $res = ob_get_clean();
 
-        $this->assertNotFalse(strstr($res, 'No consumers found to configure'));
+        $this->assertNotFalse(strstr($res, 'Declaring exchanges and queues for consumers'));
         $this->assertNotFalse(strstr($res, 'No multiple_consumers found to configure'));
-        $this->assertNotFalse(strstr($res, 'Declaring exchanges and queues for anon_consumers'));
+        $this->assertNotFalse(strstr($res, 'No anon_consumers found to configure'));
         $this->assertNotFalse(strstr($res, 'No rpc_servers found to configure'));
         $this->assertNotFalse(strstr($res, 'No producers found to configure'));
     }
