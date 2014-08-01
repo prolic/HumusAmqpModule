@@ -18,7 +18,7 @@ class StdInProducerControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatch()
     {
-        $producer = $this->getMock('HumusAmqp\Amqp\Producer', array('publish'));
+        $producer = $this->getMock(__NAMESPACE__ . '\TestAsset\Producer', array('publish'));
         $producer
             ->expects($this->once())
             ->method('publish')
