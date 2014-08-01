@@ -18,7 +18,7 @@ class RpcServerControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatch()
     {
-        $rpcServer = $this->getMock('HumusAmqp\Amqp\RpcServer', array('start'));
+        $rpcServer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestRpcServer', array('start'));
         $rpcServer
             ->expects($this->once())
             ->method('start')
@@ -34,7 +34,7 @@ class RpcServerControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatchWithInvalidAmount()
     {
-        $rpcServer = $this->getMock('HumusAmqp\Amqp\RpcServer', array('start'));
+        $rpcServer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestRpcServer', array('start'));
 
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
