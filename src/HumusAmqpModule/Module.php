@@ -24,6 +24,7 @@ use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\BootstrapListenerInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
+use Zend\ServiceManager\AbstractPluginManager;
 
 class Module implements
     AutoloaderProviderInterface,
@@ -60,11 +61,15 @@ class Module implements
         foreach ($namespaces as $ns => $configKey) {
             $serviceName = __NAMESPACE__ . '\\PluginManager\\' . $ns;
             $factory = function () use ($serviceName, $config, $ns, $configKey) {
-                return new $serviceName(
+                /* @var $service AbstractPluginManager */
+                $service = new $serviceName(
                     new \Zend\ServiceManager\Config(
                         $config['humus_amqp_module']['plugin_managers'][$configKey]
                     )
                 );
+                // add abstract factory
+                $service->addAbstractFactory(__NAMESPACE__ . '\\Service\\' . $ns . 'AbstractServiceFactory');
+                return $service;
             };
             $serviceManager->setFactory($serviceName, $factory);
         }
