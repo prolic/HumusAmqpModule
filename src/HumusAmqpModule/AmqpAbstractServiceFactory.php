@@ -269,7 +269,7 @@ class AmqpAbstractServiceFactory implements AbstractFactoryInterface
         if (isset($spec['class'])) {
             $class = $spec['class'];
         } else {
-            $class = $config['classes']['multi_consumer'];
+            $class = $config['classes']['multiple_consumer'];
         }
 
         if (!isset($spec['connection']) || $spec['connection'] == 'default') {
