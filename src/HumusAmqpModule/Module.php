@@ -19,15 +19,57 @@
 namespace HumusAmqpModule;
 
 use Zend\Console\Adapter\AdapterInterface as ConsoleAdapter;
+use Zend\EventManager\EventInterface;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
+use Zend\ModuleManager\Feature\BootstrapListenerInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
 
 class Module implements
     AutoloaderProviderInterface,
+    BootstrapListenerInterface,
     ConfigProviderInterface,
     ConsoleUsageProviderInterface
 {
+    /**
+     * Listen to the bootstrap event
+     *
+     * @param EventInterface $e
+     * @return array
+     */
+    public function onBootstrap(EventInterface $e)
+    {
+        /* @var $e \Zend\Mvc\MvcEvent */
+        $serviceManager = $e->getApplication()->getServiceManager();
+        /* @var $serviceManager \Zend\ServiceManager\ServiceManager */
+
+        $config = $serviceManager->get('Config');
+
+        // Use naming conventions to set up a bunch of services based on namespace:
+        $namespaces = array(
+            'Connection' => 'connections',
+            'Producer' => 'producers',
+            'Consumer' => 'consumers',
+            'MultipleConsumer' => 'mutiple_consumers',
+            'AnonConsumer' => 'anon_consumers',
+            'RpcClient' => 'rpc_clients',
+            'RpcServer' => 'rpc_servers'
+        );
+
+        // register plugin managers
+        foreach ($namespaces as $ns => $configKey) {
+            $serviceName = __NAMESPACE__ . '\\PluginManager\\' . $ns;
+            $factory = function () use ($serviceName, $config, $ns, $configKey) {
+                return new $serviceName(
+                    new \Zend\ServiceManager\Config(
+                        $config['humus_amqp_module']['plugin_managers'][$configKey]
+                    )
+                );
+            };
+            $serviceManager->setFactory($serviceName, $factory);
+        }
+    }
+
     /**
      * Get config
      *
