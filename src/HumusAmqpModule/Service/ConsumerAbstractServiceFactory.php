@@ -15,6 +15,16 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
     protected $subConfigKey = 'consumers';
 
     /**
+     * @var \HumusAmqpModule\PluginManager\Connection
+     */
+    protected $connectionManager;
+
+    /**
+     * @var \HumusAmqpModule\PluginManager\Callback
+     */
+    protected $callbackManager;
+
+    /**
      * Create service with name
      *
      * @param ServiceLocatorInterface $serviceLocator
@@ -27,12 +37,6 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
         // get global service locator, if we are in a plugin manager
         if ($serviceLocator instanceof AbstractPluginManager) {
             $serviceLocator = $serviceLocator->getServiceLocator();
-        }
-
-        if (!$serviceLocator->has('HumusAmqpModule\PluginManager\Connection')) {
-            throw new Exception\RuntimeException(
-                'HumusAmqpModule\PluginManager\Connection not found'
-            );
         }
 
         $config  = $this->getConfig($serviceLocator);
@@ -50,9 +54,10 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
             $spec['connection'] = 'default';
         }
 
-        $connectionManager = $serviceLocator->get('HumusAmqpModule\PluginManager\Connection');
-        $connection = $connectionManager->get($spec['connection']);
+        $callbackManager = $this->getCallbackManager($serviceLocator);
+        $connectionManager = $this->getConnectionManager($serviceLocator);
 
+        $connection = $connectionManager->get($spec['connection']);
         $consumer = new $class($connection);
 
         if (!$consumer instanceof ConsumerInterface) {
@@ -65,7 +70,7 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
 
         $consumer->setExchangeOptions($spec['exchange_options']);
         $consumer->setQueueOptions($spec['queue_options']);
-        $consumer->setCallback($serviceLocator->get($spec['callback']));
+        $consumer->setCallback($callbackManager->get($spec['callback']));
 
         if (isset($spec['qos_options'])) {
             $consumer->setQosOptions($spec['qos_options']);
@@ -80,5 +85,47 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
         }
 
         return $consumer;
+    }
+
+    /**
+     * @param ServiceLocatorInterface $serviceLocator
+     * @return \HumusAmqpModule\PluginManager\Connection
+     * @throws \HumusAmqpModule\Exception\RuntimeException
+     */
+    protected function getConnectionManager(ServiceLocatorInterface $serviceLocator)
+    {
+        if (null !== $this->connectionManager) {
+            return $this->connectionManager;
+        }
+
+        if (!$serviceLocator->has('HumusAmqpModule\PluginManager\Connection')) {
+            throw new Exception\RuntimeException(
+                'HumusAmqpModule\PluginManager\Connection not found'
+            );
+        }
+
+        $this->connectionManager = $serviceLocator->get('HumusAmqpModule\PluginManager\Connection');
+        return $this->connectionManager;
+    }
+
+    /**
+     * @param ServiceLocatorInterface $serviceLocator
+     * @return \HumusAmqpModule\PluginManager\Callback
+     * @throws \HumusAmqpModule\Exception\RuntimeException
+     */
+    protected function getCallbackManager(ServiceLocatorInterface $serviceLocator)
+    {
+        if (null !== $this->callbackManager) {
+            return $this->callbackManager;
+        }
+
+        if (!$serviceLocator->has('HumusAmqpModule\PluginManager\Callback')) {
+            throw new Exception\RuntimeException(
+                'HumusAmqpModule\PluginManager\Callback not found'
+            );
+        }
+
+        $this->callbackManager = $serviceLocator->get('HumusAmqpModule\PluginManager\Callback');
+        return $this->callbackManager;
     }
 }
