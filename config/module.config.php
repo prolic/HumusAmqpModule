@@ -94,7 +94,7 @@ return array(
             'lazy_connection' => 'PhpAmqpLib\Connection\AMQPLazyConnection',
             'producer' => __NAMESPACE__ . '\Amqp\Producer',
             'consumer' => __NAMESPACE__ . '\Amqp\Consumer',
-            'multi_consumer' => __NAMESPACE__ . '\Amqp\MultipleConsumer',
+            'multiple_consumer' => __NAMESPACE__ . '\Amqp\MultipleConsumer',
             'anon_consumer' => __NAMESPACE__ . '\Amqp\AnonConsumer',
             'rpc_client' => __NAMESPACE__ . '\Amqp\RpcClient',
             'rpc_server' => __NAMESPACE__ . '\Amqp\RpcServer',
