@@ -77,4 +77,53 @@ interface ConsumerInterface
      * @return void
      */
     public function forceStopConsumer();
+
+    /**
+     * @param callable $callback
+     * @return void
+     */
+    public function setCallback($callback);
+
+    /**
+     * @param ExchangeOptions|array|\Traversable $options
+     * @return void
+     * @throws Exception\InvalidArgumentException
+     */
+    public function setExchangeOptions($options);
+
+    /**
+     * Sets the qos settings for the current channel
+     * Consider that prefetchSize and global do not work with rabbitMQ version <= 8.0
+     *
+     * @param array|\Traversable|QosOptions $options
+     */
+    public function setQosOptions($options);
+
+    /**
+     * @param QueueOptions|array|\Traversable $options
+     * @return void
+     */
+    public function setQueueOptions($options);
+
+    /**
+     * Disables the automatic SetupFabric when using a consumer or producer
+     *
+     * @return void
+     */
+    public function disableAutoSetupFabric();
+
+    /**
+     * Set idle timeout
+     *
+     * @param int $idleTimeout
+     * @return void
+     */
+    public function setIdleTimeout($idleTimeout);
+
+    /**
+     * Get idle timeout
+     *
+     * @return int
+     */
+    public function getIdleTimeout();
 }
