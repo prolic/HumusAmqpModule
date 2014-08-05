@@ -3,10 +3,10 @@
 namespace HumusAmqpModule\PluginManager;
 
 use HumusAmqpModule\Exception;
-use HumusAmqpModule\Amqp\RpcClient as AmqpRpcClient;
+use HumusAmqpModule\Amqp\RpcServer as AmqpRpcServer;
 use Zend\ServiceManager\AbstractPluginManager;
 
-class RpcClient extends AbstractPluginManager
+class RpcServer extends AbstractPluginManager
 {
     /**
      * Validate the plugin
@@ -20,7 +20,7 @@ class RpcClient extends AbstractPluginManager
      */
     public function validatePlugin($plugin)
     {
-        if ($plugin instanceof AmqpRpcClient) {
+        if ($plugin instanceof AmqpRpcServer) {
             // we're okay
             return;
         }
@@ -28,7 +28,7 @@ class RpcClient extends AbstractPluginManager
         throw new Exception\RuntimeException(sprintf(
             'Plugin of type %s is invalid; must implement %s',
             (is_object($plugin) ? get_class($plugin) : gettype($plugin)),
-            'HumusAmqpModule\Amqp\RpcClient'
+            'HumusAmqpModule\Amqp\RpcServer'
         ));
     }
 }

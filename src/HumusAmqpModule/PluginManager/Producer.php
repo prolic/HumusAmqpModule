@@ -3,10 +3,10 @@
 namespace HumusAmqpModule\PluginManager;
 
 use HumusAmqpModule\Exception;
-use PhpAmqpLib\Connection\AbstractConnection;
+use HumusAmqpModule\Amqp\Producer as AmqpProducer;
 use Zend\ServiceManager\AbstractPluginManager;
 
-class Connection extends AbstractPluginManager
+class Producer extends AbstractPluginManager
 {
     /**
      * Validate the plugin
@@ -20,7 +20,7 @@ class Connection extends AbstractPluginManager
      */
     public function validatePlugin($plugin)
     {
-        if ($plugin instanceof AbstractConnection) {
+        if ($plugin instanceof AmqpProducer) {
             // we're okay
             return;
         }
@@ -28,7 +28,7 @@ class Connection extends AbstractPluginManager
         throw new Exception\RuntimeException(sprintf(
             'Plugin of type %s is invalid; must implement %s',
             (is_object($plugin) ? get_class($plugin) : gettype($plugin)),
-            'PhpAmqpLib\Connection\AbstractConnection'
+            'HumusAmqpModule\Amqp\Producer'
         ));
     }
 }

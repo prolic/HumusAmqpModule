@@ -6,7 +6,7 @@ use HumusAmqpModule\Exception;
 use HumusAmqpModule\Amqp\ConsumerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
 
-class Consumer extends AbstractPluginManager
+class MultipleConsumer extends AbstractPluginManager
 {
     /**
      * Validate the plugin
