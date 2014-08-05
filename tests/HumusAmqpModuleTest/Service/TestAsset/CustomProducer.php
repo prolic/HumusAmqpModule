@@ -1,7 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: sasa
- * Date: 05.08.14
- * Time: 12:40
- */ 
+
+namespace HumusAmqpModuleTest\Service\TestAsset;
+
+use HumusAmqpModule\Amqp\Producer;
+
+class CustomProducer extends Producer
+{
+}

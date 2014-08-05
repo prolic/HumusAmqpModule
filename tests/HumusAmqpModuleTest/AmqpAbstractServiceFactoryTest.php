@@ -43,7 +43,7 @@ class AmqpAbstractServiceFactoryTest extends TestCase
                     'lazy_connection' => 'PhpAmqpLib\Connection\AMQPLazyConnection',
                     'producer' => 'HumusAmqpModule\Amqp\Producer',
                     'consumer' => 'HumusAmqpModule\Amqp\Consumer',
-                    'multi_consumer' => 'HumusAmqpModule\Amqp\MultipleConsumer',
+                    'multiple_consumer' => 'HumusAmqpModule\Amqp\MultipleConsumer',
                     'anon_consumer' => 'HumusAmqpModule\Amqp\AnonConsumer',
                     'rpc_client' => 'HumusAmqpModule\Amqp\RpcClient',
                     'rpc_server' => 'HumusAmqpModule\Amqp\RpcServer',
