@@ -4,9 +4,10 @@ namespace HumusAmqpModule\Service;
 
 use Traversable;
 use Zend\ServiceManager\AbstractFactoryInterface;
+use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class ConnectionAbstractServiceFactory implements AbstractFactoryInterface
+abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInterface
 {
     /**
      * @var array
@@ -21,7 +22,7 @@ class ConnectionAbstractServiceFactory implements AbstractFactoryInterface
     /**
      * @var string Second-level configuration key indicating connection configuration
      */
-    protected $subConfigKey = 'connections';
+    protected $subConfigKey = '';
 
     /**
      * @var array
@@ -47,51 +48,19 @@ class ConnectionAbstractServiceFactory implements AbstractFactoryInterface
             return false;
         }
 
-        if (isset($config[$this->subConfigKey])
-            && (is_array($config[$this->subConfigKey]) || $config[$this->subConfigKey] instanceof Traversable)
-            && !empty($config[$this->subConfigKey])
+        if (!isset($config[$this->subConfigKey][$requestedName])) {
+            return false;
+        }
+
+        $spec = $config[$this->subConfigKey][$requestedName];
+
+        if ((is_array($spec) || $spec instanceof Traversable)
+            && !empty($spec)
         ) {
             return true;
         }
 
         return false;
-    }
-
-    /**
-     * Create service with name
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param $name
-     * @param $requestedName
-     * @return mixed
-     */
-    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
-    {
-        if (isset($this->instances[$requestedName])) {
-            return $this->instances[$requestedName];
-        }
-
-        /* @var $serviceLocator \Zend\ServiceManager\ServiceManager */
-        $config  = $this->getConfig($serviceLocator);
-
-        $spec = $config[$this->subConfigKey];
-
-        if (!isset($spec['lazy']) || true == $spec['lazy']) {
-            $class = $config['classes']['lazy_connection'];
-        } else {
-            $class = $config['classes']['connection'];
-        }
-
-        $connection = new $class(
-            $spec['host'],
-            $spec['port'],
-            $spec['user'],
-            $spec['password'],
-            $spec['vhost']
-        );
-
-        $this->instances[$requestedName] = $connection;
-        return $connection;
     }
 
     /**
@@ -104,6 +73,11 @@ class ConnectionAbstractServiceFactory implements AbstractFactoryInterface
     {
         if ($this->config !== null) {
             return $this->config;
+        }
+
+        // get global service locator, if we are in a plugin manager
+        if ($services instanceof AbstractPluginManager) {
+            $services = $services->getServiceLocator();
         }
 
         if (!$services->has('Config')) {
