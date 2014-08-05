@@ -48,6 +48,7 @@ class Module implements
 
         // Use naming conventions to set up a bunch of services based on namespace:
         $namespaces = array(
+            'Callback' => '', // callbacks are defined in plugin manager configuration
             'Connection' => 'connections',
             'Producer' => 'producers',
             'Consumer' => 'consumers',
@@ -68,7 +69,9 @@ class Module implements
                     )
                 );
                 // add abstract factory
-                $service->addAbstractFactory(__NAMESPACE__ . '\\Service\\' . $ns . 'AbstractServiceFactory');
+                if ('Callback' != $ns) { // callbacks are defined in plugin manager configuration
+                    $service->addAbstractFactory(__NAMESPACE__ . '\\Service\\' . $ns . 'AbstractServiceFactory');
+                }
                 return $service;
             };
             $serviceManager->setFactory($serviceName, $factory);
