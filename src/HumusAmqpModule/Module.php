@@ -61,7 +61,7 @@ class Module implements
         // register plugin managers
         foreach ($namespaces as $ns => $configKey) {
             $serviceName = __NAMESPACE__ . '\\PluginManager\\' . $ns;
-            $factory = function () use ($serviceName, $config, $ns, $configKey) {
+            $factory = function () use ($serviceName, $config, $ns, $configKey, $serviceManager) {
                 /* @var $service AbstractPluginManager */
                 $service = new $serviceName(
                     new \Zend\ServiceManager\Config(
@@ -72,6 +72,7 @@ class Module implements
                 if ('Callback' != $ns) { // callbacks are defined in plugin manager configuration
                     $service->addAbstractFactory(__NAMESPACE__ . '\\Service\\' . $ns . 'AbstractServiceFactory');
                 }
+                $service->setServiceLocator($serviceManager);
                 return $service;
             };
             $serviceManager->setFactory($serviceName, $factory);
