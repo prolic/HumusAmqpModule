@@ -39,12 +39,14 @@ class PartsHolderFactory implements FactoryInterface
 
         foreach ($moduleConfig as $key => $value) {
 
-            if (in_array($key, array('connections', 'classes'))) {
+            if (in_array($key, array('connections', 'classes', 'callbacks'))) {
                 continue;
             }
 
             foreach ($value as $name => $amqp) {
-                $partsHolder->addPart($key, $serviceLocator->get($name));
+                $managerName = 'HumusAmqpModule\\PluginManager\\' . str_replace('_', '', ucfirst(substr($key, 0, -1)));
+                $manager = $serviceLocator->get($managerName);
+                $partsHolder->addPart($key, $manager->get($name));
             };
         }
 
