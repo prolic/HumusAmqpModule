@@ -19,65 +19,11 @@
 namespace HumusSupervisorModuleTest;
 
 use HumusAmqpModule\Module;
+use HumusAmqpModuleTest\ServiceManagerTestCase;
+use Zend\Mvc\MvcEvent;
 
-class ModuleTest extends \PHPUnit_Framework_TestCase
+class ModuleTest extends ServiceManagerTestCase
 {
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|\Zend\Mvc\Application
-     */
-    private $application;
-
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|\Zend\EventManager\EventInterface
-     */
-    private $event;
-
-
-    /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|\Zend\ServiceManager\ServiceManager
-     */
-    private $serviceManager;
-
-    public function setUp()
-    {
-        $this->application = $this->getMock('Zend\Mvc\Application', array('getServiceManager'), array(), '', false);
-        $this->event = $this->getMock(
-            'Zend\EventManager\EventInterface',
-            array(
-                'getApplication',
-                'getName',
-                'getTarget',
-                'getParams',
-                'getParam',
-                'setName',
-                'setTarget',
-                'setParams',
-                'setParam',
-                'stopPropagation',
-                'propagationIsStopped'
-            )
-        );
-        $this->serviceManager = $this->getMock('Zend\ServiceManager\ServiceManager');
-
-        $this
-            ->application
-            ->expects($this->any())
-            ->method('getServiceManager')
-            ->will($this->returnValue($this->serviceManager));
-
-        $this
-            ->event
-            ->expects($this->any())
-            ->method('getTarget')
-            ->will($this->returnValue($this->application));
-
-        $this
-            ->event
-            ->expects($this->any())
-            ->method('getApplication')
-            ->will($this->returnValue($this->application));
-    }
-
     public function testGetConfig()
     {
         $module = new Module();
@@ -105,5 +51,20 @@ class ModuleTest extends \PHPUnit_Framework_TestCase
         $usage = $module->getConsoleUsage($this->getMock('Zend\Console\Adapter\AdapterInterface'));
 
         $this->assertInternalType('array', $usage);
+    }
+
+    public function testPluginManagers()
+    {
+        $sm = $this->getServiceManager();
+        $app = $sm->get('Application');
+
+        $event = new MvcEvent();
+        $event->setApplication($app);
+
+        $module = new Module();
+        $module->onBootstrap($event);
+
+        $connectionManager = $sm->get('HumusAmqpModule\PluginManager\Connection');
+        $this->assertInstanceOf('HumusAmqpModule\PluginManager\Connection', $connectionManager);
     }
 }
