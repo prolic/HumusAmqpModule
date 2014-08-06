@@ -62,12 +62,12 @@ class Module implements
         foreach ($namespaces as $ns => $configKey) {
             $serviceName = __NAMESPACE__ . '\\PluginManager\\' . $ns;
             $factory = function () use ($serviceName, $config, $ns, $configKey, $serviceManager) {
+                $serviceConfig = isset($config['humus_amqp_module']['plugin_manager'][$configKey])
+                    ? $config['humus_amqp_module']['plugin_manager'][$configKey]
+                    : array();
+
                 /* @var $service AbstractPluginManager */
-                $service = new $serviceName(
-                    new \Zend\ServiceManager\Config(
-                        $config['humus_amqp_module']['plugin_managers'][$configKey]
-                    )
-                );
+                $service = new $serviceName(new \Zend\ServiceManager\Config($serviceConfig));
                 // add abstract factory
                 if ('Callback' != $ns) { // callbacks are defined in plugin manager configuration
                     $service->addAbstractFactory(__NAMESPACE__ . '\\Service\\' . $ns . 'AbstractServiceFactory');
