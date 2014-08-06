@@ -45,10 +45,26 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                         'class' => __NAMESPACE__ . '\\TestAsset\\CustomProducer',
                         'exchange_options' => array(
                             'name' => 'demo-exchange',
-                            'type' => 'direct'
+                            'type' => 'direct',
+                            'arguments' => array(),
+                            'autoDelete' => false,
+                            'declare' => true,
+                            'durable' => false,
+                            'internal' => true,
+                            'nowait' => false,
+                            'passive' => true,
+                            'ticket' => null
                         ),
                         'queue_options' => array(
-                            'passive' => false
+                            'passive' => false,
+                            'routingKeys' => array(),
+                            'arguments' => array(),
+                            'autoDelete' => true,
+                            'durable' => false,
+                            'exclusive' => true,
+                            'name' => 'testname',
+                            'nowait' => true,
+                            'ticket' => null,
                         ),
                         'auto_setup_fabric' => false
                     ),
@@ -77,7 +93,7 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $producerManager->setServiceLocator($services);
     }
 
-    public function testCreateValidProducer()
+    public function testCreateProducer()
     {
         $producer = $this->components->createServiceWithName($this->services, 'test-producer', 'test-producer');
         $this->assertInstanceOf('HumusAmqpModule\Amqp\Producer', $producer);
@@ -86,7 +102,7 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('direct', $producer->getExchangeOptions()->getType());
     }
 
-    public function testCreateValidProducerWithoutConnectionName()
+    public function testCreateProducerWithoutConnectionName()
     {
         $producer = $this->components->createServiceWithName($this->services, 'test-producer-2', 'test-producer-2');
         $this->assertInstanceOf('HumusAmqpModule\Amqp\Producer', $producer);
