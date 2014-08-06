@@ -29,5 +29,6 @@ class Callback extends AbstractPluginManager
             'Plugin of type %s is invalid; must be a callable',
             (is_object($plugin) ? get_class($plugin) : gettype($plugin))
         ));
+
     }
 }
