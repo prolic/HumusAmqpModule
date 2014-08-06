@@ -44,6 +44,37 @@ class PartsHolderFactoryTest extends ServiceManagerTestCase
             )
         );
         $serviceManager->setService('Config', $config);
+
+        $namespaces = array(
+            'Callback' => 'callbacks',
+            'Connection' => 'connections',
+            'Producer' => 'producers',
+            'Consumer' => 'consumers',
+            'MultipleConsumer' => 'mutiple_consumers',
+            'AnonConsumer' => 'anon_consumers',
+            //'RpcClient' => 'rpc_clients',
+            //'RpcServer' => 'rpc_servers'
+        );
+
+        // register plugin managers
+        foreach ($namespaces as $ns => $configKey) {
+            $serviceName = 'HumusAmqpModule\\PluginManager\\' . $ns;
+            $serviceConfig = isset($config['humus_amqp_module']['plugin_manager'][$configKey])
+                ? $config['humus_amqp_module']['plugin_manager'][$configKey]
+                : array();
+            $service = new $serviceName(
+                new \Zend\ServiceManager\Config(
+                    $serviceConfig
+                )
+            );
+            // add abstract factory
+            if ('Callback' != $ns) { // callbacks are defined in plugin manager configuration
+                $service->addAbstractFactory('HumusAmqpModule\\Service\\' . $ns . 'AbstractServiceFactory');
+            }
+            $service->setServiceLocator($serviceManager);
+            $serviceManager->setService($serviceName, $service);
+        }
+
         $partsHolder = $serviceManager->get('HumusAmqpModule\Amqp\PartsHolder');
 
         $this->assertInstanceOf('HumusAmqpModule\Amqp\PartsHolder', $partsHolder);
