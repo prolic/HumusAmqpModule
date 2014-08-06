@@ -8,22 +8,12 @@ use HumusAmqpModule\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class MultipleConsumerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
+class MultipleConsumerAbstractServiceFactory extends AbstractAmqpCallbackAwareAbstractServiceFactory
 {
     /**
      * @var string Second-level configuration key indicating connection configuration
      */
     protected $subConfigKey = 'multiple_consumers';
-
-    /**
-     * @var \HumusAmqpModule\PluginManager\Connection
-     */
-    protected $connectionManager;
-
-    /**
-     * @var \HumusAmqpModule\PluginManager\Callback
-     */
-    protected $callbackManager;
 
     /**
      * Create service with name
@@ -32,6 +22,7 @@ class MultipleConsumerAbstractServiceFactory extends AbstractAmqpAbstractService
      * @param $name
      * @param $requestedName
      * @return mixed
+     * @throws Exception\RuntimeException
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
@@ -93,47 +84,5 @@ class MultipleConsumerAbstractServiceFactory extends AbstractAmqpAbstractService
         }
 
         return $consumer;
-    }
-
-    /**
-     * @param ServiceLocatorInterface $serviceLocator
-     * @return \HumusAmqpModule\PluginManager\Connection
-     * @throws \HumusAmqpModule\Exception\RuntimeException
-     */
-    protected function getConnectionManager(ServiceLocatorInterface $serviceLocator)
-    {
-        if (null !== $this->connectionManager) {
-            return $this->connectionManager;
-        }
-
-        if (!$serviceLocator->has('HumusAmqpModule\PluginManager\Connection')) {
-            throw new Exception\RuntimeException(
-                'HumusAmqpModule\PluginManager\Connection not found'
-            );
-        }
-
-        $this->connectionManager = $serviceLocator->get('HumusAmqpModule\PluginManager\Connection');
-        return $this->connectionManager;
-    }
-
-    /**
-     * @param ServiceLocatorInterface $serviceLocator
-     * @return \HumusAmqpModule\PluginManager\Callback
-     * @throws \HumusAmqpModule\Exception\RuntimeException
-     */
-    protected function getCallbackManager(ServiceLocatorInterface $serviceLocator)
-    {
-        if (null !== $this->callbackManager) {
-            return $this->callbackManager;
-        }
-
-        if (!$serviceLocator->has('HumusAmqpModule\PluginManager\Callback')) {
-            throw new Exception\RuntimeException(
-                'HumusAmqpModule\PluginManager\Callback not found'
-            );
-        }
-
-        $this->callbackManager = $serviceLocator->get('HumusAmqpModule\PluginManager\Callback');
-        return $this->callbackManager;
     }
 }
