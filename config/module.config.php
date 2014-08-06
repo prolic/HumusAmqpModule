@@ -101,7 +101,8 @@ return array(
             'logged_channel' => __NAMESPACE__ . '\Amqp\AMQPLoggedChannel',
             'parts_holder' => __NAMESPACE__ . '\Amqp\PartsHolder',
             'fallback' => __NAMESPACE__ . '\Amqp\Fallback'
-        )
+        ),
+        'plugin_managers' => array()
     ),
     'humus_supervisor_module' => array(
         'humus-amqp-supervisor' => array(
