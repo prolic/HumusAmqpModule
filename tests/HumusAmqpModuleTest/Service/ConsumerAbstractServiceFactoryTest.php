@@ -87,7 +87,7 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $consumerManager->setServiceLocator($services);
     }
 
-    public function testCreateValidConsumer()
+    public function testCreateConsumer()
     {
         $consumer = $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
         $consumer2 = $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
