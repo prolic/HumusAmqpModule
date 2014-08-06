@@ -3,7 +3,7 @@
 namespace HumusAmqpModule\PluginManager;
 
 use HumusAmqpModule\Exception;
-use HumusAmqpModule\Amqp\ConsumerInterface;
+use HumusAmqpModule\Amqp\MultipleConsumerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
 
 class MultipleConsumer extends AbstractPluginManager
@@ -20,7 +20,7 @@ class MultipleConsumer extends AbstractPluginManager
      */
     public function validatePlugin($plugin)
     {
-        if ($plugin instanceof ConsumerInterface) {
+        if ($plugin instanceof MultipleConsumerInterface) {
             // we're okay
             return;
         }
