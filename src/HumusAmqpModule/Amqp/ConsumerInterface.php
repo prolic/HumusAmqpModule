@@ -92,6 +92,11 @@ interface ConsumerInterface
     public function setExchangeOptions($options);
 
     /**
+     * @return ExchangeOptions
+     */
+    public function getExchangeOptions();
+
+    /**
      * Sets the qos settings for the current channel
      * Consider that prefetchSize and global do not work with rabbitMQ version <= 8.0
      *
@@ -104,6 +109,11 @@ interface ConsumerInterface
      * @return void
      */
     public function setQueueOptions($options);
+
+    /**
+     * @return QueueOptions
+     */
+    public function getQueueOptions();
 
     /**
      * Disables the automatic SetupFabric when using a consumer or producer
