@@ -46,7 +46,11 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                         'exchange_options' => array(
                             'name' => 'demo-exchange',
                             'type' => 'direct'
-                        )
+                        ),
+                        'queue_options' => array(
+                            'passive' => false
+                        ),
+                        'auto_setup_fabric' => false
                     ),
                     'test-producer-2' => array(
                         'exchange_options' => array(

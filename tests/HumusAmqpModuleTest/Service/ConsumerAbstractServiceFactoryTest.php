@@ -53,7 +53,12 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                         'queue_options' => array(
                             'name' => 'myconsumer-queue',
                         ),
-                        'auto_setup_fabric' => true,
+                        'qos_options' => array(
+                            'prefetchSize' => 0,
+                            'prefetchCount' => 0
+                        ),
+                        'idle_timeout' => 20,
+                        'auto_setup_fabric' => false,
                         'callback' => 'test-callback'
                     ),
                 ),
@@ -69,13 +74,11 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $connectionManager->addAbstractFactory($dependentComponent);
         $connectionManager->setServiceLocator($services);
 
+        $callbackManager = new CallbackPluginManager();
+        $callbackManager->setInvokableClass('test-callback', __NAMESPACE__ . '\TestAsset\TestCallback');
+        $services->setService('HumusAmqpModule\PluginManager\Callback', $callbackManager);
 
-        $serviceConfig = new ServiceManagerConfig(array(
-            'invokables' => array(
-                'test-callback' => __NAMESPACE__ . '\TestAsset\TestCallback'
-            )
-        ));
-        $services->setService('HumusAmqpModule\PluginManager\Callback', $callbackManager = new CallbackPluginManager($serviceConfig));
+
         $callbackManager->setServiceLocator($services);
 
         $components = $this->components = new ConsumerAbstractServiceFactory();

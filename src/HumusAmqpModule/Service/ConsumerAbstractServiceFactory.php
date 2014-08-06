@@ -56,7 +56,6 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
 
         $callbackManager = $this->getCallbackManager($serviceLocator);
         $connectionManager = $this->getConnectionManager($serviceLocator);
-
         $connection = $connectionManager->get($spec['connection']);
         $consumer = new $class($connection);
 
