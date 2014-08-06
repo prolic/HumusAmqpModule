@@ -48,7 +48,7 @@ class Module implements
 
         // Use naming conventions to set up a bunch of services based on namespace:
         $namespaces = array(
-            'Callback' => '', // callbacks are defined in plugin manager configuration
+            'Callback' => 'callbacks',
             'Connection' => 'connections',
             'Producer' => 'producers',
             'Consumer' => 'consumers',
