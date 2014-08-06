@@ -21,17 +21,35 @@ namespace HumusAmqpModule\Amqp;
 use PhpAmqpLib\Message\AMQPMessage;
 use Zend\Config\Processor\Queue;
 
-class MultipleConsumer extends Consumer
+class MultipleConsumer extends Consumer implements MultipleConsumerInterface
 {
+    /**
+     * @var QueueOptions[]
+     */
     protected $queues = array();
 
+    /**
+     * @param string $queue
+     * @return string
+     */
     public function getQueueConsumerTag($queue)
     {
         return sprintf('%s-%s', $this->getConsumerTag(), $queue);
     }
 
-    public function setQueues(array $queues)
+    /**
+     * @param array|\Traversable $queues
+     * @throws Exception\InvalidArgumentException
+     */
+    public function setQueues($queues)
     {
+        if (!is_array($queues) && !($queues instanceof \Traversable)) {
+            throw new Exception\InvalidArgumentException(sprintf(
+                "Argument must be an array or Traversable, [%s] given",
+                is_object($queues) ? get_class($queues) : gettype($queues)
+            ));
+        }
+
         $this->queues = array();
         foreach ($queues as $name => $queue) {
             if (!$queue instanceof QueueOptions) {
@@ -39,6 +57,14 @@ class MultipleConsumer extends Consumer
             }
             $this->queues[$name] = $queue;
         }
+    }
+
+    /**
+     * @return QueueOptions[]
+     */
+    public function getQueues()
+    {
+        return $this->queues;
     }
 
     protected function setupConsumer()
