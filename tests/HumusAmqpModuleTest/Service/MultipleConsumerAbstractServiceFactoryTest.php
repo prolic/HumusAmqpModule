@@ -45,8 +45,6 @@ class MultipleConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_Test
                 ),
                 'multiple_consumers' => array(
                     'test-consumer' => array(
-                        'connection' => 'default',
-                        /* 'class' => 'MyCustomConsumerClass' */
                         'exchange_options' => array(
                             'name' => 'demo-exchange',
                             'type' => 'direct',
@@ -95,7 +93,7 @@ class MultipleConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_Test
         $consumerManager->setServiceLocator($services);
     }
 
-    public function testCreateValidConsumer()
+    public function testCreateConsumer()
     {
         $consumer = $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
         $consumer2 = $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
@@ -146,6 +144,39 @@ class MultipleConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_Test
         $config['humus_amqp_module']['multiple_consumers']['test-consumer']['queues'][0]['callback'] = 'stdClass';
         $this->services->setService('Config', $config);
 
+        $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
+    }
+
+    /**
+     * @expectedException HumusAmqpModule\Exception\RuntimeException
+     * @expectedExceptionMessage Plugin of type stdClass is invalid; must implement PhpAmqpLib\Connection\AbstractConnection
+     */
+    public function testCreateConsumerWithInvalidConnection()
+    {
+        $config = $this->services->get('Config');
+        $config['humus_amqp_module']['multiple_consumers']['test-consumer']['connection'] = 'stdClass';
+        $this->services->setService('Config', $config);
+
+        $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
+    }
+
+    /**
+     * @expectedException HumusAmqpModule\Exception\RuntimeException
+     * @expectedExceptionMessage HumusAmqpModule\PluginManager\Connection not found
+     */
+    public function testCreateConsumerWithoutConnectionManager()
+    {
+        $this->services->setService('HumusAmqpModule\\PluginManager\\Connection', null);
+        $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
+    }
+
+    /**
+     * @expectedException HumusAmqpModule\Exception\RuntimeException
+     * @expectedExceptionMessage HumusAmqpModule\PluginManager\Callback not found
+     */
+    public function testCreateConsumerWithoutCallbackManager()
+    {
+        $this->services->setService('HumusAmqpModule\\PluginManager\\Callback', null);
         $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
     }
 }
