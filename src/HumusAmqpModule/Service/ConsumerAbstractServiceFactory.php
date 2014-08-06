@@ -31,6 +31,7 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
      * @param $name
      * @param $requestedName
      * @return mixed
+     * @throws Exception\RuntimeException
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
@@ -89,7 +90,7 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
     /**
      * @param ServiceLocatorInterface $serviceLocator
      * @return \HumusAmqpModule\PluginManager\Connection
-     * @throws \HumusAmqpModule\Exception\RuntimeException
+     * @throws Exception\RuntimeException
      */
     protected function getConnectionManager(ServiceLocatorInterface $serviceLocator)
     {
@@ -110,7 +111,7 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
     /**
      * @param ServiceLocatorInterface $serviceLocator
      * @return \HumusAmqpModule\PluginManager\Callback
-     * @throws \HumusAmqpModule\Exception\RuntimeException
+     * @throws Exception\RuntimeException
      */
     protected function getCallbackManager(ServiceLocatorInterface $serviceLocator)
     {
