@@ -52,7 +52,20 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
             define('AMQP_DEBUG', true);
         }
 
-        $this->consumer = $this->getConsumerManager()->get($request->getParam('name'));
+        $cm = $this->getConsumerManager();
+
+        $name = $request->getParam('name');
+
+        if (!$cm->has($name)) {
+            $this->getConsole()->writeLine(
+                'Error: unknown consumer "' . $name . '"',
+                ColorInterface::RED
+            );
+
+            return null;
+        }
+
+        $this->consumer = $cm->get($request->getParam('name'));
 
         if (!$this->consumer) {
             return null;

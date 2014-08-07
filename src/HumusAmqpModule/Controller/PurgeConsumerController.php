@@ -52,8 +52,11 @@ class PurgeConsumerController extends AbstractConsoleController implements Consu
             return null;
         }
 
+        $confirm = new Prompt\Confirm('Are you sure you want to purge? [y/n]', 'y', 'n');
+        $confirm->setConsole($this->getConsole());
+
         if ($request->getParam('no-confirmation', false)
-            || Prompt\Confirm::prompt('Are you sure you want to purge? [y/n]')
+            || $confirm->show()
         ) {
             $consumer = $consumerManager->get($consumerName);
             $consumer->purge();
