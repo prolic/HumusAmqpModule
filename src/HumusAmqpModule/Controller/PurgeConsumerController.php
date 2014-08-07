@@ -21,11 +21,17 @@ namespace HumusAmqpModule\Controller;
 use Zend\Console\ColorInterface;
 use Zend\Console\Prompt;
 use Zend\Mvc\Controller\AbstractConsoleController;
+use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
-class PurgeConsumerController extends AbstractConsoleController
+class PurgeConsumerController extends AbstractConsoleController implements ConsumerManagerAwareInterface
 {
+    /**
+     * @var ServiceLocatorInterface
+     */
+    protected $consumerManager;
+
     /**
      * {@inheritdoc}
      */
@@ -36,8 +42,9 @@ class PurgeConsumerController extends AbstractConsoleController
         /* @var $request \Zend\Console\Request */
 
         $consumerName = $request->getParam('consumer-name');
+        $consumerManager = $this->getConsumerManager();
 
-        if (!$this->getServiceLocator()->has($consumerName)) {
+        if (!$consumerManager->has($consumerName)) {
             $this->getConsole()->writeLine(
                 'ERROR: Consumer "' . $consumerName . '" not found',
                 ColorInterface::RED
@@ -48,7 +55,7 @@ class PurgeConsumerController extends AbstractConsoleController
         if ($request->getParam('no-confirmation', false)
             || Prompt\Confirm::prompt('Are you sure you want to purge? [y/n]')
         ) {
-            $consumer = $this->getServiceLocator()->get($consumerName);
+            $consumer = $consumerManager->get($consumerName);
             $consumer->purge();
             $this->getConsole()->writeLine(
                 'OK',
@@ -60,5 +67,21 @@ class PurgeConsumerController extends AbstractConsoleController
                 ColorInterface::YELLOW
             );
         }
+    }
+
+    /**
+     * @param ServiceLocatorInterface $manager
+     */
+    public function setConsumerManager(ServiceLocatorInterface $manager)
+    {
+        $this->consumerManager = $manager;
+    }
+
+    /**
+     * @return ServiceLocatorInterface
+     */
+    public function getConsumerManager()
+    {
+        return $this->consumerManager;
     }
 }

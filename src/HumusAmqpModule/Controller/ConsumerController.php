@@ -18,7 +18,7 @@
 
 namespace HumusAmqpModule\Controller;
 
-use HumusAmqpModule\Amqp\MultipleConsumer;
+use HumusAmqpModule\Amqp\ConsumerInterface;
 use HumusAmqpModule\Exception;
 use HumusAmqpModule\Amqp\Consumer;
 use Zend\Console\ColorInterface;
@@ -27,15 +27,18 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
-class ConsumerController extends AbstractConsoleController
+class ConsumerController extends AbstractConsoleController implements ConsumerManagerAwareInterface
 {
 
     /**
-     * @var Consumer
+     * @var ServiceLocatorInterface
+     */
+    protected $consumerManager;
+
+    /**
+     * @var ConsumerInterface
      */
     protected $consumer;
-
-    protected $type;
 
     /**
      * {@inheritdoc}
@@ -45,29 +48,13 @@ class ConsumerController extends AbstractConsoleController
         parent::dispatch($request, $response);
         /* @var $request \Zend\Console\Request */
 
-        $this->type = $request->getParam('type');
-
-        if (false === defined('AMQP_WITHOUT_SIGNALS')) {
-            define('AMQP_WITHOUT_SIGNALS', $request->getParam('without-signals'));
-        }
-
-        if (!AMQP_WITHOUT_SIGNALS && extension_loaded('pcntl')) {
-            if (!function_exists('pcntl_signal')) {
-                throw new Exception\BadFunctionCallException(
-                    "Function 'pcntl_signal' is referenced in the php.ini 'disable_functions' and can't be called."
-                );
-            }
-
-            pcntl_signal(SIGTERM, array($this, 'stopConsumer'));
-            pcntl_signal(SIGINT, array($this, 'stopConsumer'));
-            pcntl_signal(SIGHUP, array($this, 'restartConsumer'));
-        }
-
         if (!defined('AMQP_DEBUG') && ($request->getParam('debug') || $request->getParam('d'))) {
             define('AMQP_DEBUG', true);
         }
 
-        if (!$this->consumer = $this->loadConsumer($this->getServiceLocator(), $request->getParam('name'))) {
+        $this->consumer = $this->getConsumerManager()->get($request->getParam('name'));
+
+        if (!$this->consumer) {
             return null;
         }
 
@@ -88,41 +75,6 @@ class ConsumerController extends AbstractConsoleController
         $this->consumer->consume($amount);
     }
 
-    /**
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string $name
-     * @return \HumusAmqpModule\Amqp\Consumer|null
-     */
-    protected function loadConsumer(ServiceLocatorInterface $serviceLocator, $name)
-    {
-        if (!$serviceLocator->has($name)) {
-            $this->getConsole()->writeLine('Error: unknown consumer "' . $name .'"', ColorInterface::RED);
-            return null;
-        }
-
-        $consumer = $serviceLocator->get($name);
-
-        switch (strtolower($this->type)) {
-            case 'consumer':
-                if (!$consumer instanceof Consumer) {
-                    $this->getConsole()->writeLine('Error: unknown consumer "' . $name .'"', ColorInterface::RED);
-                    return null;
-                }
-                break;
-            case 'multiple-consumer':
-                if (!$consumer instanceof MultipleConsumer) {
-                    $this->getConsole()->writeLine(
-                        'Error: unknown multiple-consumer "' . $name .'"',
-                        ColorInterface::RED
-                    );
-                    return null;
-                }
-                break;
-        }
-
-        return $consumer;
-    }
-
     public function stopConsumer()
     {
         if ($this->consumer instanceof Consumer) {
@@ -135,5 +87,22 @@ class ConsumerController extends AbstractConsoleController
     public function restartConsumer()
     {
         // TODO: Implement restarting of consumer
+    }
+
+    /**
+     * @param ServiceLocatorInterface $manager
+     * @return void
+     */
+    public function setConsumerManager(ServiceLocatorInterface $manager)
+    {
+        $this->consumerManager = $manager;
+    }
+
+    /**
+     * @return ServiceLocatorInterface
+     */
+    public function getConsumerManager()
+    {
+        return $this->consumerManager;
     }
 }
