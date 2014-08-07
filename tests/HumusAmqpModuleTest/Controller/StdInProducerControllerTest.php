@@ -18,6 +18,7 @@
 
 namespace HumusAmqpModuleTest\Controller;
 
+use Zend\ServiceManager\ServiceManager;
 use Zend\Test\PHPUnit\Controller\AbstractConsoleControllerTestCase;
 
 class StdInProducerControllerTest extends AbstractConsoleControllerTestCase
@@ -42,7 +43,8 @@ class StdInProducerControllerTest extends AbstractConsoleControllerTestCase
 
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('test-producer', $producer);
+        $serviceManager->setService('HumusAmqpModule\PluginManager\Producer', $pm = new ServiceManager());
+        $pm->setService('test-producer', $producer);
 
         ob_start();
         $this->dispatch('humus amqp stdin-producer test-producer --route=bar foo');

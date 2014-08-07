@@ -18,6 +18,7 @@
 
 namespace HumusAmqpModuleTest\Controller;
 
+use Zend\ServiceManager\ServiceManager;
 use Zend\Test\PHPUnit\Controller\AbstractConsoleControllerTestCase;
 
 class ConsumerControllerTest extends AbstractConsoleControllerTestCase
@@ -32,7 +33,7 @@ class ConsumerControllerTest extends AbstractConsoleControllerTestCase
         parent::setUp();
     }
 
-    public function testDispatch()
+    public function testDispatchWithTestConsumer()
     {
         $consumer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestConsumer', array('consume'));
         $consumer
@@ -42,10 +43,51 @@ class ConsumerControllerTest extends AbstractConsoleControllerTestCase
 
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('test-consumer', $consumer);
+        $serviceManager->setService('HumusAmqpModule\PluginManager\Consumer', $cm = new ServiceManager());
+        $cm->setService('test-consumer', $consumer);
 
         ob_start();
-        $this->dispatch('humus amqp consumer test-consumer 5 --route=bar --memory_limit=1G --without-signals');
+        $this->dispatch('humus amqp consumer test-consumer 5 --route=bar --memory_limit=1G');
+        ob_clean();
+
+        $this->assertResponseStatusCode(0);
+    }
+
+    public function testDispatchWithAnonConsumer()
+    {
+        $consumer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestConsumer', array('consume'));
+        $consumer
+            ->expects($this->once())
+            ->method('consume')
+            ->with(5);
+
+        $serviceManager = $this->getApplicationServiceLocator();
+        $serviceManager->setAllowOverride(true);
+        $serviceManager->setService('HumusAmqpModule\PluginManager\AnonConsumer', $cm = new ServiceManager());
+        $cm->setService('test-consumer', $consumer);
+
+        ob_start();
+        $this->dispatch('humus amqp anon-consumer test-consumer 5 --route=bar --memory_limit=1G');
+        ob_clean();
+
+        $this->assertResponseStatusCode(0);
+    }
+
+    public function testDispatchWithMultipleConsumer()
+    {
+        $consumer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestConsumer', array('consume'));
+        $consumer
+            ->expects($this->once())
+            ->method('consume')
+            ->with(5);
+
+        $serviceManager = $this->getApplicationServiceLocator();
+        $serviceManager->setAllowOverride(true);
+        $serviceManager->setService('HumusAmqpModule\PluginManager\MultipleConsumer', $cm = new ServiceManager());
+        $cm->setService('test-consumer', $consumer);
+
+        ob_start();
+        $this->dispatch('humus amqp multiple-consumer test-consumer 5 --route=bar --memory_limit=1G');
         ob_clean();
 
         $this->assertResponseStatusCode(0);
@@ -53,6 +95,10 @@ class ConsumerControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatchWithInvalidConsumerName()
     {
+        $serviceManager = $this->getApplicationServiceLocator();
+        $serviceManager->setAllowOverride(true);
+        $serviceManager->setService('HumusAmqpModule\PluginManager\Consumer', $cm = new ServiceManager());
+
         ob_start();
         $this->dispatch('humus amqp consumer invalid-consumer');
         $res = ob_get_clean();
@@ -77,7 +123,8 @@ class ConsumerControllerTest extends AbstractConsoleControllerTestCase
 
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('test-consumer', $consumer);
+        $serviceManager->setService('HumusAmqpModule\PluginManager\Consumer', $cm = new ServiceManager());
+        $cm->setService('test-consumer', $consumer);
 
         ob_start();
         $this->dispatch('humus amqp consumer test-consumer invalidamount');

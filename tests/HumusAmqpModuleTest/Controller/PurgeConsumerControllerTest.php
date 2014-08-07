@@ -18,6 +18,8 @@
 
 namespace HumusAmqpModuleTest\Controller;
 
+use HumusAmqpModuleTest\Controller\TestAsset\ConsoleAdapter;
+use Zend\ServiceManager\ServiceManager;
 use Zend\Test\PHPUnit\Controller\AbstractConsoleControllerTestCase;
 
 class PurgeConsumerControllerTest extends AbstractConsoleControllerTestCase
@@ -32,7 +34,7 @@ class PurgeConsumerControllerTest extends AbstractConsoleControllerTestCase
         parent::setUp();
     }
 
-    public function testDispatch()
+    public function testDispatchWithTestConsumer()
     {
         $consumer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestConsumer', array('purge'));
         $consumer
@@ -41,10 +43,53 @@ class PurgeConsumerControllerTest extends AbstractConsoleControllerTestCase
 
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('test-consumer', $consumer);
+        $serviceManager->setService('HumusAmqpModule\PluginManager\Consumer', $cm = new ServiceManager());
+        $cm->setService('test-consumer', $consumer);
 
         ob_start();
-        $this->dispatch('humus amqp purge test-consumer --no-confirmation');
+        $this->dispatch('humus amqp purge-consumer test-consumer --no-confirmation');
+
+        $this->assertResponseStatusCode(0);
+        $res = ob_get_clean();
+
+        $this->assertNotFalse(strstr($res, 'OK'));
+    }
+
+    public function testDispatchWithAnonConsumer()
+    {
+        $consumer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestConsumer', array('purge'));
+        $consumer
+            ->expects($this->once())
+            ->method('purge');
+
+        $serviceManager = $this->getApplicationServiceLocator();
+        $serviceManager->setAllowOverride(true);
+        $serviceManager->setService('HumusAmqpModule\PluginManager\AnonConsumer', $cm = new ServiceManager());
+        $cm->setService('test-consumer', $consumer);
+
+        ob_start();
+        $this->dispatch('humus amqp purge-anon-consumer test-consumer --no-confirmation');
+
+        $this->assertResponseStatusCode(0);
+        $res = ob_get_clean();
+
+        $this->assertNotFalse(strstr($res, 'OK'));
+    }
+
+    public function testDispatchWithMultipleConsumer()
+    {
+        $consumer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestConsumer', array('purge'));
+        $consumer
+            ->expects($this->once())
+            ->method('purge');
+
+        $serviceManager = $this->getApplicationServiceLocator();
+        $serviceManager->setAllowOverride(true);
+        $serviceManager->setService('HumusAmqpModule\PluginManager\MultipleConsumer', $cm = new ServiceManager());
+        $cm->setService('test-consumer', $consumer);
+
+        ob_start();
+        $this->dispatch('humus amqp purge-multiple-consumer test-consumer --no-confirmation');
 
         $this->assertResponseStatusCode(0);
         $res = ob_get_clean();
@@ -56,13 +101,39 @@ class PurgeConsumerControllerTest extends AbstractConsoleControllerTestCase
     {
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
+        $serviceManager->setService('HumusAmqpModule\PluginManager\Consumer', $cm = new ServiceManager());
 
         ob_start();
-        $this->dispatch('humus amqp purge invalid-consumer --no-confirmation');
+        $this->dispatch('humus amqp purge-consumer invalid-consumer --no-confirmation');
 
         $this->assertResponseStatusCode(0);
         $res = ob_get_clean();
 
         $this->assertNotFalse(strstr($res, 'ERROR: Consumer "invalid-consumer" not found'));
+    }
+
+    public function testPromptNoResponse()
+    {
+        $consumer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestConsumer');
+
+        $adapter = new ConsoleAdapter();
+        $adapter->stream = fopen('php://memory', 'w+');
+
+        $serviceManager = $this->getApplicationServiceLocator();
+        $serviceManager->setAllowOverride(true);
+        $serviceManager->setService('HumusAmqpModule\PluginManager\Consumer', $cm = new ServiceManager());
+        $serviceManager->setService('Console', $adapter);
+        $cm->setService('test-consumer', $consumer);
+
+        fwrite($adapter->stream, 'n');
+
+        ob_start();
+
+        $this->dispatch('humus amqp purge-consumer test-consumer');
+
+        $this->assertResponseStatusCode(0);
+        $res = ob_get_clean();
+
+        $this->assertNotFalse(strstr($res, 'Purging cancelled!'));
     }
 }
