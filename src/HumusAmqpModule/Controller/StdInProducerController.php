@@ -20,11 +20,17 @@ namespace HumusAmqpModule\Controller;
 
 use Zend\Console\ColorInterface;
 use Zend\Mvc\Controller\AbstractConsoleController;
+use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
 class StdInProducerController extends AbstractConsoleController
 {
+    /**
+     * @var ServiceLocatorInterface
+     */
+    protected $producerManager;
+
     /**
      * {@inheritdoc}
      */
@@ -32,9 +38,11 @@ class StdInProducerController extends AbstractConsoleController
     {
         parent::dispatch($request, $response);
         /* @var $request \Zend\Console\Request */
-        $producerName = $request->getParam('name');
 
-        if (!$this->getServiceLocator()->has($producerName)) {
+        $producerName = $request->getParam('name');
+        $producerManager = $this->getProducerManager();
+
+        if (!$producerManager->has($producerName)) {
             $this->getConsole()->writeLine(
                 'ERROR: Producer "' . $producerName . '" not found',
                 ColorInterface::RED
@@ -49,11 +57,27 @@ class StdInProducerController extends AbstractConsoleController
             define('AMQP_DEBUG', true);
         }
 
-        $producer = $this->getServiceLocator()->get($producerName);
+        $producer = $producerManager->get($producerName);
 
         $route = $request->getParam('route', '');
         $msg = trim($request->getParam('msg'));
 
         $producer->publish($msg, $route);
+    }
+
+    /**
+     * @param ServiceLocatorInterface $producerManager
+     */
+    public function setProducerManager(ServiceLocatorInterface $producerManager)
+    {
+        $this->producerManager = $producerManager;
+    }
+
+    /**
+     * @return ServiceLocatorInterface
+     */
+    public function getProducerManager()
+    {
+        return $this->producerManager;
     }
 }
