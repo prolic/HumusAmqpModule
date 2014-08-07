@@ -59,8 +59,8 @@ class PartsHolderFactoryTest extends ServiceManagerTestCase
         // register plugin managers
         foreach ($namespaces as $ns => $configKey) {
             $serviceName = 'HumusAmqpModule\\PluginManager\\' . $ns;
-            $serviceConfig = isset($config['humus_amqp_module']['plugin_manager'][$configKey])
-                ? $config['humus_amqp_module']['plugin_manager'][$configKey]
+            $serviceConfig = isset($config['humus_amqp_module']['plugin_managers'][$configKey])
+                ? $config['humus_amqp_module']['plugin_managers'][$configKey]
                 : array();
 
             $service = new $serviceName(new \Zend\ServiceManager\Config($serviceConfig));
