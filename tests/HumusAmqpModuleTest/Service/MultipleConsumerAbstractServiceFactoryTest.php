@@ -76,9 +76,9 @@ class MultipleConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_Test
         $services->setService('Config', $config);
 
         $dependentComponent = new ConnectionAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager = new ConnectionPluginManager());
-        $connectionManager->addAbstractFactory($dependentComponent);
-        $connectionManager->setServiceLocator($services);
+        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
+        $cm->addAbstractFactory($dependentComponent);
+        $cm->setServiceLocator($services);
 
         $callbackManager = new CallbackPluginManager();
         $callbackManager->setInvokableClass('test-callback', __NAMESPACE__ . '\TestAsset\TestCallback');
@@ -88,7 +88,10 @@ class MultipleConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_Test
         $callbackManager->setServiceLocator($services);
 
         $components = $this->components = new MultipleConsumerAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\MultipleConsumer', $consumerManager = new MultipleConsumerPluginManager());
+        $services->setService(
+            'HumusAmqpModule\PluginManager\MultipleConsumer',
+            $consumerManager = new MultipleConsumerPluginManager()
+        );
         $consumerManager->addAbstractFactory($components);
         $consumerManager->setServiceLocator($services);
     }
@@ -113,7 +116,8 @@ class MultipleConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_Test
     public function testCreateConsumerWithCustomClassAndWithoutConnectionName()
     {
         $config = $this->services->get('Config');
-        $config['humus_amqp_module']['multiple_consumers']['test-consumer']['class'] = __NAMESPACE__ . '\TestAsset\CustomMultipleConsumer';
+        $config['humus_amqp_module']['multiple_consumers']['test-consumer']['class'] = __NAMESPACE__
+            . '\TestAsset\CustomMultipleConsumer';
         unset($config['humus_amqp_module']['consumers']['test-consumer']['connection']);
         $this->services->setService('Config', $config);
 
@@ -121,12 +125,12 @@ class MultipleConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_Test
         $this->assertInstanceOf('HumusAmqpModuleTest\Service\TestAsset\CustomMultipleConsumer', $consumer);
     }
 
-    /**
-     * @expectedException HumusAmqpModule\Exception\RuntimeException
-     * @expectedExceptionMessage Consumer of type stdClass is invalid; must implement HumusAmqpModule\Amqp\MultipleConsumerInterface
-     */
     public function testCreateConsumerWithInvalidConsumerClass()
     {
+        $this->setExpectedException(
+            'HumusAmqpModule\Exception\RuntimeException',
+            'Consumer of type stdClass is invalid; must implement HumusAmqpModule\Amqp\MultipleConsumerInterface'
+        );
         $config = $this->services->get('Config');
         $config['humus_amqp_module']['multiple_consumers']['test-consumer']['class'] = 'stdClass';
         $this->services->setService('Config', $config);
@@ -147,12 +151,12 @@ class MultipleConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_Test
         $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
     }
 
-    /**
-     * @expectedException HumusAmqpModule\Exception\RuntimeException
-     * @expectedExceptionMessage Plugin of type stdClass is invalid; must implement PhpAmqpLib\Connection\AbstractConnection
-     */
     public function testCreateConsumerWithInvalidConnection()
     {
+        $this->setExpectedException(
+            'HumusAmqpModule\Exception\RuntimeException',
+            'Plugin of type stdClass is invalid; must implement PhpAmqpLib\Connection\AbstractConnection'
+        );
         $config = $this->services->get('Config');
         $config['humus_amqp_module']['multiple_consumers']['test-consumer']['connection'] = 'stdClass';
         $this->services->setService('Config', $config);

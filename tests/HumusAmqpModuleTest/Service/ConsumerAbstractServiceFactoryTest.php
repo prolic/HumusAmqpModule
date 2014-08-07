@@ -70,9 +70,9 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $services->setService('Config', $config);
 
         $dependentComponent = new ConnectionAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager = new ConnectionPluginManager());
-        $connectionManager->addAbstractFactory($dependentComponent);
-        $connectionManager->setServiceLocator($services);
+        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
+        $cm->addAbstractFactory($dependentComponent);
+        $cm->setServiceLocator($services);
 
         $callbackManager = new CallbackPluginManager();
         $callbackManager->setInvokableClass('test-callback', __NAMESPACE__ . '\TestAsset\TestCallback');
@@ -102,7 +102,8 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     public function testCreateConsumerWithCustomClassAndWithoutConnectionName()
     {
         $config = $this->services->get('Config');
-        $config['humus_amqp_module']['consumers']['test-consumer']['class'] = __NAMESPACE__ . '\TestAsset\CustomConsumer';
+        $config['humus_amqp_module']['consumers']['test-consumer']['class'] = __NAMESPACE__
+            . '\TestAsset\CustomConsumer';
         unset($config['humus_amqp_module']['consumers']['test-consumer']['connection']);
         $this->services->setService('Config', $config);
 
@@ -110,12 +111,12 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('HumusAmqpModuleTest\Service\TestAsset\CustomConsumer', $consumer);
     }
 
-    /**
-     * @expectedException HumusAmqpModule\Exception\RuntimeException
-     * @expectedExceptionMessage Consumer of type stdClass is invalid; must implement HumusAmqpModule\Amqp\ConsumerInterface
-     */
     public function testCreateConsumerWithInvalidConsumerClass()
     {
+        $this->setExpectedException(
+           'HumusAmqpModule\Exception\RuntimeException',
+            'Consumer of type stdClass is invalid; must implement HumusAmqpModule\Amqp\ConsumerInterface'
+        );
         $config = $this->services->get('Config');
         $config['humus_amqp_module']['consumers']['test-consumer']['class'] = 'stdClass';
         $this->services->setService('Config', $config);

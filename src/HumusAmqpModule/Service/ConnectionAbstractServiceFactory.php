@@ -32,7 +32,7 @@ class ConnectionAbstractServiceFactory extends AbstractAmqpAbstractServiceFactor
 
         if (isset($spec['class'])) {
             $class = $spec['class'];
-        } else if (!isset($spec['lazy']) || true == $spec['lazy']) {
+        } elseif (!isset($spec['lazy']) || true == $spec['lazy']) {
             $class = $config['classes']['lazy_connection'];
         } else {
             $class = $config['classes']['connection'];

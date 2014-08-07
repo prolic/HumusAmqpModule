@@ -52,14 +52,14 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $services->setService('Config', $config);
 
         $dependentComponent = new ConnectionAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager = new ConnectionPluginManager());
-        $connectionManager->addAbstractFactory($dependentComponent);
-        $connectionManager->setServiceLocator($services);
+        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
+        $cm->addAbstractFactory($dependentComponent);
+        $cm->setServiceLocator($services);
 
         $components = $this->components = new RpcClientAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\RpcClient', $rpcClientManager = new RpcClientPluginManager());
-        $rpcClientManager->addAbstractFactory($components);
-        $rpcClientManager->setServiceLocator($services);
+        $services->setService('HumusAmqpModule\PluginManager\RpcClient', $rpccm = new RpcClientPluginManager());
+        $rpccm->addAbstractFactory($components);
+        $rpccm->setServiceLocator($services);
     }
 
     public function testCreateRpcClient()
@@ -73,7 +73,8 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     public function testCreateRpcClientWithCustomClass()
     {
         $config = $this->services->get('Config');
-        $config['humus_amqp_module']['rpc_clients']['test-rpc-client']['class'] = __NAMESPACE__ . '\TestAsset\CustomRpcClient';
+        $config['humus_amqp_module']['rpc_clients']['test-rpc-client']['class'] = __NAMESPACE__
+            . '\TestAsset\CustomRpcClient';
         $this->services->setService('Config', $config);
 
         $rpcClient = $this->components->createServiceWithName($this->services, 'test-rpc-client', 'test-rpc-client');
