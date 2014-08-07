@@ -101,7 +101,6 @@ return array(
         'invokables' => array(
             __NAMESPACE__ . '\\Controller\\List' => __NAMESPACE__ . '\\Controller\\ListController',
             __NAMESPACE__ . '\\Controller\\Exchanges' => __NAMESPACE__ . '\\Controller\\ExchangesController',
-            __NAMESPACE__ . '\\Controller\\StdInProducer' => __NAMESPACE__ . '\\Controller\\StdInProducerController',
             __NAMESPACE__ . '\\Controller\\RpcServer' => __NAMESPACE__ . '\\Controller\\RpcServerController'
         ),
         'factories' => array(
@@ -112,6 +111,7 @@ return array(
             __NAMESPACE__ . '\\Controller\\PurgeAnonConsumer' => __NAMESPACE__ . '\\Service\\Controller\\PurgeAnonConsumerFactory',
             __NAMESPACE__ . '\\Controller\\PurgeMultipleConsumer' => __NAMESPACE__ . '\\Service\\Controller\\PurgeMultipleConsumerFactory',
             __NAMESPACE__ . '\\Controller\\SetupFabric' => __NAMESPACE__ . '\\Service\\Controller\\SetupFabricFactory',
+            __NAMESPACE__ . '\\Controller\\StdInProducer' => __NAMESPACE__ . '\\Service\\Controller\\StdInProducerFactory',
         )
     ),
     'humus_amqp_module' => array(
@@ -128,7 +128,13 @@ return array(
             'parts_holder' => __NAMESPACE__ . '\Amqp\PartsHolder',
             'fallback' => __NAMESPACE__ . '\Amqp\Fallback'
         ),
-        'plugin_managers' => array()
+        'plugin_managers' => array(),
+        'callbacks' => array(),
+        'producers' => array(),
+        'consumers' => array(),
+        'anon_consumers' => array(),
+        'multiple_consumers' => array(),
+        'connections' => array()
     ),
     'humus_supervisor_module' => array(
         'humus-amqp-supervisor' => array(
@@ -140,7 +146,7 @@ return array(
     ),
     'service_manager' => array(
         'factories' => array(
-            __NAMESPACE__ . '\\Amqp\PartsHolder' => 'HumusAmqpModule\Service\PartsHolderFactory'
+            __NAMESPACE__ . '\\Amqp\\PartsHolder' => 'HumusAmqpModule\Service\PartsHolderFactory'
         ),
     )
 );
