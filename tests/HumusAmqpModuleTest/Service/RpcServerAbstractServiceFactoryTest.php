@@ -58,14 +58,14 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $services->setService('Config', $config);
 
         $dependentComponent = new ConnectionAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager = new ConnectionPluginManager());
-        $connectionManager->addAbstractFactory($dependentComponent);
-        $connectionManager->setServiceLocator($services);
+        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
+        $cm->addAbstractFactory($dependentComponent);
+        $cm->setServiceLocator($services);
 
         $components = $this->components = new RpcServerAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\RpcClient', $rpcServerManager = new RpcServerPluginManager());
-        $rpcServerManager->addAbstractFactory($components);
-        $rpcServerManager->setServiceLocator($services);
+        $services->setService('HumusAmqpModule\PluginManager\RpcClient', $rpcsm = new RpcServerPluginManager());
+        $rpcsm->addAbstractFactory($components);
+        $rpcsm->setServiceLocator($services);
 
         $services->setService('HumusAmqpModule\PluginManager\Callback', $callbackManager = new CallbackPluginManager());
         $callbackManager->setInvokableClass('test-callback', __NAMESPACE__ . '\TestAsset\TestCallback');
@@ -83,7 +83,8 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     public function testCreateRpcServerWithCustomClass()
     {
         $config = $this->services->get('Config');
-        $config['humus_amqp_module']['rpc_servers']['test-rpc-server']['class'] = __NAMESPACE__ . '\TestAsset\CustomRpcServer';
+        $config['humus_amqp_module']['rpc_servers']['test-rpc-server']['class'] = __NAMESPACE__
+            . '\TestAsset\CustomRpcServer';
         $this->services->setService('Config', $config);
 
         $rpcServer = $this->components->createServiceWithName($this->services, 'test-rpc-server', 'test-rpc-server');
