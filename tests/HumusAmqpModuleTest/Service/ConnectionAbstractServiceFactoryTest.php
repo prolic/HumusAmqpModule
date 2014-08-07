@@ -45,9 +45,9 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $services->setService('Config', $config);
 
         $components = $this->components = new ConnectionAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager = new ConnectionPluginManager());
-        $connectionManager->addAbstractFactory($components);
-        $connectionManager->setServiceLocator($services);
+        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
+        $cm->addAbstractFactory($components);
+        $cm->setServiceLocator($services);
     }
 
     public function testMissingGlobalConfigIndicatesCannotCreateInstance()
@@ -56,9 +56,9 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $services->setAllowOverride(true);
 
         $components = $this->components = new ConnectionAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager = new ConnectionPluginManager());
-        $connectionManager->addAbstractFactory($components);
-        $connectionManager->setServiceLocator($services);
+        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
+        $cm->addAbstractFactory($components);
+        $cm->setServiceLocator($services);
 
         $this->assertFalse($this->components->canCreateServiceWithName($this->services, 'foo', 'foo'));
     }
