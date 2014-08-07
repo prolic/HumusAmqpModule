@@ -16,19 +16,25 @@ return array(
                 ),
                 'humus_amqp_module-consumer' => array(
                     'options' => array(
-                        'route'    => 'humus amqp consumer <name> [<amount>] [--route=] [--memory_limit=] [--without-signals|-w] [--debug|-d]',
+                        'route'    => 'humus amqp consumer <name> [<amount>] [--route=] [--memory_limit=] [--debug|-d]',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\Consumer',
-                            'type' => 'consumer'
                         )
                     )
                 ),
                 'humus_amqp_module-multiple-consumer' => array(
                     'options' => array(
-                        'route'    => 'humus amqp multiple-consumer <name> [<amount>] [--route=] [--memory_limit=] [--without-signals|-w] [--debug|-d]',
+                        'route'    => 'humus amqp multiple-consumer <name> [<amount>] [--route=] [--memory_limit=] [--debug|-d]',
                         'defaults' => array(
-                            'controller' => __NAMESPACE__ . '\\Controller\\Consumer',
-                            'type' => 'multiple-consumer'
+                            'controller' => __NAMESPACE__ . '\\Controller\\MultipleConsumer',
+                        )
+                    )
+                ),
+                'humus_amqp_module-anon-consumer' => array(
+                    'options' => array(
+                        'route'    => 'humus amqp anon-consumer <name> [<amount>] [--route=] [--memory_limit=] [--debug|-d]',
+                        'defaults' => array(
+                            'controller' => __NAMESPACE__ . '\\Controller\\AnonConsumer',
                         )
                     )
                 ),
@@ -56,11 +62,27 @@ return array(
                         )
                     )
                 ),
-                'humus_amqp_module-purge-queue' => array(
+                'humus_amqp_module-purge-consumer-queue' => array(
                     'options' => array(
-                        'route' => 'humus amqp purge <consumer-name> [--no-confirmation]',
+                        'route' => 'humus amqp purge-consumer <consumer-name> [--no-confirmation]',
                         'defaults' => array(
                             'controller' => __NAMESPACE__ . '\\Controller\\PurgeConsumer',
+                        )
+                    )
+                ),
+                'humus_amqp_module-purge-anon-consumer-queue' => array(
+                    'options' => array(
+                        'route' => 'humus amqp purge-anon-consumer <consumer-name> [--no-confirmation]',
+                        'defaults' => array(
+                            'controller' => __NAMESPACE__ . '\\Controller\\PurgeAnonConsumer',
+                        )
+                    )
+                ),
+                'humus_amqp_module-purge-multiple-consumer-queue' => array(
+                    'options' => array(
+                        'route' => 'humus amqp purge-multiple-consumer <consumer-name> [--no-confirmation]',
+                        'defaults' => array(
+                            'controller' => __NAMESPACE__ . '\\Controller\\PurgeMultipleConsumer',
                         )
                     )
                 ),
@@ -77,14 +99,18 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            __NAMESPACE__ . '\\Controller\\Consumer' => __NAMESPACE__ . '\\Controller\\ConsumerController',
             __NAMESPACE__ . '\\Controller\\List' => __NAMESPACE__ . '\\Controller\\ListController',
             __NAMESPACE__ . '\\Controller\\Exchanges' => __NAMESPACE__ . '\\Controller\\ExchangesController',
             __NAMESPACE__ . '\\Controller\\StdInProducer' => __NAMESPACE__ . '\\Controller\\StdInProducerController',
-            __NAMESPACE__ . '\\Controller\\PurgeConsumer' => __NAMESPACE__ . '\\Controller\\PurgeConsumerController',
             __NAMESPACE__ . '\\Controller\\RpcServer' => __NAMESPACE__ . '\\Controller\\RpcServerController'
         ),
         'factories' => array(
+            __NAMESPACE__ . '\\Controller\\Consumer' => __NAMESPACE__ . '\\Service\\Controller\\ConsumerFactory',
+            __NAMESPACE__ . '\\Controller\\AnonConsumer' => __NAMESPACE__ . '\\Service\\Controller\\AnonConsumerFactory',
+            __NAMESPACE__ . '\\Controller\\MultipleConsumer' => __NAMESPACE__ . '\\Service\\Controller\\MultipleConsumerFactory',
+            __NAMESPACE__ . '\\Controller\\PurgeConsumer' => __NAMESPACE__ . '\\Service\\Controller\\PurgeConsumerFactory',
+            __NAMESPACE__ . '\\Controller\\PurgeAnonConsumer' => __NAMESPACE__ . '\\Service\\Controller\\PurgeAnonConsumerFactory',
+            __NAMESPACE__ . '\\Controller\\PurgeMultipleConsumer' => __NAMESPACE__ . '\\Service\\Controller\\PurgeMultipleConsumerFactory',
             __NAMESPACE__ . '\\Controller\\SetupFabric' => __NAMESPACE__ . '\\Service\\Controller\\SetupFabricFactory',
         )
     ),
