@@ -84,6 +84,24 @@ class MultipleConsumerTest extends \PHPUnit_Framework_TestCase
         $consumer->processQueueMessage('test-2', $amqpMessage);
     }
 
+    /**
+     * @expectedException HumusAmqpModule\Amqp\Exception\InvalidArgumentException
+     */
+    public function testSetQueuesWithInvalidData()
+    {
+        $amqpConnection = $this->getMockBuilder('\PhpAmqpLib\Connection\AMQPConnection')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $amqpChannel = $this->getMockBuilder('\PhpAmqpLib\Channel\AMQPChannel')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $consumer = new MultipleConsumer($amqpConnection, $amqpChannel);
+
+        $consumer->setQueues('foobar');
+    }
+
     public function processMessageProvider()
     {
         return array(
