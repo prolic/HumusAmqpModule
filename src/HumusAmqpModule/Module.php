@@ -62,8 +62,10 @@ class Module implements
         foreach ($namespaces as $ns => $configKey) {
             $serviceName = __NAMESPACE__ . '\\PluginManager\\' . $ns;
             $factory = function () use ($serviceName, $config, $ns, $configKey, $serviceManager) {
-                $serviceConfig = isset($config['humus_amqp_module']['plugin_manager'][$configKey])
-                    ? $config['humus_amqp_module']['plugin_manager'][$configKey]
+
+
+                $serviceConfig = isset($config['humus_amqp_module']['plugin_managers'][$configKey])
+                    ? $config['humus_amqp_module']['plugin_managers'][$configKey]
                     : array();
 
                 /* @var $service AbstractPluginManager */
@@ -137,7 +139,7 @@ class Module implements
                 'List all available exchanges'
             ),
             array(
-                'consumer <name> [<amount>] [arguments]',
+                '[consumer|anon-consumer|multiple-consumer] <name> [<amount>] [arguments]',
                 'Start a consumer by name, msg limits the messages of available'
             ),
             '    Available arguments:',
@@ -148,10 +150,6 @@ class Module implements
             array(
                 '    --memory_limit|-l',
                 '    Memory limit',
-            ),
-            array(
-                '    --without-signals|-w',
-                '    Without signals',
             ),
             array(
                 '    --debug|-d',
@@ -168,8 +166,16 @@ class Module implements
                 '    Routing key to use',
             ),
             array(
-                'purge <consumer-name>',
-                'Purge a queue'
+                'purge-consumer <consumer-name>',
+                'Purge a consumer queue'
+            ),
+            array(
+                'purge-anon-consumer <consumer-name>',
+                'Purge an anon consumer queue'
+            ),
+            array(
+                'purge-multiple-consumer <consumer-name>',
+                'Purge a multiple consumer queue'
             ),
             array(
                 'rpc-server <name> [<amount>] [--debug|-d]',
