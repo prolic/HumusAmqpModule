@@ -2,7 +2,7 @@
 
 namespace HumusAmqpModule;
 
-return array(
+$config = array(
     'console' => array(
         'router' => array(
             'routes' => array(
@@ -101,7 +101,8 @@ return array(
         'invokables' => array(
             __NAMESPACE__ . '\\Controller\\List' => __NAMESPACE__ . '\\Controller\\ListController',
             __NAMESPACE__ . '\\Controller\\Exchanges' => __NAMESPACE__ . '\\Controller\\ExchangesController',
-            __NAMESPACE__ . '\\Controller\\RpcServer' => __NAMESPACE__ . '\\Controller\\RpcServerController'
+            __NAMESPACE__ . '\\Controller\\RpcServer' => __NAMESPACE__ . '\\Controller\\RpcServerController',
+            __NAMESPACE__ . '\\Controller\\GenSupervisordConfig' => __NAMESPACE__ . '\\Controller\GenSupervisordConfigController'
         ),
         'factories' => array(
             __NAMESPACE__ . '\\Controller\\Consumer' => __NAMESPACE__ . '\\Service\\Controller\\ConsumerFactory',
@@ -141,7 +142,30 @@ return array(
             'host' => 'localhost',
             'port' => 19005,
             'username' => 'user',
-            'password' => '123'
+            'password' => '123',
+            'supervisord' => array(
+                'config' => array(
+                    'logfile' => getcwd() . '/data/supervisord/logs/supervisord.log',
+                    'pidfile' => getcwd() . '/data/supervisord/supervisord.pid',
+                    'childlogdir' => getcwd() . '/data/supervisord/logs',
+                    'user' => 'root',
+                ),
+                'rpcinterface' => array(
+                    'supervisor.rpcinterface_factory' => 'supervisor.rpcinterface:make_main_rpcinterface'
+                ),
+                'supervisorctl' => array(
+                    'serverurl' => getcwd() . '/data/supervisord/supervisor.sock'
+                ),
+                'unix_http_server' => array(
+                    'file' => getcwd() . '/data/supervisord/supervisor.sock',
+                    'chmod' => '0700'
+                ),
+                'inet_http_server' => array(
+                    'port' => 19005,
+                    'username' => 'user',
+                    'password' => '123'
+                )
+            )
         )
     ),
     'service_manager' => array(
@@ -150,3 +174,17 @@ return array(
         ),
     )
 );
+
+if (class_exists('HumusSupervisorModule\\Module')) {
+    $config['console']['router']['routes']['humus_amqp_module-gen-supervisord-config'] = array(
+        'options' => array(
+            'route' => 'humus amqp gen-supervisord-config [<path>]',
+            'defaults' => array(
+                'controller' => __NAMESPACE__ . '\\Controller\GenSupervisordConfig',
+                'action' => 'index'
+            )
+        )
+    );
+}
+
+return $config;
