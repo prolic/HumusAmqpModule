@@ -52,6 +52,10 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
             define('AMQP_DEBUG', true);
         }
 
+        attach_signal(SIGTERM, array($this, 'shutdownConsumer'));
+        attach_signal(SIGINT, array($this, 'shutdownConsumer'));
+        attach_signal(SIGUSR1, array($this, 'stopConsumer'));
+
         $cm = $this->getConsumerManager();
 
         $name = $request->getParam('name');
@@ -90,16 +94,13 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
 
     public function stopConsumer()
     {
-        if ($this->consumer instanceof Consumer) {
-            $this->consumer->forceStopConsumer();
-        } else {
-            exit();
-        }
+        $this->consumer->forceStopConsumer();
     }
 
-    public function restartConsumer()
+    public function shutdownConsumer()
     {
-        // TODO: Implement restarting of consumer
+        $this->stopConsumer();
+        exit;
     }
 
     /**
