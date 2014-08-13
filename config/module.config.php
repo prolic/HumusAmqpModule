@@ -101,7 +101,6 @@ $config = array(
         'invokables' => array(
             __NAMESPACE__ . '\\Controller\\List' => __NAMESPACE__ . '\\Controller\\ListController',
             __NAMESPACE__ . '\\Controller\\Exchanges' => __NAMESPACE__ . '\\Controller\\ExchangesController',
-            __NAMESPACE__ . '\\Controller\\RpcServer' => __NAMESPACE__ . '\\Controller\\RpcServerController',
             __NAMESPACE__ . '\\Controller\\GenSupervisordConfig' => __NAMESPACE__ . '\\Controller\GenSupervisordConfigController'
         ),
         'factories' => array(
@@ -111,6 +110,7 @@ $config = array(
             __NAMESPACE__ . '\\Controller\\PurgeConsumer' => __NAMESPACE__ . '\\Service\\Controller\\PurgeConsumerFactory',
             __NAMESPACE__ . '\\Controller\\PurgeAnonConsumer' => __NAMESPACE__ . '\\Service\\Controller\\PurgeAnonConsumerFactory',
             __NAMESPACE__ . '\\Controller\\PurgeMultipleConsumer' => __NAMESPACE__ . '\\Service\\Controller\\PurgeMultipleConsumerFactory',
+            __NAMESPACE__ . '\\Controller\\RpcServer' => __NAMESPACE__ . '\\Service\\Controller\\RpcServerFactory',
             __NAMESPACE__ . '\\Controller\\SetupFabric' => __NAMESPACE__ . '\\Service\\Controller\\SetupFabricFactory',
             __NAMESPACE__ . '\\Controller\\StdInProducer' => __NAMESPACE__ . '\\Service\\Controller\\StdInProducerFactory',
         )
