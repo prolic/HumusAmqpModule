@@ -68,6 +68,8 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpCallbackAwareAbstractS
             $rpcServer->setQosOptions($spec['qos_options']);
         }
 
+        $rpcServer->initServer($requestedName);
+
         return $rpcServer;
     }
 }
