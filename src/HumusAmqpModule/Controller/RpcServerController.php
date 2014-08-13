@@ -18,13 +18,25 @@
 
 namespace HumusAmqpModule\Controller;
 
+use HumusAmqpModule\Amqp\RpcServer;
 use Zend\Console\ColorInterface;
 use Zend\Mvc\Controller\AbstractConsoleController;
+use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
 class RpcServerController extends AbstractConsoleController
 {
+    /**
+     * @var RpcServer
+     */
+    protected $rpcServer;
+
+    /**
+     * @var ServiceLocatorInterface
+     */
+    protected $rpcServerManager;
+
     /**
      * {@inheritdoc}
      */
@@ -32,11 +44,17 @@ class RpcServerController extends AbstractConsoleController
     {
         parent::dispatch($request, $response);
 
+        if (extension_loaded('signal_handler')) {
+            attach_signal(SIGTERM, array($this, 'shutdownRpcServer'));
+            attach_signal(SIGINT, array($this, 'shutdownRpcServer'));
+            attach_signal(SIGUSR1, array($this, 'stopRpcServer'));
+        }
+
         /* @var $request \Zend\Console\Request */
 
         $rpcServerName = $request->getParam('name');
 
-        if (!$this->getServiceLocator()->has($rpcServerName)) {
+        if (!$this->getRpcServerManager()->has($rpcServerName)) {
             $this->getConsole()->writeLine(
                 'ERROR: RPC-Server "' . $rpcServerName . '" not found',
                 ColorInterface::RED
@@ -50,7 +68,7 @@ class RpcServerController extends AbstractConsoleController
             define('AMQP_DEBUG', true);
         }
 
-        $amount =$amount = $request->getParam('amount', 0);
+        $amount = $request->getParam('amount', 0);
 
         if (!is_numeric($amount)) {
             $this->getConsole()->writeLine(
@@ -58,8 +76,35 @@ class RpcServerController extends AbstractConsoleController
                 ColorInterface::RED
             );
         } else {
-            $rpcServer = $this->getServiceLocator()->get($rpcServerName);
-            $rpcServer->start($amount);
+            $this->rpcServer = $this->getRpcServerManager()->get($rpcServerName);
+            $this->rpcServer->start($amount);
         }
+    }
+
+    public function stopRpcServer()
+    {
+        $this->rpcServer->forceStopConsumer();
+    }
+
+    public function shutdownRpcServer()
+    {
+        $this->stopRpcServer();
+        exit;
+    }
+
+    /**
+     * @param ServiceLocatorInterface $serviceLocator
+     */
+    public function setRpcServerManager(ServiceLocatorInterface $serviceLocator)
+    {
+        $this->rpcServerManager = $serviceLocator;
+    }
+
+    /**
+     * @return ServiceLocatorInterface
+     */
+    public function getRpcServerManager()
+    {
+        return $this->rpcServerManager;
     }
 }

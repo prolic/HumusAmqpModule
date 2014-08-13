@@ -52,9 +52,11 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
             define('AMQP_DEBUG', true);
         }
 
-        attach_signal(SIGTERM, array($this, 'shutdownConsumer'));
-        attach_signal(SIGINT, array($this, 'shutdownConsumer'));
-        attach_signal(SIGUSR1, array($this, 'stopConsumer'));
+        if (extension_loaded('signal_handler')) {
+            attach_signal(SIGTERM, array($this, 'shutdownConsumer'));
+            attach_signal(SIGINT, array($this, 'shutdownConsumer'));
+            attach_signal(SIGUSR1, array($this, 'stopConsumer'));
+        }
 
         $cm = $this->getConsumerManager();
 
