@@ -19,12 +19,8 @@
 namespace HumusAmqpModuleTest\Service;
 
 use HumusAmqpModule\PluginManager\Callback as CallbackPluginManager;
-use HumusAmqpModule\PluginManager\Connection as ConnectionPluginManager;
 use HumusAmqpModule\PluginManager\MultipleConsumer as MultipleConsumerPluginManager;
-use HumusAmqpModule\Service\ConnectionAbstractServiceFactory;
-use HumusAmqpModule\Service\ConsumerAbstractServiceFactory;
 use HumusAmqpModule\Service\MultipleConsumerAbstractServiceFactory;
-use HumusAmqpModule\Service\ProducerAbstractServiceFactory;
 use Zend\Mvc\Service\ServiceManagerConfig;
 use Zend\ServiceManager\ServiceManager;
 
@@ -36,7 +32,7 @@ class MultipleConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_Test
     protected $services;
 
     /**
-     * @var ProducerAbstractServiceFactory
+     * @var MultipleConsumerAbstractServiceFactory
      */
     protected $components;
 
@@ -120,7 +116,7 @@ class MultipleConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_Test
         $consumer2 = $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
         $this->assertNotSame($consumer, $consumer2);
         $this->assertInstanceOf('HumusAmqpModule\Amqp\MultipleConsumer', $consumer);
-        /* @var $producer \HumusAmqpModule\Amqp\Producer */
+        /* @var $producer \HumusAmqpModule\Amqp\MultipleConsumer */
         $this->assertEquals('demo-exchange', $consumer->getExchangeOptions()->getName());
         $this->assertEquals('direct', $consumer->getExchangeOptions()->getType());
         $queues = $consumer->getQueues();
