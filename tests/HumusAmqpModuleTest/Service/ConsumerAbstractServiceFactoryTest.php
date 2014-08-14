@@ -48,16 +48,6 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                     'lazy_connection' => 'PhpAmqpLib\Connection\AMQPLazyConnection',
                     'consumer' => 'HumusAmqpModule\Amqp\Consumer',
                 ),
-                'connections' => array(
-                    'default' => array(
-                        'host' => 'localhost',
-                        'port' => 5672,
-                        'user' => 'guest',
-                        'password' => 'guest',
-                        'vhost' => '/',
-                        'lazy' => true
-                    )
-                ),
                 'consumers' => array(
                     'test-consumer' => array(
                         'connection' => 'default',
@@ -81,14 +71,26 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             )
         );
 
+        $channel = $this->getMock('PhpAmqpLib\Channel\AmqpChannel', array(), array(), '', false);
+
+        $connectionMock = $this->getMock('PhpAmqpLib\Connection\AMQPLazyConnection', array(), array(), '', false);
+        $connectionMock
+            ->expects($this->any())
+            ->method('channel')
+            ->willReturn($channel);
+
+        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection');
+        $connectionManager
+            ->expects($this->any())
+            ->method('get')
+            ->with('default')
+            ->willReturn($connectionMock);
+
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
         $services->setService('Config', $config);
 
-        $dependentComponent = new ConnectionAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
-        $cm->addAbstractFactory($dependentComponent);
-        $cm->setServiceLocator($services);
+        $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager);
 
         $callbackManager = new CallbackPluginManager();
         $callbackManager->setInvokableClass('test-callback', __NAMESPACE__ . '\TestAsset\TestCallback');
