@@ -49,16 +49,6 @@ class MultipleConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_Test
                     'lazy_connection' => 'PhpAmqpLib\Connection\AMQPLazyConnection',
                     'multiple_consumer' => 'HumusAmqpModule\Amqp\MultipleConsumer',
                 ),
-                'connections' => array(
-                    'default' => array(
-                        'host' => 'localhost',
-                        'port' => 5672,
-                        'user' => 'guest',
-                        'password' => 'guest',
-                        'vhost' => '/',
-                        'lazy' => true
-                    )
-                ),
                 'multiple_consumers' => array(
                     'test-consumer' => array(
                         'exchange_options' => array(
@@ -87,14 +77,26 @@ class MultipleConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_Test
             )
         );
 
+        $channel = $this->getMock('PhpAmqpLib\Channel\AmqpChannel', array(), array(), '', false);
+
+        $connectionMock = $this->getMock('PhpAmqpLib\Connection\AMQPLazyConnection', array(), array(), '', false);
+        $connectionMock
+            ->expects($this->any())
+            ->method('channel')
+            ->willReturn($channel);
+
+        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection');
+        $connectionManager
+            ->expects($this->any())
+            ->method('get')
+            ->with('default')
+            ->willReturn($connectionMock);
+
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
         $services->setService('Config', $config);
 
-        $dependentComponent = new ConnectionAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
-        $cm->addAbstractFactory($dependentComponent);
-        $cm->setServiceLocator($services);
+        $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager);
 
         $callbackManager = new CallbackPluginManager();
         $callbackManager->setInvokableClass('test-callback', __NAMESPACE__ . '\TestAsset\TestCallback');
@@ -169,6 +171,17 @@ class MultipleConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_Test
 
     public function testCreateConsumerWithInvalidConnection()
     {
+        $connectionManager = $this->services->get('HumusAmqpModule\PluginManager\Connection');
+
+        /* @var $connectionManager \PHPUnit_Framework_MockObject_MockObject */
+        $connectionManager
+            ->expects($this->any())
+            ->method('get')
+            ->with('stdClass')
+            ->willThrowException(new \HumusAmqpModule\Exception\RuntimeException(
+                'Plugin of type stdClass is invalid; must implement PhpAmqpLib\Connection\AbstractConnection'
+            ));
+
         $this->setExpectedException(
             'HumusAmqpModule\Exception\RuntimeException',
             'Plugin of type stdClass is invalid; must implement PhpAmqpLib\Connection\AbstractConnection'
@@ -176,6 +189,7 @@ class MultipleConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_Test
         $config = $this->services->get('Config');
         $config['humus_amqp_module']['multiple_consumers']['test-consumer']['connection'] = 'stdClass';
         $this->services->setService('Config', $config);
+        $this->services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager);
 
         $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
     }
