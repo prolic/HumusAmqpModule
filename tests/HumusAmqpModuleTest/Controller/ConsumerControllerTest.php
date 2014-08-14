@@ -48,7 +48,7 @@ class ConsumerControllerTest extends AbstractConsoleControllerTestCase
 
         ob_start();
         $this->dispatch('humus amqp consumer test-consumer 5 --route=bar --memory_limit=1G');
-        ob_clean();
+        ob_end_clean();
 
         $this->assertResponseStatusCode(0);
     }
@@ -68,7 +68,7 @@ class ConsumerControllerTest extends AbstractConsoleControllerTestCase
 
         ob_start();
         $this->dispatch('humus amqp anon-consumer test-consumer 5 --route=bar --memory_limit=1G');
-        ob_clean();
+        ob_end_clean();
 
         $this->assertResponseStatusCode(0);
     }
@@ -88,7 +88,7 @@ class ConsumerControllerTest extends AbstractConsoleControllerTestCase
 
         ob_start();
         $this->dispatch('humus amqp multiple-consumer test-consumer 5 --route=bar --memory_limit=1G');
-        ob_clean();
+        ob_end_clean();
 
         $this->assertResponseStatusCode(0);
     }
