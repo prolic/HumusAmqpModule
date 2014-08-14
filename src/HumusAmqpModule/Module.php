@@ -119,36 +119,24 @@ class Module implements
     public function getConsoleUsage(ConsoleAdapter $adapter)
     {
         $usage = array();
-        $usage[] = 'humus amqp [command]';
-        $usage[] = 'Available commands:' . "\n";
-
 
         if (class_exists('HumusSupervisorModule\\Module')) {
-            $usage[] = array(
-                'gen-supervisord-config [<path>]',
-                'Generate supervisord configuration with optional path (absolute or relative)'
-            );
+            $usage['humus amqp gen-supervisord-config [<path>]'] =
+                'Generate supervisord configuration with optional path (absolute or relative)';
         }
 
 
         // Describe expected parameters
-        $usage[] = array(
-            'list <type>',
-            'List all available types, possible types are: ' . "\n"
-            . 'consumers, multiple_consumers, anon_consumers, producers, rpc_clients, rpc_servers, connections'
-        );
-        $usage[] = array(
-            'setup-fabric',
-            'Setting up the Rabbit MQ fabric'
-        );
-        $usage[] = array(
-            'list-exchanges',
-            'List all available exchanges'
-        );
-        $usage[] = array(
-            '[consumer|anon-consumer|multiple-consumer] <name> [<amount>] [arguments]',
-            'Start a consumer by name, msg limits the messages of available',
-        );
+        $usage['humus amqp list <type>'] = 'List all available types, possible types are: ' . "\n"
+            . 'consumers, multiple_consumers, anon_consumers, producers, rpc_clients, rpc_servers, connections';
+
+        $usage['humus amqp setup-fabric'] = 'Setting up the Rabbit MQ fabric';
+
+        $usage['humus amqp list-exchanges'] = 'List all available exchanges';
+
+        $usage['humus amqp [consumer|anon-consumer|multiple-consumer] <name> [<amount>] [arguments]'] =
+            'Start a consumer by name, msg limits the messages of available';
+
         $usage[] = array(
             '    Available arguments:'
         );
@@ -165,10 +153,8 @@ class Module implements
             '    Protocol level debug',
             ''
         );
-        $usage[] = array(
-            'stdin-producer <name> [--route] <msg>',
-            'Produce a with a consumer by bame'
-        );
+        $usage['humus amqp stdin-producer <name> [--route] <msg>'] = 'Produce a with a consumer by bame';
+
         $usage[] = array(
             '    Available arguments:'
         );
@@ -177,22 +163,13 @@ class Module implements
             '    Routing key to use',
             ''
         );
-        $usage[] = array(
-            'purge-consumer <consumer-name>',
-            'Purge a consumer queue'
-        );
-        $usage[] = array(
-            'purge-anon-consumer <consumer-name>',
-            'Purge an anon consumer queue'
-        );
-        $usage[] = array(
-            'purge-multiple-consumer <consumer-name>',
-            'Purge a multiple consumer queue'
-        );
-        $usage[] = array(
-            'rpc-server <name> [<amount>] [--debug|-d]',
-            'Start an rpc server by name'
-        );
+        $usage['humus amqp purge-consumer <consumer-name>'] = 'Purge a consumer queue';
+
+        $usage['humus amqp purge-anon-consumer <consumer-name>'] = 'Purge an anon consumer queue';
+
+        $usage['humus amqp purge-multiple-consumer <consumer-name>'] = 'Purge a multiple consumer queue';
+
+        $usage['humus amqp rpc-server <name> [<amount>] [--debug|-d]'] = 'Start an rpc server by name';
 
         return $usage;
     }

@@ -101,6 +101,7 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
 
     public function shutdownConsumer()
     {
+        echo 'received shutdown signal' . "\n";
         $this->stopConsumer();
         exit;
     }
