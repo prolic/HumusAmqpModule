@@ -48,7 +48,7 @@ class StdInProducerControllerTest extends AbstractConsoleControllerTestCase
 
         ob_start();
         $this->dispatch('humus amqp stdin-producer test-producer --route=bar foo');
-        ob_clean();
+        ob_end_clean();
 
         $this->assertResponseStatusCode(0);
     }
