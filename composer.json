@@ -13,7 +13,6 @@
     ],
     "require": {
         "php": ">=5.3.23",
-	"ext-signal_handler": "*",
         "videlalvaro/php-amqplib"  : ">=2.4.0",
         "zendframework/zend-console": ">=2.3.0",
         "zendframework/zend-eventmanager": ">=2.3.0",
@@ -28,7 +27,8 @@
         "zendframework/zendframework": ">=2.3.0"
     },
     "suggest": {
-        "prolic/humus-supervisor-module": "For supervisor usage"
+        "prolic/humus-supervisor-module": "For supervisor usage",
+        "ext-signal_handler": "For signal handler usage"
     },
     "autoload": {
         "psr-0": {
