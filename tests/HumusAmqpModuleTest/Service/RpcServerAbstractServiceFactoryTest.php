@@ -46,16 +46,6 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                     'lazy_connection' => 'PhpAmqpLib\Connection\AMQPLazyConnection',
                     'rpc_server' => 'HumusAmqpModule\Amqp\RpcServer',
                 ),
-                'connections' => array(
-                    'default' => array(
-                        'host' => 'localhost',
-                        'port' => 5672,
-                        'user' => 'guest',
-                        'password' => 'guest',
-                        'vhost' => '/',
-                        'lazy' => true
-                    )
-                ),
                 'rpc_servers' => array(
                     'test-rpc-server' => array(
                         'callback' => 'test-callback',
@@ -69,14 +59,26 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             )
         );
 
+        $channel = $this->getMock('PhpAmqpLib\Channel\AmqpChannel', array(), array(), '', false);
+
+        $connectionMock = $this->getMock('PhpAmqpLib\Connection\AMQPLazyConnection', array(), array(), '', false);
+        $connectionMock
+            ->expects($this->any())
+            ->method('channel')
+            ->willReturn($channel);
+
+        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection');
+        $connectionManager
+            ->expects($this->once())
+            ->method('get')
+            ->with('default')
+            ->willReturn($connectionMock);
+
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
         $services->setService('Config', $config);
 
-        $dependentComponent = new ConnectionAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
-        $cm->addAbstractFactory($dependentComponent);
-        $cm->setServiceLocator($services);
+        $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager);
 
         $components = $this->components = new RpcServerAbstractServiceFactory();
         $services->setService('HumusAmqpModule\PluginManager\RpcClient', $rpcsm = new RpcServerPluginManager());
