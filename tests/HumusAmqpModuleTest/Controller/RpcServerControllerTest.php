@@ -42,7 +42,9 @@ class RpcServerControllerTest extends AbstractConsoleControllerTestCase
 
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('test-rpc-server', $rpcServer);
+
+        $manager = $serviceManager->get('HumusAmqpModule\PluginManager\RpcServer');
+        $manager->setService('test-rpc-server', $rpcServer);
 
         $this->dispatch('humus amqp rpc-server test-rpc-server 100');
         $this->assertResponseStatusCode(0);
