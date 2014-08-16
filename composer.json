@@ -13,7 +13,7 @@
     ],
     "require": {
         "php": ">=5.3.23",
-        "videlalvaro/php-amqplib"  : ">=2.4.0",
+        "ext-amqp"  : ">=1.4.0",
         "zendframework/zend-console": ">=2.3.0",
         "zendframework/zend-eventmanager": ">=2.3.0",
         "zendframework/zend-mvc": ">=2.3.0",
