@@ -39,16 +39,12 @@ class RpcServerController extends AbstractConsoleController
 
     /**
      * {@inheritdoc}
+     *
+     * @todo: handle unix signals
      */
     public function dispatch(RequestInterface $request, ResponseInterface $response = null)
     {
         parent::dispatch($request, $response);
-
-        if (extension_loaded('signal_handler')) {
-            attach_signal(SIGTERM, array($this, 'shutdownRpcServer'));
-            attach_signal(SIGINT, array($this, 'shutdownRpcServer'));
-            attach_signal(SIGUSR1, array($this, 'stopRpcServer'));
-        }
 
         /* @var $request \Zend\Console\Request */
 
@@ -86,6 +82,9 @@ class RpcServerController extends AbstractConsoleController
         $this->rpcServer->forceStopConsumer();
     }
 
+    /**
+     * @todo: return response without exit call
+     */
     public function shutdownRpcServer()
     {
         $this->stopRpcServer();

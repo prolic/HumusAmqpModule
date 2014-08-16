@@ -42,6 +42,8 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
 
     /**
      * {@inheritdoc}
+     *
+     * @todo: handle unix signals
      */
     public function dispatch(RequestInterface $request, ResponseInterface $response = null)
     {
@@ -50,12 +52,6 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
 
         if (!defined('AMQP_DEBUG') && ($request->getParam('debug') || $request->getParam('d'))) {
             define('AMQP_DEBUG', true);
-        }
-
-        if (extension_loaded('signal_handler')) {
-            attach_signal(SIGTERM, array($this, 'shutdownConsumer'));
-            attach_signal(SIGINT, array($this, 'shutdownConsumer'));
-            attach_signal(SIGUSR1, array($this, 'stopConsumer'));
         }
 
         $cm = $this->getConsumerManager();
@@ -99,6 +95,9 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
         $this->consumer->forceStopConsumer();
     }
 
+    /**
+     * @todo: return response without exit call
+     */
     public function shutdownConsumer()
     {
         echo 'received shutdown signal' . "\n";

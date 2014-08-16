@@ -27,8 +27,7 @@
         "zendframework/zendframework": ">=2.3.0"
     },
     "suggest": {
-        "prolic/humus-supervisor-module": "For supervisor usage",
-        "ext-signal_handler": "For signal handler usage"
+        "prolic/humus-supervisor-module": "For supervisor usage"
     },
     "autoload": {
         "psr-0": {
