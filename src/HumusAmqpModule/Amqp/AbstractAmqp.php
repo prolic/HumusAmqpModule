@@ -18,9 +18,8 @@
 
 namespace HumusAmqpModule\Amqp;
 
-use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPConnection;
-use PhpAmqpLib\Connection\AMQPLazyConnection;
+use AMQPChannel;
+use AMQPConnection;
 
 abstract class AbstractAmqp
 {
@@ -86,9 +85,7 @@ abstract class AbstractAmqp
         $this->conn = $conn;
         $this->ch = $ch;
 
-        if (!($conn instanceof AMQPLazyConnection)) {
-            $this->getChannel();
-        }
+        $this->getChannel();
 
         $this->consumerTag = empty($consumerTag)
             ? sprintf("PHPPROCESS_%s_%s", gethostname(), getmypid())

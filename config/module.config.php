@@ -133,8 +133,6 @@ $config = array(
     ),
     'humus_amqp_module' => array(
         'classes' => array(
-            'connection' => 'PhpAmqpLib\Connection\AMQPConnection',
-            'lazy_connection' => 'PhpAmqpLib\Connection\AMQPLazyConnection',
             'producer' => __NAMESPACE__ . '\Amqp\Producer',
             'consumer' => __NAMESPACE__ . '\Amqp\Consumer',
             'multiple_consumer' => __NAMESPACE__ . '\Amqp\MultipleConsumer',
