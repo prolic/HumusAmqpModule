@@ -18,7 +18,7 @@
 
 namespace HumusAmqpModule\Service;
 
-use AMQPConnection;
+use HumusAmqp\Connection;
 use HumusAmqpModule\Amqp\PersistentAmqpConnection;
 use HumusAmqpModule\Exception;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -47,12 +47,7 @@ class ConnectionAbstractServiceFactory extends AbstractAmqpAbstractServiceFactor
 
         $spec = $config[$this->subConfigKey][$requestedName];
 
-        if (isset($spec['persistent']) && $spec['persistent']) {
-            unset($spec['persistent']);
-            $connection = new PersistentAmqpConnection($spec);
-        } else {
-            $connection = new AMQPConnection($spec);
-        }
+        $connection = new Connection($spec);
 
         $this->instances[$requestedName] = $connection;
 
