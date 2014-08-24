@@ -28,7 +28,7 @@ before_script:
   - sh -c "php -i"
   # update composer and fetch dependencies
   - composer self-update
-  - composer install  --dev
+  - composer install --dev
 
 script:
   - ./vendor/bin/phpunit --coverage-clover ./build/clover.xml
