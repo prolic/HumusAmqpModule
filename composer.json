@@ -13,7 +13,7 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "ext-amqp"  : "*",
+        "ext-amqp"  : ">=1.4.0",
         "prolic/humus-amqp": "dev-master",
         "marc-mabe/php-enum": "1.2.*",
         "zendframework/zend-console": ">=2.3.0",
