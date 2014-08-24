@@ -324,10 +324,10 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
         if ($flag === self::MSG_REJECT || false === $flag) {
             $this->ackOrNackBlock();
             $this->getQueue()->reject($message->getDeliveryTag(), AMQP_NOPARAM);
-        } else if ($flag === self::MSG_REJECT_REQUEUE) {
+        } elseif ($flag === self::MSG_REJECT_REQUEUE) {
             $this->ackOrNackBlock();
             $this->getQueue()->reject($message->getDeliveryTag(), AMQP_REQUEUE);
-        } else if ($flag === self::MSG_ACK || true === $flag) {
+        } elseif ($flag === self::MSG_ACK || true === $flag) {
             $this->countMessagesConsumed++;
             $this->countMessagesUnacked++;
             $this->lastDeliveryTag = $message->getDeliveryTag();
@@ -385,7 +385,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      *
      * @return void
      */
-    protected function ackOrNackBlock ()
+    protected function ackOrNackBlock()
     {
         if (! $this->lastDeliveryTag) {
             return;

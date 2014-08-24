@@ -379,8 +379,12 @@ class MessageAttributes extends AbstractOptions
             return '_' . strtolower($letter);
         };
         foreach ($this as $key => $value) {
-            if ($key === '__strictMode__') continue;
-            if ($value === null) continue;
+            if ($key === '__strictMode__') {
+                continue;
+            }
+            if ($value === null) {
+                continue;
+            }
             $normalizedKey = preg_replace_callback('/([A-Z])/', $transform, $key);
             $array[$normalizedKey] = $value;
         }
