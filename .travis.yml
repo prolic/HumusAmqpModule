@@ -25,12 +25,10 @@ before_script:
   - sh -c "cd php-amqp && phpize && ./configure && make && sudo make install"
   # add amqp extension to php.ini
   - echo "extension = amqp.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  # get PSR-0 autoloader
-  - sh -c "curl -s http://getcomposer.org/installer | php --"
-  - sh -c "php composer.phar --dev install"
   - sh -c "php -i"
+  # update composer and fetch dependencies
   - composer self-update
-  - composer install
+  - composer install  --dev
 
 script:
   - ./vendor/bin/phpunit --coverage-clover ./build/clover.xml
