@@ -11,16 +11,6 @@ matrix:
     - php: hhvm
 
 before_script:
-  - git clone https://github.com/alanxz/rabbitmq-c rabbitmq-c
-  - cd rabbitmq-c
-  - git checkout v0.5.1
-  - autoreconf -i
-  - ./configure
-  - make
-  - sudo make install
-  - cd ..
-  - pecl install amqp
-  - echo "extension = amqp.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - composer self-update
   - composer update --prefer-source
 
