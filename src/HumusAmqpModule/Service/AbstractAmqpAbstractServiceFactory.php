@@ -18,6 +18,11 @@
 
 namespace HumusAmqpModule\Service;
 
+use AMQPChannel;
+use AMQPConnection;
+use AMQPExchange;
+use HumusAmqpModule\Exception;
+use HumusAmqpModule\ExchangeFactory;
 use HumusAmqpModule\ExchangeSpecification;
 use HumusAmqpModule\PluginManager\Connection as ConnectionManager;
 use HumusAmqpModule\QosOptions;
@@ -49,9 +54,19 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
     protected $connectionManager;
 
     /**
+     * @var string
+     */
+    protected $defaultConnectionName;
+
+    /**
      * @var array
      */
-    protected $instances = array();
+    protected $specs = array();
+
+    /**
+     * @var ExchangeFactory
+     */
+    protected $exchangeFactory;
 
     /**
      * Determine if we can create a service with name
@@ -63,10 +78,6 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
      */
     public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        if (isset($this->instances[$requestedName])) {
-            return true;
-        }
-
         $config = $this->getConfig($serviceLocator);
         if (empty($config)) {
             return false;
@@ -120,16 +131,84 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
     }
 
     /**
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string $exchangeName
-     * @return QosOptions
+     * @param ServiceLocatorInterface $services
+     * @return AMQPConnection
      */
-    protected function getQosOptions(ServiceLocatorInterface $serviceLocator, $exchangeName)
+    protected function getDefaultConnection(ServiceLocatorInterface $services)
     {
-        $config  = $this->getConfig($serviceLocator);
-        $data = isset($config[$this->subConfigKey][$exchangeName]['qos']) ? $config[$this->subConfigKey]['qos'] : array();
-        $qosOptions = new QosOptions($data);
-        return $qosOptions;
+        if (null === $this->defaultConnectionName) {
+            $config = $this->getConfig($services);
+            $this->defaultConnectionName = $config['default_connection'];
+        }
+
+        $connectionManager = $this->getConnectionManager($services);
+        $connection = $connectionManager->get($this->defaultConnectionName);
+
+        return $connection;
+    }
+
+    /**
+     * @param ServiceLocatorInterface $services
+     * @param array $spec
+     * @return AMQPConnection
+     */
+    protected function getConnection(ServiceLocatorInterface $services, array $spec)
+    {
+        if (!isset($spec['connection'])) {
+            return $this->getDefaultConnection($services);
+        }
+
+        $connectionManager = $this->getConnectionManager($services);
+        $connection = $connectionManager->get($spec['connection']);
+
+        return $connection;
+    }
+
+    /**
+     * Note: Exchanges are not shared, only using producers or consumers can be shared
+     *
+     * @param ServiceLocatorInterface $services
+     * @param string $name
+     * @param string $requestedName
+     * @return AMQPExchange
+     */
+    protected function getExchange(ServiceLocatorInterface $services, $name, $requestedName)
+    {
+        $spec = $this->getSpec($services, $name, $requestedName);
+        $connection = $this->getConnection($services, $spec);
+        $channel = $this->getChannel($connection, $spec);
+
+        $exchangeSpec = $this->getExchangeSpec($services, $spec['exchange']);
+        $exchange = $this->getExchangeFactory()->create($exchangeSpec, $channel, $this->useAutoSetupFabric($spec));
+
+        return $exchange;
+    }
+
+    /**
+     * @param AMQPConnection $connection
+     * @param array $spec
+     * @return AMQPChannel
+     */
+    protected function getChannel(AMQPConnection $connection, array $spec)
+    {
+        $qosOptions = isset($spec['qos']) ? new QosOptions($spec['qos']) : new QosOptions();
+
+        $channel = new AMQPChannel($connection);
+        $channel->setPrefetchCount($qosOptions->getPrefetchCount());
+        $channel->setPrefetchSize($qosOptions->getPrefetchSize());
+
+        return $channel;
+    }
+
+    /**
+     * @return ExchangeFactory
+     */
+    protected function getExchangeFactory()
+    {
+        if (null === $this->exchangeFactory) {
+            $this->exchangeFactory = new ExchangeFactory();
+        }
+        return $this->exchangeFactory;
     }
 
     /**
@@ -155,13 +234,21 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
 
     /**
      * @param ServiceLocatorInterface $serviceLocator
+     * @param string $name
      * @param string $requestedName
      * @return array
      */
-    protected function getSpec(ServiceLocatorInterface $serviceLocator, $requestedName)
+    protected function getSpec(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
+        if (isset($this->specs[$name])) {
+            return $this->specs[$name];
+        }
+
         $config  = $this->getConfig($serviceLocator);
         $spec = $config[$this->subConfigKey][$requestedName];
+
+        $this->specs[$name] = $spec;
+
         return $spec;
     }
 
@@ -172,7 +259,7 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
      */
     protected function getConnectionManager(ServiceLocatorInterface $serviceLocator)
     {
-        if ($this->connectionManager === null) {
+        if (null === $this->connectionManager) {
             if (!$serviceLocator->has('HumusAmqpModule\PluginManager\Connection')) {
                 throw new Exception\RuntimeException(
                     'HumusAmqpModule\PluginManager\Connection not found'

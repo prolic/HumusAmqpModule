@@ -14,6 +14,11 @@ class QueueSpecification extends AbstractOptions
     /**
      * @var string
      */
+    protected $callback;
+
+    /**
+     * @var string
+     */
     protected $exchangeName = '';
 
     /**
@@ -68,6 +73,22 @@ class QueueSpecification extends AbstractOptions
         $flags |= $this->getAutoDelete() ? AMQP_AUTODELETE : 0;
 
         return $flags;
+    }
+
+    /**
+     * @param string $callback
+     */
+    public function setCallback($callback)
+    {
+        $this->callback = $callback;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCallback()
+    {
+        return $this->callback;
     }
 
     /**

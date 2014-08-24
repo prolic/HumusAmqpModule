@@ -16,7 +16,7 @@ class ExchangeFactory
     public function create(ExchangeSpecification $specification, AMQPChannel $channel, $autoDeclare = true)
     {
         $exchange = new AMQPExchange($channel);
-        $exchange->setType($specification->getType());
+        $exchange->setType($specification->getType()->getValue());
         $exchange->setFlags($specification->getFlags());
         $exchange->setArguments($specification->getArguments());
 

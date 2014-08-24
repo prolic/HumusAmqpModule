@@ -18,11 +18,6 @@
 
 namespace HumusAmqpModule\Service;
 
-use AMQPChannel;
-use HumusAmqpModule\Exception;
-use HumusAmqpModule\ExchangeFactory;
-use HumusAmqpModule\ExchangeSpecification;
-use HumusAmqpModule\PluginManager\Connection as ConnectionManager;
 use HumusAmqpModule\Producer;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -35,57 +30,24 @@ class ProducerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
     protected $subConfigKey = 'producers';
 
     /**
-     * @var ExchangeFactory
-     */
-    protected $exchangeFactory;
-
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->exchangeFactory = new ExchangeFactory();
-    }
-
-    /**
      * Create service with name
      *
      * @param ServiceLocatorInterface $serviceLocator
      * @param $name
      * @param $requestedName
      * @return mixed
-     * @throws Exception\RuntimeException
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         // get global service locator, if we are in a plugin manager
+        // @todo: recheck, if this is really necessary and try to find another way of getting the global service locator
         if ($serviceLocator instanceof AbstractPluginManager) {
             $serviceLocator = $serviceLocator->getServiceLocator();
         }
 
-        $spec = $this->getSpec($serviceLocator, $requestedName);
-
-        // use default connection if nothing else present
-        if (!isset($spec['connection'])) {
-            $spec['connection'] = 'default';
-        }
-
-        $connectionManager = $this->getConnectionManager($serviceLocator);
-        $connection = $connectionManager->get($spec['connection']);
-
-        $qosOptions = $this->getQosOptions($serviceLocator, $requestedName);
-
-        $channel = new AMQPChannel($connection);
-        $channel->setPrefetchCount($qosOptions->getPrefetchCount());
-        $channel->setPrefetchSize($qosOptions->getPrefetchSize());
-
-        $exchangeSpec = $this->getExchangeSpec($serviceLocator, $spec['exchange']);
-        $exchange = $this->exchangeFactory->create($exchangeSpec, $channel, $this->useAutoSetupFabric($spec));
-
+        $exchange = $this->getExchange($serviceLocator, $name, $requestedName);
         $producer = new Producer($exchange);
 
         return $producer;
     }
-
-
 }

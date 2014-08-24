@@ -21,6 +21,7 @@ namespace HumusAmqpModule\Service;
 use HumusAmqpModule\Exception;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
+// @todo: make traits !!
 abstract class AbstractAmqpCallbackAwareAbstractServiceFactory extends AbstractAmqpConnectionAwareAbstractServiceFactory
 {
     /**

@@ -4,33 +4,34 @@ namespace HumusAmqpModule;
 
 use AMQPChannel;
 use AMQPExchange;
+use AMQPQueue;
 
-class ExchangeFactory
+class QueueFactory
 {
     /**
-     * @param ExchangeSpecification $specification
+     * @param QueueSpecification $specification
      * @param AMQPChannel $channel
      * @param bool $autoDeclare
-     * @return AMQPExchange
+     * @return AMQPQueue
      */
-    public function create(ExchangeSpecification $specification, AMQPChannel $channel, $autoDeclare = true)
+    public function create(QueueSpecification $specification, AMQPChannel $channel, $autoDeclare = true)
     {
-        $exchange = new AMQPExchange($channel);
-        $exchange->setType($specification->getType()->getValue());
-        $exchange->setFlags($specification->getFlags());
-        $exchange->setArguments($specification->getArguments());
+        $channel->setPrefetchCount($specification->getQosOptions()->getPrefetchCount());
+        $channel->setPrefetchSize($specification->getQosOptions()->getPrefetchSize());
+
+        $queue = new AMQPQueue($channel);
+        $queue->setName($specification->getName());
+        $queue->setFlags($specification->getFlags());
+        $queue->setArguments($specification->getArguments());
 
         if ($autoDeclare) {
-            $exchange->declareExchange();
-
-            // rabbitmq extension: exchange to exchange bindings
-            foreach ($specification->getExchangeBindings() as $exchangeName => $routingKeys) {
-                foreach ($routingKeys as $routingKey) {
-                    $exchange->bind($exchangeName, $routingKey, $specification->getFlags());
-                }
+            // @todo: declare exchanges, first
+            $queue->declareQueue();
+            foreach ($specification->getRoutingKeys() as $routingKey) {
+                $queue->bind($specification->getExchangeName(), $routingKey, $specification->getBindArguments());
             }
         }
 
-        return $exchange;
+        return $queue;
     }
 }

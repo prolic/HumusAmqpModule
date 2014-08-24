@@ -14,6 +14,11 @@ abstract class AbstractRpcServer extends AbstractConsumer
     protected $exchange;
 
     /**
+     * @var callable
+     */
+    protected $callback;
+
+    /**
      * Constructor
      *
      * @param AMQPExchange $exchange
@@ -82,14 +87,6 @@ abstract class AbstractRpcServer extends AbstractConsumer
      */
     protected function handleProcessFlag(AMQPEnvelope $message, $flag)
     {
-        if ($flag === self::MSG_REJECT || false === $flag) {
-            $this->ackOrNackBlock();
-            $this->getQueue()->reject($message->getDeliveryTag(), AMQP_NOPARAM);
-        } else if ($flag === self::MSG_REJECT_REQUEUE) {
-            $this->ackOrNackBlock();
-            $this->getQueue()->reject($message->getDeliveryTag(), AMQP_REQUEUE);
-        } else {
-            // ignore, do nothing, message was already acked
-        }
+        // ignore, do nothing, message was already acked
     }
 }

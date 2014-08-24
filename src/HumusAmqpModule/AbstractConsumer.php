@@ -25,6 +25,11 @@ abstract class AbstractConsumer implements ConsumerInterface, LoggerAwareInterfa
     protected $queues;
 
     /**
+     * @var callable[]
+     */
+    protected $callbacks;
+
+    /**
      * Number of consumed messages
      *
      * @var int

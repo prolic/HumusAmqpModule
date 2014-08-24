@@ -9,16 +9,6 @@ class ExchangeSpecification extends AbstractOptions
     /**
      * @var array
      */
-    protected $validTypes = array(
-        AMQP_EX_TYPE_HEADERS,
-        AMQP_EX_TYPE_TOPIC,
-        AMQP_EX_TYPE_DIRECT,
-        AMQP_EX_TYPE_FANOUT
-    );
-
-    /**
-     * @var array
-     */
     protected $arguments = array(
         'internal' => false // RabbitMQ Extension
     );
@@ -49,9 +39,20 @@ class ExchangeSpecification extends AbstractOptions
     protected $name = '';
 
     /**
-     * @var string
+     * @var ExchangeType
      */
-    protected $type = 'direct';
+    protected $type;
+
+    /**
+     * Constructor
+     *
+     * @param  array|\Traversable|null $options
+     */
+    public function __construct($options = null)
+    {
+        $this->type = ExchangeType::get('direct');
+        parent::__construct($options);
+    }
 
     /**
      * @return int
@@ -83,21 +84,22 @@ class ExchangeSpecification extends AbstractOptions
     }
 
     /**
-     * @param string $type
+     * @param ExchangeType|string $type
      * @throws Exception\InvalidArgumentException
      */
     public function setType($type)
     {
-        if (!in_array($type, $this->validTypes)) {
-            throw new Exception\InvalidArgumentException(
-                'type must be one of ' . join(', ', $this->validTypes) . ', ' . $type . ' given'
-            );
+        if (is_string($type)) {
+            $type = ExchangeType::get($type);
+        }
+        if (!$type instanceof ExchangeType) {
+            throw new Exception\InvalidArgumentException('Invalid type given');
         }
         $this->type = $type;
     }
 
     /**
-     * @return string
+     * @return ExchangeType
      */
     public function getType()
     {
