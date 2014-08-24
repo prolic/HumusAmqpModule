@@ -1,7 +1,13 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: sasa
- * Date: 23.08.14
- * Time: 16:48
- */ 
+
+namespace HumusAmqpModule;
+
+use MabeEnum\Enum;
+
+final class ExchangeType extends Enum
+{
+    const AMQP_EX_TYPE_DIRECT = 'direct';
+    const AMQP_EX_TYPE_TOPIC = 'topic';
+    const AMQP_EX_TYPE_FANOUT = 'fanout';
+    const AMQP_EX_TYPE_HEADERS = 'headers';
+}
