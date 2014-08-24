@@ -1,6 +1,6 @@
 <?php
 
-namespace HumusAmqp;
+namespace HumusAmqpModule;
 
 use AMQPExchange;
 use AMQPQueue;

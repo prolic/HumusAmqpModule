@@ -1,6 +1,6 @@
 <?php
 
-namespace HumusAmqp;
+namespace HumusAmqpModule;
 
 use AMQPExchange;
 
@@ -10,11 +10,6 @@ class Producer implements ProducerInterface
      * @var AMQPExchange
      */
     protected $exchange;
-
-    /**
-     * @var QosOptions
-     */
-    protected $qosOptions;
 
     /**
      * Constructor
@@ -29,9 +24,9 @@ class Producer implements ProducerInterface
     /**
      * @param string $body
      * @param string $routingKey
-     * @param array|\Traversable|MessageAttributes $attributes
+     * @param array|\Traversable|MessageAttributes|null $attributes
      */
-    public function publish($body, $routingKey, $attributes)
+    public function publish($body, $routingKey = '', $attributes = null)
     {
         if (!$attributes instanceof MessageAttributes) {
             $attributes = new MessageAttributes($attributes);
@@ -43,9 +38,9 @@ class Producer implements ProducerInterface
     /**
      * @param array $bodies
      * @param string $routingKey
-     * @param array|\Traversable|MessageAttributes $attributes
+     * @param array|\Traversable|MessageAttributes|null $attributes
      */
-    public function publishBatch(array $bodies, $routingKey, $attributes)
+    public function publishBatch(array $bodies, $routingKey = '', $attributes = null)
     {
         if (!$attributes instanceof MessageAttributes) {
             $attributes = new MessageAttributes($attributes);

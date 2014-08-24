@@ -16,7 +16,7 @@
  * and is licensed under the MIT license.
  */
 
-namespace HumusAmqp;
+namespace HumusAmqpModule;
 
 use AMQPChannel;
 use AMQPEnvelope;
