@@ -18,12 +18,12 @@
 
 namespace HumusAmqpModule\Service;
 
-use HumusAmqpModule\Amqp\RpcServer;
+use HumusAmqpModule\RpcServer;
 use HumusAmqpModule\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class RpcServerAbstractServiceFactory extends AbstractAmqpCallbackAwareAbstractServiceFactory
+class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFactory
 {
     /**
      * @var string Second-level configuration key indicating connection configuration
@@ -34,9 +34,10 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpCallbackAwareAbstractS
      * Create service with name
      *
      * @param ServiceLocatorInterface $serviceLocator
-     * @param $name
-     * @param $requestedName
-     * @return mixed
+     * @param string $name
+     * @param string $requestedName
+     * @return RpcServer
+     * @throws Exception\InvalidArgumentException
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
@@ -45,38 +46,26 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpCallbackAwareAbstractS
             $serviceLocator = $serviceLocator->getServiceLocator();
         }
 
-        $spec = $this->getSpec($serviceLocator, $requestedName);
-
-        // use default connection if nothing else present
-        if (!isset($spec['connection'])) {
-            $spec['connection'] = 'default';
-        }
-
-        $connectionManager = $this->getConnectionManager($serviceLocator);
-        $callbackManager   = $this->getCallbackManager($serviceLocator);
-
-        $connection = $connectionManager->get($spec['connection']);
-        $rpcServer = new $class($connection); // abstract rpc server
-
-        if (!$rpcServer instanceof RpcServer) {
-            throw new Exception\RuntimeException(sprintf(
-                'Consumer of type %s is invalid; must extends %s',
-                (is_object($rpcServer) ? get_class($rpcServer) : gettype($rpcServer)),
-                'HumusAmqpModule\Amqp\RpcServer'
-            ));
-        }
+        $spec       = $this->getSpec($serviceLocator, $name, $requestedName);
 
         if (!isset($spec['callback'])) {
-            throw new Exception\RuntimeException('callback is missing for rpc server');
+            throw new Exception\InvalidArgumentException('callback is missing for rpc server');
         }
 
-        $rpcServer->setCallback($callbackManager->get($spec['callback']));
+        $connection = $this->getConnection($serviceLocator, $spec);
+        $channel    = $this->createChannel($connection, $spec);
 
-        if (isset($spec['qos_options'])) {
-            $rpcServer->setQosOptions($spec['qos_options']);
-        }
+        $exchange = $this->getExchange($serviceLocator, $channel, $spec);
+        $queue    = $this->getQueue($serviceLocator, $channel, $spec);
 
-        $rpcServer->initServer($requestedName);
+        $idleTimeout = isset($spec['idle_timeout']) ? $spec['idle_timeout'] : null;
+        $waitTimeout = isset($spec['wait_timeout']) ? $spec['wait_timeout'] : null;
+
+        $rpcServer = new RpcServer($exchange, $queue, $idleTimeout, $waitTimeout);
+
+        $callbackManager   = $this->getCallbackManager($serviceLocator);
+
+        $rpcServer->setDeliveryCallback($callbackManager->get($spec['callback']));
 
         return $rpcServer;
     }

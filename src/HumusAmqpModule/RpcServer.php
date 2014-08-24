@@ -6,7 +6,7 @@ use AMQPEnvelope;
 use AMQPExchange;
 use AMQPQueue;
 
-abstract class AbstractRpcServer extends AbstractConsumer
+class RpcServer extends Consumer
 {
     /**
      * @var AMQPExchange
@@ -49,16 +49,17 @@ abstract class AbstractRpcServer extends AbstractConsumer
             $this->timestampLastMessage = microtime(1);
             $this->ack();
 
-            $result = $this->processMessage($message, $queue);
-            $result = json_encode(array('success' => true, 'result' => $result));
-            $this->sendReply($result, $message->getReplyTo(), $message->getCorrelationId());
+            $callback = $this->getDeliveryCallback();
+            $result = call_user_func_array($callback, array($message, $queue));
+
+            $reponse = json_encode(array('success' => true, 'result' => $result));
+
+            $this->sendReply($reponse, $message->getReplyTo(), $message->getCorrelationId());
         } catch (\Exception $e) {
             $result = json_encode(array('success' => false, 'error' => $e->getMessage()));
             $this->sendReply($result, $message->getReplyTo(), $message->getCorrelationId());
         }
     }
-
-    abstract public function processMessage(AMQPEnvelope $message, AMQPQueue $queue);
 
     /**
      * Send reply to rpc client
