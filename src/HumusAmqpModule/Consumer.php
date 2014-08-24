@@ -15,7 +15,7 @@ use Zend\Log\LoggerInterface;
  *
  * The used block size is the configured prefetch size of the queue's channel
  */
-abstract class AbstractConsumer implements ConsumerInterface, LoggerAwareInterface
+class Consumer implements ConsumerInterface, LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
@@ -63,6 +63,13 @@ abstract class AbstractConsumer implements ConsumerInterface, LoggerAwareInterfa
     protected $idleTimeout;
 
     /**
+     * Wait timeout in microseconds
+     *
+     * @var int
+     */
+    protected $waitTimeout;
+
+    /**
      * The blocksize (see prefetch_count)
      *
      * @var int
@@ -95,25 +102,25 @@ abstract class AbstractConsumer implements ConsumerInterface, LoggerAwareInterfa
     protected $target;
 
     /**
+     * @var callable
+     */
+    protected $deliveryCallback;
+
+    /**
+     * @var callable
+     */
+    protected $flushCallback;
+
+    /**
      * Constructor
      *
      * @param array|\Traversable $queues
      * @param float $idleTimeout in seconds
-     * @throws Exception\ExtensionNotLoadedException
+     * @param int $waitTimeout in microseconds
      * @throws Exception\InvalidArgumentException
-     *
-     * @todo: add wait timeout param
-     * @todo: add block size (see: flushDeferred()) param
-     * @todo: remove pcntl_signal handler and move to controller
      */
-    public function __construct($queues, $idleTimeout = 5.00)
+    public function __construct($queues, $idleTimeout = 5.00, $waitTimeout = 1000)
     {
-        if (!extension_loaded('pcntl') || !function_exists('pcntl_signal')) {
-            throw new Exception\ExtensionNotLoadedException(
-                'Missing ext/pcntl'
-            );
-        }
-
         if (!is_array($queues) || !$queues instanceof \Traversable) {
             throw new Exception\InvalidArgumentException(
                 'Expected an array or Traversable of queues'
@@ -139,10 +146,46 @@ abstract class AbstractConsumer implements ConsumerInterface, LoggerAwareInterfa
         }
         $this->idleTimeout = $idleTimeout;
         $this->queues = new InfiniteIterator(new ArrayIterator($q));
+    }
 
-        pcntl_signal(SIGUSR1, array($this, 'handleShutdownSignal'));
-        pcntl_signal(SIGINT,  array($this, 'handleShutdownSignal'));
-        pcntl_signal(SIGTERM, array($this, 'handleShutdownSignal'));
+    /**
+     * @param callable $callback
+     * @throws Exception\InvalidArgumentException
+     */
+    public function setDeliveryCallback($callback)
+    {
+        if (!is_callable($callback)) {
+            throw new Exception\InvalidArgumentException('Invalid callback given');
+        }
+        $this->deliveryCallback = $callback;
+    }
+
+    /**
+     * @return callable
+     */
+    public function getDeliveryCallback()
+    {
+        return $this->deliveryCallback;
+    }
+
+    /**
+     * @param callable $callback
+     * @throws Exception\InvalidArgumentException
+     */
+    public function setFlushCallback($callback)
+    {
+        if (!is_callable($callback)) {
+            throw new Exception\InvalidArgumentException('Invalid callback given');
+        }
+        $this->flushCallback = $callback;
+    }
+
+    /**
+     * @return callable|null
+     */
+    public function getFlushCallback()
+    {
+        return $this->flushCallback;
     }
 
     /**
@@ -192,7 +235,7 @@ abstract class AbstractConsumer implements ConsumerInterface, LoggerAwareInterfa
                 }
                 $this->handleProcessFlag($message, $processFlag);
             } else {
-                usleep(1000); // 1/1000 sec
+                usleep($this->waitTimeout);
             }
 
             $now = microtime(1);
@@ -207,11 +250,23 @@ abstract class AbstractConsumer implements ConsumerInterface, LoggerAwareInterfa
     }
 
     /**
+     * @param AMQPEnvelope $message
+     * @param AMQPQueue $queue
+     * @return bool|null
+     */
+    public function handleDelivery(AMQPEnvelope $message, AMQPQueue $queue)
+    {
+        $callback = $this->getDeliveryCallback();
+
+        return call_user_func_array($callback, array($message, $queue));
+    }
+
+    /**
      * Handle shutdown signal
      *
      * @return void
      */
-    final public function handleShutdownSignal()
+    public function handleShutdownSignal()
     {
         $this->keepAlive = false;
     }
@@ -237,7 +292,13 @@ abstract class AbstractConsumer implements ConsumerInterface, LoggerAwareInterfa
      */
     public function flushDeferred()
     {
-        return true;
+        $callback = $this->getFlushCallback();
+
+        if (null === $callback) {
+            return true;
+        }
+
+        return call_user_func($callback);
     }
 
     /**

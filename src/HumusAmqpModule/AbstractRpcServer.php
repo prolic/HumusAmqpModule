@@ -14,29 +14,26 @@ abstract class AbstractRpcServer extends AbstractConsumer
     protected $exchange;
 
     /**
-     * @var callable
+     * @var callable[]
      */
-    protected $callback;
+    protected $callbacks;
 
     /**
      * Constructor
      *
      * @param AMQPExchange $exchange
-     * @param array|\Traversable $queues
+     * @param AMQPQueue $queue
      * @param float $idleTimeout in seconds
-     * @throws Exception\ExtensionNotLoadedException
-     * @throws Exception\InvalidArgumentException
+     * @param int $waitTimeout in microseconds
      */
-    public function __construct(AMQPExchange $exchange, $queues, $idleTimeout = 5.00)
+    public function __construct(AMQPExchange $exchange, AMQPQueue $queue, $idleTimeout = 5.00, $waitTimeout = 1000)
     {
-        if (count($queues) != 1) {
-            throw new Exception\InvalidArgumentException(
-                'RpcServer needs exactly 1 queue, ' . count($queues) . ' given'
-            );
-        }
-        parent::__construct($queues, $idleTimeout);
+        $queues = array($queue);
+        parent::__construct($queues, $idleTimeout, $waitTimeout);
         $this->exchange = $exchange;
     }
+
+
 
     /**
      * @param AMQPEnvelope $message
