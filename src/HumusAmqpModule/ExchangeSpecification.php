@@ -1,6 +1,6 @@
 <?php
 
-namespace HumusAmqp;
+namespace HumusAmqpModule;
 
 use Zend\Stdlib\AbstractOptions;
 
@@ -42,11 +42,6 @@ class ExchangeSpecification extends AbstractOptions
      * @var bool
      */
     protected $durable = true;
-
-    /**
-     * @var bool
-     */
-    protected $autoDeclare = true;
 
     /**
      * @var string
@@ -107,22 +102,6 @@ class ExchangeSpecification extends AbstractOptions
     public function getType()
     {
         return $this->type;
-    }
-
-    /**
-     * @param boolean $autoDeclare
-     */
-    public function setAutoDeclare($autoDeclare)
-    {
-        $this->autoDeclare = $autoDeclare;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function getAutoDeclare()
-    {
-        return $this->autoDeclare;
     }
 
     /**

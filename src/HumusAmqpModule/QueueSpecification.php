@@ -1,6 +1,6 @@
 <?php
 
-namespace HumusAmqp;
+namespace HumusAmqpModule;
 
 use Zend\Stdlib\AbstractOptions;
 
@@ -35,11 +35,6 @@ class QueueSpecification extends AbstractOptions
      * @var bool
      */
     protected $autoDelete = false;
-
-    /**
-     * @var bool
-     */
-    protected $autoDeclare = true;
 
     /**
      * @var array
@@ -161,22 +156,6 @@ class QueueSpecification extends AbstractOptions
     public function getDurable()
     {
         return $this->durable;
-    }
-
-    /**
-     * @param boolean $autoDeclare
-     */
-    public function setAutoDeclare($autoDeclare)
-    {
-        $this->autoDeclare = $autoDeclare;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function getAutoDeclare()
-    {
-        return $this->autoDeclare;
     }
 
     /**
