@@ -21,6 +21,10 @@ namespace HumusAmqpModule\Service;
 use AMQPConnection;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
+/**
+ * Instantiates an AMQPConnection and created the connection
+ * (persistent or not-persistent) dependent on specification
+ */
 class ConnectionAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
 {
     /**
@@ -38,16 +42,11 @@ class ConnectionAbstractServiceFactory extends AbstractAmqpAbstractServiceFactor
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        if (isset($this->instances[$requestedName])) {
-            return $this->instances[$requestedName];
-        }
         $config  = $this->getConfig($serviceLocator);
 
         $spec = $config[$this->subConfigKey][$requestedName];
 
         $connection = new AMQPConnection($spec);
-
-        $this->instances[$requestedName] = $connection;
 
         if (isset($spec['persistent']) && $spec['persistent']) {
             $connection->pconnect();
