@@ -45,15 +45,7 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpCallbackAwareAbstractS
             $serviceLocator = $serviceLocator->getServiceLocator();
         }
 
-        $config = $this->getConfig($serviceLocator);
-
-        $spec = $config[$this->subConfigKey][$requestedName];
-
-        if (isset($spec['class'])) {
-            $class = $spec['class'];
-        } else {
-            $class = $config['classes']['rpc_server'];
-        }
+        $spec = $this->getSpec($serviceLocator, $requestedName);
 
         // use default connection if nothing else present
         if (!isset($spec['connection'])) {
@@ -64,7 +56,7 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpCallbackAwareAbstractS
         $callbackManager   = $this->getCallbackManager($serviceLocator);
 
         $connection = $connectionManager->get($spec['connection']);
-        $rpcServer = new $class($connection);
+        $rpcServer = new $class($connection); // abstract rpc server
 
         if (!$rpcServer instanceof RpcServer) {
             throw new Exception\RuntimeException(sprintf(

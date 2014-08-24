@@ -18,6 +18,9 @@
 
 namespace HumusAmqpModule\Service;
 
+use HumusAmqpModule\ExchangeSpecification;
+use HumusAmqpModule\PluginManager\Connection as ConnectionManager;
+use HumusAmqpModule\QosOptions;
 use Traversable;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\AbstractPluginManager;
@@ -39,6 +42,11 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
      * @var string Second-level configuration key indicating connection configuration
      */
     protected $subConfigKey = '';
+
+    /**
+     * @var ConnectionManager
+     */
+    protected $connectionManager;
 
     /**
      * @var array
@@ -70,9 +78,7 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
 
         $spec = $config[$this->subConfigKey][$requestedName];
 
-        if ((is_array($spec) || $spec instanceof Traversable)
-            && !empty($spec)
-        ) {
+        if ((is_array($spec) || $spec instanceof Traversable)) {
             return true;
         }
 
@@ -111,5 +117,69 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
 
         $this->config = $config[$this->configKey];
         return $this->config;
+    }
+
+    /**
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param string $exchangeName
+     * @return QosOptions
+     */
+    protected function getQosOptions(ServiceLocatorInterface $serviceLocator, $exchangeName)
+    {
+        $config  = $this->getConfig($serviceLocator);
+        $data = isset($config[$this->subConfigKey][$exchangeName]['qos']) ? $config[$this->subConfigKey]['qos'] : array();
+        $qosOptions = new QosOptions($data);
+        return $qosOptions;
+    }
+
+    /**
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param string $exchangeName
+     * @return ExchangeSpecification
+     */
+    protected function getExchangeSpec(ServiceLocatorInterface $serviceLocator, $exchangeName)
+    {
+        $config  = $this->getConfig($serviceLocator);
+        $spec = new ExchangeSpecification($config['exchanges'][$exchangeName]);
+        return $spec;
+    }
+
+    /**
+     * @param array $spec
+     * @return bool
+     */
+    protected function useAutoSetupFabric(array $spec)
+    {
+        return (isset($spec['auto_setup_fabric']) && $spec['auto_setup_fabric']);
+    }
+
+    /**
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param string $requestedName
+     * @return array
+     */
+    protected function getSpec(ServiceLocatorInterface $serviceLocator, $requestedName)
+    {
+        $config  = $this->getConfig($serviceLocator);
+        $spec = $config[$this->subConfigKey][$requestedName];
+        return $spec;
+    }
+
+    /**
+     * @param ServiceLocatorInterface $serviceLocator
+     * @return ConnectionManager
+     * @throws \HumusAmqpModule\Exception\RuntimeException
+     */
+    protected function getConnectionManager(ServiceLocatorInterface $serviceLocator)
+    {
+        if ($this->connectionManager === null) {
+            if (!$serviceLocator->has('HumusAmqpModule\PluginManager\Connection')) {
+                throw new Exception\RuntimeException(
+                    'HumusAmqpModule\PluginManager\Connection not found'
+                );
+            }
+            $this->connectionManager = $serviceLocator->get('HumusAmqpModule\PluginManager\Connection');
+        }
+        return $this->connectionManager;
     }
 }

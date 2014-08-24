@@ -18,8 +18,12 @@
 
 namespace HumusAmqpModule\Service;
 
-use HumusAmqpModule\Amqp\Producer;
+use AMQPChannel;
 use HumusAmqpModule\Exception;
+use HumusAmqpModule\ExchangeFactory;
+use HumusAmqpModule\ExchangeSpecification;
+use HumusAmqpModule\PluginManager\Connection as ConnectionManager;
+use HumusAmqpModule\Producer;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -31,12 +35,26 @@ class ProducerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
     protected $subConfigKey = 'producers';
 
     /**
+     * @var ExchangeFactory
+     */
+    protected $exchangeFactory;
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->exchangeFactory = new ExchangeFactory();
+    }
+
+    /**
      * Create service with name
      *
      * @param ServiceLocatorInterface $serviceLocator
      * @param $name
      * @param $requestedName
      * @return mixed
+     * @throws Exception\RuntimeException
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
@@ -45,52 +63,29 @@ class ProducerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
             $serviceLocator = $serviceLocator->getServiceLocator();
         }
 
-        if (!$serviceLocator->has('HumusAmqpModule\PluginManager\Connection')) {
-            throw new Exception\RuntimeException(
-                'HumusAmqpModule\PluginManager\Connection not found'
-            );
-        }
-
-        $config  = $this->getConfig($serviceLocator);
-
-        $spec = $config[$this->subConfigKey][$requestedName];
-
-        if (isset($spec['class'])) {
-            $class = $spec['class'];
-        } else {
-            $class = $config['classes']['producer'];
-        }
+        $spec = $this->getSpec($serviceLocator, $requestedName);
 
         // use default connection if nothing else present
         if (!isset($spec['connection'])) {
             $spec['connection'] = 'default';
         }
 
-        $connectionManager = $serviceLocator->get('HumusAmqpModule\PluginManager\Connection');
+        $connectionManager = $this->getConnectionManager($serviceLocator);
         $connection = $connectionManager->get($spec['connection']);
 
-        $producer = new $class($connection);
+        $qosOptions = $this->getQosOptions($serviceLocator, $requestedName);
 
-        if (!$producer instanceof Producer) {
-            throw new Exception\RuntimeException(sprintf(
-                'Producer of type %s is invalid; must implement %s',
-                (is_object($producer) ? get_class($producer) : gettype($producer)),
-                'HumusAmqpModule\Amqp\Producer'
-            ));
-        }
+        $channel = new AMQPChannel($connection);
+        $channel->setPrefetchCount($qosOptions->getPrefetchCount());
+        $channel->setPrefetchSize($qosOptions->getPrefetchSize());
 
-        if (isset($spec['exchange_options'])) {
-            $producer->setExchangeOptions($spec['exchange_options']);
-        }
+        $exchangeSpec = $this->getExchangeSpec($serviceLocator, $spec['exchange']);
+        $exchange = $this->exchangeFactory->create($exchangeSpec, $channel, $this->useAutoSetupFabric($spec));
 
-        if (isset($spec['queue_options'])) {
-            $producer->setQueueOptions($spec['queue_options']);
-        }
-
-        if (isset($spec['auto_setup_fabric']) && !$spec['auto_setup_fabric']) {
-            $producer->disableAutoSetupFabric();
-        }
+        $producer = new Producer($exchange);
 
         return $producer;
     }
+
+
 }
