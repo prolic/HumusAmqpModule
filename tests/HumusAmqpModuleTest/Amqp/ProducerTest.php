@@ -18,44 +18,29 @@
 
 namespace HumusAmqpModuleTest\Amqp;
 
-use HumusAmqpModule\Amqp\Producer;
+use HumusAmqpModule\Producer;
 
 class ProducerTest extends \PHPUnit_Framework_TestCase
 {
     public function testPublish()
     {
-        $amqpConnection = $this->getMockBuilder('\PhpAmqpLib\Connection\AMQPConnection')
+        $exchange = $this->getMockBuilder('AMQPExchange')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $amqpChannel = $this->getMockBuilder('\PhpAmqpLib\Channel\AMQPChannel')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $amqpChannel
-            ->expects($this->once())
-            ->method('basic_publish')
-            ->with($this->anything(), '', 'bar');
-
-        $producer = new Producer($amqpConnection, $amqpChannel);
-
-        $producer->setContentType('text/plain');
-        $producer->setDeliveryMode(2);
-        $producer->disableAutoSetupFabric();
+        $producer = new Producer($exchange);
 
         $producer->publish('foo', 'bar', array('baz' => 'bam'));
     }
 
     public function testBatchPublish()
     {
-        $amqpConnection = $this->getMockBuilder('\PhpAmqpLib\Connection\AMQPConnection')
+        $exchange = $this->getMockBuilder('AMQPExchange')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $amqpChannel = $this->getMockBuilder('\PhpAmqpLib\Channel\AMQPChannel')
-            ->disableOriginalConstructor()
-            ->getMock();
-
+        $producer = new Producer($exchange);
+/*
         $amqpChannel
             ->expects($this->exactly(2))
             ->method('batch_basic_publish');
@@ -63,13 +48,9 @@ class ProducerTest extends \PHPUnit_Framework_TestCase
         $amqpChannel
             ->expects($this->once())
             ->method('publish_batch');
+*/
+        $producer = new Producer($exchange);
 
-        $producer = new Producer($amqpConnection, $amqpChannel);
-
-        $producer->publishBasicBatch('foo');
-        $msg = $producer->defaultMessage('bar');
-        $producer->publishBasicBatchMessage($msg);
-
-        $producer->publishBatch();
+        $producer->publishBatch(array('foo', 'bar'));
     }
 }

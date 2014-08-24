@@ -33,7 +33,7 @@ class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
         $this->setApplicationConfig(include __DIR__ . '/../../TestConfiguration.php.dist');
         parent::setUp();
     }
-
+/*
     public function testDispatch()
     {
         $producer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestProducer', array('setupFabric'));
@@ -69,4 +69,5 @@ class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
         $this->assertNotFalse(strstr($res, 'No rpc_servers found to configure'));
         $this->assertNotFalse(strstr($res, 'Declaring exchanges and queues for producers'));
     }
+*/
 }

@@ -18,8 +18,7 @@
 
 namespace HumusAmqpModuleTest\Amqp;
 
-use HumusAmqpModule\Amqp\Consumer;
-use HumusAmqpModule\Amqp\ConsumerInterface;
+use HumusAmqpModule\Consumer;
 use PhpAmqpLib\Message\AMQPMessage;
 
 class ConsumerTest extends \PHPUnit_Framework_TestCase
@@ -31,11 +30,11 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
      */
     public function testProcessMessage($processFlag, $expectedMethod, $expectedRequeue = null)
     {
-        $amqpConnection = $this->getMockBuilder('\PhpAmqpLib\Connection\AMQPConnection')
+        $amqpConnection = $this->getMockBuilder('AMQPConnection')
             ->disableOriginalConstructor()
             ->getMock();
 
-        $amqpChannel = $this->getMockBuilder('\PhpAmqpLib\Channel\AMQPChannel')
+        $amqpChannel = $this->getMockBuilder('AMQPChannel')
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -45,12 +44,12 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $callbackFunction = function () use ($processFlag) {
             return $processFlag;
         };
-        $consumer->setCallback($callbackFunction);
+        $consumer->setDeliveryCallback($callbackFunction);
 
         // Create a default message
-        $amqpMessage = new AMQPMessage('foo body');
-        $amqpMessage->delivery_info['channel'] = $amqpChannel;
-        $amqpMessage->delivery_info['delivery_tag'] = 0;
+        $amqpMessage = $this->getMock('AMQPEnvelope');
+
+        $queue = $this->getMock('AMQPQueue');
 
         $amqpChannel->expects($this->any())
             ->method('basic_reject')
@@ -65,7 +64,7 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
                 \PHPUnit_Framework_Assert::assertSame($expectedMethod, 'basic_ack');
             }));
 
-        $consumer->processMessage($amqpMessage);
+        $consumer->handleDelivery($amqpMessage, $queue);
 
         $consumer->consume(1);
     }
@@ -76,9 +75,9 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
             array(null, 'basic_ack'),
             array(true, 'basic_ack'),
             array(false, 'basic_reject', true),
-            array(ConsumerInterface::MSG_ACK, 'basic_ack'),
-            array(ConsumerInterface::MSG_REJECT_REQUEUE, 'basic_reject', true),
-            array(ConsumerInterface::MSG_REJECT, 'basic_reject', false),
+            array(Consumer::MSG_ACK, 'basic_ack'),
+            array(Consumer::MSG_REJECT_REQUEUE, 'basic_reject', true),
+            array(Consumer::MSG_REJECT, 'basic_reject', false),
         );
     }
 }

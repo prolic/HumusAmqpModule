@@ -14,25 +14,9 @@ return array(
         ),
         'humus_amqp_module-consumer' => array(
             'options' => array(
-                'route'    => 'humus amqp consumer <name> [<amount>] [--route=] [--memory_limit=] [--debug|-d]',
+                'route'    => 'humus amqp consumer <name> [<amount>] [--debug|-d]',
                 'defaults' => array(
                     'controller' => __NAMESPACE__ . '\\Controller\\Consumer',
-                )
-            )
-        ),
-        'humus_amqp_module-multiple-consumer' => array(
-            'options' => array(
-                'route'    => 'humus amqp multiple-consumer <name> [<amount>] [--route=] [--memory_limit=] [--debug|-d]',
-                'defaults' => array(
-                    'controller' => __NAMESPACE__ . '\\Controller\\MultipleConsumer',
-                )
-            )
-        ),
-        'humus_amqp_module-anon-consumer' => array(
-            'options' => array(
-                'route'    => 'humus amqp anon-consumer <name> [<amount>] [--route=] [--memory_limit=] [--debug|-d]',
-                'defaults' => array(
-                    'controller' => __NAMESPACE__ . '\\Controller\\AnonConsumer',
                 )
             )
         ),

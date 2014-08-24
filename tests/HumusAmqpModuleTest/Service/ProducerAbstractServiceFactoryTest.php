@@ -127,35 +127,10 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('direct', $producer->getExchangeOptions()->getType());
     }
 
-    public function testInvalidConsumerClassResultsCannotCreateInstance()
-    {
-        $config = $this->services->get('Config');
-        $config['humus_amqp_module']['producers']['test-producer']['class'] = 'stdClass';
-        $this->services->setService('Config', $config);
-
-        $pm = $this->services->get('HumusAmqpModule\PluginManager\Producer');
-        try {
-            $pm->get('test-producer');
-        } catch (\Zend\ServiceManager\Exception\ServiceNotCreatedException $e) {
-            // two exceptions backwards
-            $p = $e->getPrevious()->getPrevious();
-            $this->assertInstanceOf('HumusAmqpModule\Exception\RuntimeException', $p);
-            $this->assertEquals(
-                'Producer of type stdClass is invalid; must implement HumusAmqpModule\Amqp\Producer',
-                $p->getMessage()
-            );
-        }
-    }
-
     public function testCannotCreateProducerWhenConnectionPluginManagerIsMissing()
     {
         $config = array(
             'humus_amqp_module' => array(
-                'classes' => array(
-                    'connection' => 'PhpAmqpLib\Connection\AMQPConnection',
-                    'lazy_connection' => 'PhpAmqpLib\Connection\AMQPLazyConnection',
-                    'producer' => 'HumusAmqpModule\Amqp\Producer',
-                ),
                 'connections' => array(
                     'default' => array(
                         'host' => 'localhost',

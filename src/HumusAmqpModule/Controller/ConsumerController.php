@@ -83,8 +83,6 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
         }
 
         $this->consumer = $cm->get($request->getParam('name'));
-        $this->consumer->setMemoryLimit($request->getParam('memory_limit'));
-        $this->consumer->setRoutingKey($request->getParam('route'));
 
         $amount = $request->getParam('amount', 0);
 
