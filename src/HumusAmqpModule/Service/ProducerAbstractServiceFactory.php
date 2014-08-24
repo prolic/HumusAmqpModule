@@ -45,7 +45,11 @@ class ProducerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
             $serviceLocator = $serviceLocator->getServiceLocator();
         }
 
-        $exchange = $this->getExchange($serviceLocator, $name, $requestedName);
+        $spec       = $this->getSpec($serviceLocator, $name, $requestedName);
+        $connection = $this->getConnection($serviceLocator, $spec);
+        $channel    = $this->createChannel($connection, $spec);
+
+        $exchange = $this->getExchange($serviceLocator, $channel, $spec);
         $producer = new Producer($exchange);
 
         return $producer;

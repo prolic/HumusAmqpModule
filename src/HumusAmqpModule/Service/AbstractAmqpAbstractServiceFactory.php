@@ -168,16 +168,12 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
      * Note: Exchanges are not shared, only using producers or consumers can be shared
      *
      * @param ServiceLocatorInterface $services
-     * @param string $name
-     * @param string $requestedName
+     * @param AMQPChannel $channel
+     * @param array $spec
      * @return AMQPExchange
      */
-    protected function getExchange(ServiceLocatorInterface $services, $name, $requestedName)
+    protected function getExchange(ServiceLocatorInterface $services, AMQPChannel $channel, array $spec)
     {
-        $spec = $this->getSpec($services, $name, $requestedName);
-        $connection = $this->getConnection($services, $spec);
-        $channel = $this->getChannel($connection, $spec);
-
         $exchangeSpec = $this->getExchangeSpec($services, $spec['exchange']);
         $exchange = $this->getExchangeFactory()->create($exchangeSpec, $channel, $this->useAutoSetupFabric($spec));
 
@@ -189,7 +185,7 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
      * @param array $spec
      * @return AMQPChannel
      */
-    protected function getChannel(AMQPConnection $connection, array $spec)
+    protected function createChannel(AMQPConnection $connection, array $spec)
     {
         $qosOptions = isset($spec['qos']) ? new QosOptions($spec['qos']) : new QosOptions();
 
