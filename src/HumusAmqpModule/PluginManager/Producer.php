@@ -19,7 +19,7 @@
 namespace HumusAmqpModule\PluginManager;
 
 use HumusAmqpModule\Exception;
-use HumusAmqpModule\Amqp\Producer as AmqpProducer;
+use HumusAmqp\ProducerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
 
 class Producer extends AbstractPluginManager
@@ -36,7 +36,7 @@ class Producer extends AbstractPluginManager
      */
     public function validatePlugin($plugin)
     {
-        if ($plugin instanceof AmqpProducer) {
+        if ($plugin instanceof ProducerInterface) {
             // we're okay
             return;
         }

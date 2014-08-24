@@ -2,11 +2,11 @@
 
 namespace HumusAmqpModule\PluginManager;
 
-use AMQPExchange;
+use AMQPQueue;
 use HumusAmqpModule\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
 
-class Exchange extends AbstractPluginManager
+class Queue extends AbstractPluginManager
 {
     /**
      * Validate the plugin
@@ -20,7 +20,7 @@ class Exchange extends AbstractPluginManager
      */
     public function validatePlugin($plugin)
     {
-        if ($plugin instanceof AMQPExchange) {
+        if ($plugin instanceof AMQPQueue) {
             // we're okay
             return;
         }
@@ -28,7 +28,7 @@ class Exchange extends AbstractPluginManager
         throw new Exception\RuntimeException(sprintf(
             'Plugin of type %s is invalid; must implement %s',
             (is_object($plugin) ? get_class($plugin) : gettype($plugin)),
-            'AMQPExchange'
+            'AMQPQueue'
         ));
     }
 }
