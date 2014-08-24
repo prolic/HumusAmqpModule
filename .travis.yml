@@ -30,7 +30,7 @@ before_script:
   - sh -c "php composer.phar --dev install"
   - sh -c "php -i"
   - composer self-update
-  - composer update --prefer-source
+  - composer install
 
 script:
   - ./vendor/bin/phpunit --coverage-clover ./build/clover.xml
