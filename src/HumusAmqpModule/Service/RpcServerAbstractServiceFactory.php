@@ -18,6 +18,7 @@
 
 namespace HumusAmqpModule\Service;
 
+use HumusAmqpModule\QueueSpecification;
 use HumusAmqpModule\RpcServer;
 use HumusAmqpModule\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
@@ -46,27 +47,42 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
             $serviceLocator = $serviceLocator->getServiceLocator();
         }
 
-        $spec       = $this->getSpec($serviceLocator, $name, $requestedName);
-
-        if (!isset($spec['callback'])) {
-            throw new Exception\InvalidArgumentException('callback is missing for rpc server');
-        }
+        $spec = $this->getSpec($serviceLocator, $name, $requestedName);
+        $this->validateSpec($spec, $requestedName);
 
         $connection = $this->getConnection($serviceLocator, $spec);
         $channel    = $this->createChannel($connection, $spec);
 
         $exchange = $this->getExchange($serviceLocator, $channel, $spec);
-        $queue    = $this->getQueue($serviceLocator, $channel, $spec);
+        $queueSpec = $this->getQueueSpec($serviceLocator, $spec['queue']);
+        $queue     = $this->getQueue($queueSpec, $channel, $this->useAutoSetupFabric($spec));
 
         $idleTimeout = isset($spec['idle_timeout']) ? $spec['idle_timeout'] : null;
         $waitTimeout = isset($spec['wait_timeout']) ? $spec['wait_timeout'] : null;
 
         $rpcServer = new RpcServer($exchange, $queue, $idleTimeout, $waitTimeout);
 
-        $callbackManager   = $this->getCallbackManager($serviceLocator);
+        $callbackManager = $this->getCallbackManager($serviceLocator);
+        $callback        = $callbackManager->get($spec['callback']);
 
-        $rpcServer->setDeliveryCallback($callbackManager->get($spec['callback']));
+        $rpcServer->setDeliveryCallback($callback);
 
         return $rpcServer;
+    }
+
+    /**
+     * @param array $spec
+     * @param string $requestedName
+     * @throws Exception\InvalidArgumentException
+     */
+    protected function validateSpec(array $spec, $requestedName)
+    {
+        if (!isset($spec['callback'])) {
+            throw new Exception\InvalidArgumentException('Callback is missing for rpc server ' . $requestedName);
+        }
+
+        if (!isset($spec['queue'])) {
+            throw new Exception\InvalidArgumentException('Queue is missing for rpc server ' . $requestedName);
+        }
     }
 }

@@ -19,11 +19,12 @@
 namespace HumusAmqpModule\Service;
 
 use HumusAmqpModule\Amqp\ConsumerInterface;
+use HumusAmqpModule\Consumer;
 use HumusAmqpModule\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class ConsumerAbstractServiceFactory extends AbstractAmqpCallbackAwareAbstractServiceFactory
+class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFactory
 {
     /**
      * @var string Second-level configuration key indicating connection configuration
@@ -46,50 +47,60 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpCallbackAwareAbstractSe
             $serviceLocator = $serviceLocator->getServiceLocator();
         }
 
-        $config  = $this->getConfig($serviceLocator);
+        $spec = $this->getSpec($serviceLocator, $name, $requestedName);
+        $this->validateSpec($spec, $requestedName);
 
-        $spec = $config[$this->subConfigKey][$requestedName];
+        $connection = $this->getConnection($serviceLocator, $spec);
+        $channel    = $this->createChannel($connection, $spec);
 
-        if (isset($spec['class'])) {
-            $class = $spec['class'];
-        } else {
-            $class = $config['classes']['consumer'];
+        if ($this->useAutoSetupFabric($spec)) {
+            // will create the exchange to declare it on the channel
+            // the created exchange will not be used afterwards
+            $this->getExchange($serviceLocator, $channel, $spec);
         }
 
-        // use default connection if nothing else present
-        if (!isset($spec['connection'])) {
-            $spec['connection'] = 'default';
+        $queues = array();
+
+        foreach ($spec['queues'] as $queue) {
+            $queueSpec = $this->getQueueSpec($serviceLocator, $queue);
+            $queues[] = $this->getQueue($queueSpec, $channel, $this->useAutoSetupFabric($spec));
         }
+
+        $idleTimeout = isset($spec['idle_timeout']) ? $spec['idle_timeout'] : null;
+        $waitTimeout = isset($spec['wait_timeout']) ? $spec['wait_timeout'] : null;
+
+        $consumer = new Consumer($queues, $idleTimeout, $waitTimeout);
 
         $callbackManager = $this->getCallbackManager($serviceLocator);
-        $connectionManager = $this->getConnectionManager($serviceLocator);
-        $connection = $connectionManager->get($spec['connection']);
-        $consumer = new $class($connection);
+        $callback        = $callbackManager->get($spec['callback']);
 
-        if (!$consumer instanceof ConsumerInterface) {
-            throw new Exception\RuntimeException(sprintf(
-                'Consumer of type %s is invalid; must implement %s',
-                (is_object($consumer) ? get_class($consumer) : gettype($consumer)),
-                'HumusAmqpModule\Amqp\ConsumerInterface'
-            ));
-        }
+        $consumer->setDeliveryCallback($callback);
 
-        $consumer->setExchangeOptions($spec['exchange_options']);
-        $consumer->setQueueOptions($spec['queue_options']);
-        $consumer->setCallback($callbackManager->get($spec['callback']));
-
-        if (isset($spec['qos_options'])) {
-            $consumer->setQosOptions($spec['qos_options']);
-        }
-
-        if (isset($spec['idle_timeout'])) {
-            $consumer->setIdleTimeout($spec['idle_timeout']);
-        }
-
-        if (isset($spec['auto_setup_fabric']) && !$spec['auto_setup_fabric']) {
-            $consumer->disableAutoSetupFabric();
+        if (isset($spec['flush_callback'])) {
+            $flushCallback = $callbackManager->get($spec['callback']);
+            $consumer->setFlushCallback($flushCallback);
         }
 
         return $consumer;
+    }
+
+    /**
+     * @param array $spec
+     * @param string $requestedName
+     * @throws Exception\InvalidArgumentException
+     */
+    protected function validateSpec(array $spec, $requestedName)
+    {
+        if (!isset($spec['queues'])) {
+            throw new Exception\InvalidArgumentException(
+                'Queues are missing for consumer ' . $requestedName
+            );
+        }
+
+        if (!isset($spec['callback'])) {
+            throw new Exception\InvalidArgumentException(
+                'No delivery callback specified for consumer ' . $requestedName
+            );
+        }
     }
 }

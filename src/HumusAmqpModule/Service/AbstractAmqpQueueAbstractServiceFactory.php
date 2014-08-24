@@ -46,29 +46,16 @@ abstract class AbstractAmqpQueueAbstractServiceFactory extends AbstractAmqpAbstr
     protected $queueFactory;
 
     /**
-     * @param ServiceLocatorInterface $serviceLocator
+     * @param QueueSpecification $spec
      * @param AMQPChannel $channel
-     * @param array $spec
+     * @param $autoSetupFabric
      * @return \AMQPQueue
      */
-    protected function getQueue(ServiceLocatorInterface $serviceLocator, AMQPChannel $channel, array $spec)
+    protected function getQueue(QueueSpecification $spec, AMQPChannel $channel, $autoSetupFabric)
     {
-        $queueSpec = $this->getQueueSpec($serviceLocator, $spec['queue']);
-        $queue = $this->getQueueFactory()->create($queueSpec, $channel, $this->useAutoSetupFabric($spec));
+        $queue = $this->getQueueFactory()->create($spec, $channel, $autoSetupFabric);
 
         return $queue;
-    }
-
-    /**
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string $queueName
-     * @return QueueSpecification
-     */
-    protected function getQueueSpec(ServiceLocatorInterface $serviceLocator, $queueName)
-    {
-        $config  = $this->getConfig($serviceLocator);
-        $specs = new QueueSpecification($config['queues'][$queueName]);
-        return $specs;
     }
 
     /**
@@ -101,5 +88,17 @@ abstract class AbstractAmqpQueueAbstractServiceFactory extends AbstractAmqpAbstr
             $this->queueFactory = new QueueFactory();
         }
         return $this->queueFactory;
+    }
+
+    /**
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param string $queueName
+     * @return QueueSpecification
+     */
+    protected function getQueueSpec(ServiceLocatorInterface $serviceLocator, $queueName)
+    {
+        $config  = $this->getConfig($serviceLocator);
+        $specs = new QueueSpecification($config['queues'][$queueName]);
+        return $specs;
     }
 }

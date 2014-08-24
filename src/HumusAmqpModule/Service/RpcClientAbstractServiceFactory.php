@@ -19,6 +19,7 @@
 namespace HumusAmqpModule\Service;
 
 use AMQPChannel;
+use HumusAmqp\Exception;
 use HumusAmqpModule\RpcClient;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -34,9 +35,10 @@ class RpcClientAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
      * Create service with name
      *
      * @param ServiceLocatorInterface $serviceLocator
-     * @param $name
-     * @param $requestedName
-     * @return mixed
+     * @param string $name
+     * @param string $requestedName
+     * @return RpcClient
+     * @throws Exception\InvalidArgumentException
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
@@ -47,13 +49,28 @@ class RpcClientAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
         }
 
         $spec       = $this->getSpec($serviceLocator, $name, $requestedName);
+        $this->validateSpec($spec, $requestedName);
+
         $connection = $this->getConnection($serviceLocator, $spec);
         $channel    = $this->createChannel($connection, $spec);
 
-        $exchange = $this->getExchange($serviceLocator, $channel, $spec);
-        $queue    = $this->getQueue($serviceLocator, $channel, $spec);
+        $exchange  = $this->getExchange($serviceLocator, $channel, $spec);
+        $queueSpec = $this->getQueueSpec($serviceLocator, $spec['queue']);
+        $queue     = $this->getQueue($queueSpec, $channel, $this->useAutoSetupFabric($spec));
 
         $rpcClient = new RpcClient($exchange, $queue);
         return $rpcClient;
+    }
+
+    /**
+     * @param array $spec
+     * @param string $requestedName
+     * @throws Exception\InvalidArgumentException
+     */
+    protected function validateSpec(array $spec, $requestedName)
+    {
+        if (!isset($spec['queue'])) {
+            throw new Exception\InvalidArgumentException('Queue is missing for rpc server ' . $requestedName);
+        }
     }
 }

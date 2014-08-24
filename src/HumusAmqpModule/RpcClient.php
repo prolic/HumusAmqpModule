@@ -28,6 +28,11 @@ class RpcClient
     protected $replies = array();
 
     /**
+     * @var int
+     */
+    protected $timeout = 0;
+
+    /**
      * Constructor
      *
      * @param AMQPExchange $exchange
@@ -62,13 +67,14 @@ class RpcClient
 
         $this->exchange->publish($msgBody, $routingKey, $messageAttributes->getFlags(), $messageAttributes->toArray());
         $this->requests++;
+
+        if ($expiration > $this->timeout) {
+            $this->timeout = $expiration;
+        }
     }
 
     /**
      * Get rpc client replies
-     *
-     * Note: If you set the timeout equals to message timeout, it could happen that the message is
-     * not yet delivered back to the rpc client, so the response gets timed out
      *
      * Example:
      *
@@ -77,10 +83,9 @@ class RpcClient
      *     'message_id_2' => 'bar'
      * )
      *
-     * @param float $timeout in secs
      * @return array
      */
-    public function getReplies($timeout)
+    public function getReplies()
     {
         $now = microtime(1);
         $this->replies = array();
@@ -95,7 +100,7 @@ class RpcClient
             $time = microtime(1);
         } while (
             (count($this->replies) < $this->requests)
-            || (($time - $now) < $timeout)
+            || (($time - $now) < $this->timeout)
         );
 
         $this->requests = 0;
