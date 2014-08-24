@@ -19,7 +19,7 @@
 namespace HumusAmqpModule\PluginManager;
 
 use HumusAmqpModule\Exception;
-use HumusAmqpModule\Amqp\RpcClient as AmqpRpcClient;
+use HumusAmqpModule\RpcClient as AmqpRpcClient;
 use Zend\ServiceManager\AbstractPluginManager;
 
 class RpcClient extends AbstractPluginManager

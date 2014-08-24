@@ -19,7 +19,7 @@
 namespace HumusAmqpModule\PluginManager;
 
 use HumusAmqpModule\Exception;
-use HumusAmqpModule\Amqp\ConsumerInterface;
+use HumusAmqpModule\ConsumerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
 
 class Consumer extends AbstractPluginManager

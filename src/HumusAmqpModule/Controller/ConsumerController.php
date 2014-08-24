@@ -18,9 +18,8 @@
 
 namespace HumusAmqpModule\Controller;
 
-use HumusAmqpModule\Amqp\ConsumerInterface;
+use HumusAmqpModule\ConsumerInterface;
 use HumusAmqpModule\Exception;
-use HumusAmqpModule\Amqp\Consumer;
 use Zend\Console\ColorInterface;
 use Zend\Mvc\Controller\AbstractConsoleController;
 use Zend\ServiceManager\ServiceLocatorInterface;

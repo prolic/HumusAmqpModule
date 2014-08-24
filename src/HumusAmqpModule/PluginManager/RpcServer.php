@@ -19,7 +19,7 @@
 namespace HumusAmqpModule\PluginManager;
 
 use HumusAmqpModule\Exception;
-use HumusAmqpModule\Amqp\RpcServer as AmqpRpcServer;
+use HumusAmqpModule\RpcServer as AmqpRpcServer;
 use Zend\ServiceManager\AbstractPluginManager;
 
 class RpcServer extends AbstractPluginManager
