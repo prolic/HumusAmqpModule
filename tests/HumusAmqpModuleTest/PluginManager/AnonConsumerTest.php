@@ -24,7 +24,7 @@ class AnonConsumerTest extends \PHPUnit_Framework_TestCase
 {
     public function testValidatePlugin()
     {
-        $options = $this->getMock('HumusAmqpModule\\Amqp\\QueueOptions');
+        $options = $this->getMock('HumusAmqpModule\\Amqp\\QueueSpecification');
         $options
             ->expects($this->once())
             ->method('getName')

@@ -39,10 +39,6 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $config = array(
             'humus_amqp_module' => array(
-                'classes' => array(
-                    'connection' => 'PhpAmqpLib\Connection\AMQPConnection',
-                    'lazy_connection' => 'PhpAmqpLib\Connection\AMQPLazyConnection',
-                ),
                 'connections' => array(
                     'default' => array(
                         'host' => 'localhost',
@@ -79,40 +75,6 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->components->canCreateServiceWithName($this->services, 'foo', 'foo'));
     }
 
-    /**
-     * @expectedException HumusAmqpModule\Exception\RuntimeException
-     * @expectedExceptionMessage Class "foobar" not found
-     */
-    public function testNotExistingConsumerClassResultsCannotCreateInstance()
-    {
-        $config = $this->services->get('Config');
-        $config['humus_amqp_module']['connections']['default']['class'] = 'foobar';
-        $this->services->setService('Config', $config);
-
-        $this->components->createServiceWithName($this->services, 'default', 'default');
-    }
-
-    public function testInvalidConsumerClassResultsCannotCreateInstance()
-    {
-        $config = $this->services->get('Config');
-        $config['humus_amqp_module']['connections']['default']['class'] = 'stdClass';
-        $this->services->setService('Config', $config);
-
-        $pm = $this->services->get('HumusAmqpModule\PluginManager\Connection');
-
-        try {
-            $pm->get('default');
-        } catch (\Zend\ServiceManager\Exception\ServiceNotCreatedException $e) {
-            // two exceptions backwards
-            $p = $e->getPrevious()->getPrevious();
-            $this->assertInstanceOf('HumusAmqpModule\Exception\RuntimeException', $p);
-            $this->assertEquals(
-                'Producer of type stdClass is invalid; must implement PhpAmqpLib\Connection\AbstractConnection',
-                $p->getMessage()
-            );
-        }
-    }
-
     public function testMissingConfigServiceIndicatesCannotCreateInstance()
     {
         $this->assertFalse($this->components->canCreateServiceWithName($this->services, 'foo', 'foo'));
@@ -140,7 +102,7 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testMissingSpecIndicatesCannotCreateConnection()
+    public function testMissingSpecIndicatesCanCreateConnectionWithDefaultSettings()
     {
         $this->services->setService('Config', array(
             'humus_amqp_module' => array(
@@ -149,7 +111,7 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        $this->assertFalse(
+        $this->assertTrue(
             $this->components->canCreateServiceWithName(
                 $this->services,
                 'test-connection',
@@ -182,7 +144,6 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             'humus_amqp_module' => array(
                 'connections' => array(
                     'test-connection' => array(
-                        'lazy' => true
                     )
                 ),
             ),
@@ -194,64 +155,5 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                 'test-connection'
             )
         );
-    }
-
-    public function testLazyConnectionFactory()
-    {
-        $connection = $this->components->createServiceWithName(
-            $this->services,
-            'default',
-            'default'
-        );
-        $this->assertInstanceOf('PhpAmqpLib\Connection\AMQPLazyConnection', $connection);
-
-        $this->assertTrue(
-            $this->components->canCreateServiceWithName(
-                $this->services,
-                'default',
-                'default'
-            )
-        );
-
-        $connection2 = $this->components->createServiceWithName(
-            $this->services,
-            'default',
-            'default'
-        );
-
-        $this->assertSame($connection, $connection2);
-    }
-
-    public function testLazyConnectionWithMissingConfigFactory()
-    {
-        $config = $this->services->get('Config');
-        unset($config['humus_amqp_module']['connections']['default']['lazy']);
-
-        $this->services->setService('Config', $config);
-
-        $connection = $this->components->createServiceWithName(
-            $this->services,
-            'default',
-            'default'
-        );
-        $this->assertInstanceOf('PhpAmqpLib\Connection\AMQPLazyConnection', $connection);
-    }
-
-    public function testNonLazyConnectionFactory()
-    {
-        $config = $this->services->get('Config');
-        $config['humus_amqp_module']['connections']['default']['lazy'] = false;
-
-        $this->services->setService('Config', $config);
-
-        try {
-            $this->components->createServiceWithName(
-                $this->services,
-                'default',
-                'default'
-            );
-        } catch (\PhpAmqpLib\Exception\AMQPRuntimeException $e) {
-            // ignore exception
-        }
     }
 }
