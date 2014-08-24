@@ -20,7 +20,7 @@ before_script:
   - make
   - sudo make install
   - cd ..
-  - sudo pecl install amqp
+  - pecl install amqp
   - echo "extension = amqp.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - composer self-update
   - composer update --prefer-source
