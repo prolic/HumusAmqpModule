@@ -18,7 +18,6 @@
 
 namespace HumusAmqpModule\Service;
 
-use HumusAmqpModule\Amqp\ConsumerInterface;
 use HumusAmqpModule\Consumer;
 use HumusAmqpModule\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
