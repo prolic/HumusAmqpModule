@@ -38,7 +38,7 @@ return array(
         ),
         'humus_amqp_module-list' => array(
             'options' => array(
-                'route'    => 'humus amqp list (consumers|multiple-consumers|anon-consumers|producers|rpc-clients|rpc-servers|connections):type',
+                'route'    => 'humus amqp list (consumers|producers|rpc-clients|rpc-servers|connections):type',
                 'defaults' => array(
                     'controller' => __NAMESPACE__ . '\\Controller\\List',
                 )

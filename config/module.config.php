@@ -42,11 +42,40 @@ $config = array(
     ),
     'humus_amqp_module' => array(
         'default_connection' => 'default',
-        'plugin_managers' => array(),
+        'plugin_managers' => array(
+            'callback' => array(),
+            'connection' => array(
+                'abstract_factories' => array(
+                    __NAMESPACE__ . '\\Service\\ConnectionAbstractServiceFactory'
+                )
+            ),
+            'producer' => array(
+                'abstract_factories' => array(
+                    __NAMESPACE__ . '\\Service\\ProducerAbstractServiceFactory'
+                )
+            ),
+            'consumer' => array(
+                'abstract_factories' => array(
+                    __NAMESPACE__ . '\\Service\\ConsumerAbstractServiceFactory'
+                )
+            ),
+            'rpc_server' => array(
+                'abstract_factories' => array(
+                    __NAMESPACE__ . '\\Service\\RpcServerAbstractServiceFactory'
+                )
+            ),
+            'rpc_client' => array(
+                'abstract_factories' => array(
+                    __NAMESPACE__ . '\\Service\\RpcClientAbstractServiceFactory'
+                )
+            )
+        ),
         'exchanges' => array(),
         'queues' => array(),
         'producers' => array(),
         'consumers' => array(),
+        'rpc_clients' => array(),
+        'rpc_servers' => array(),
         'connections' => array()
     ),
     'humus_supervisor_module' => array(
