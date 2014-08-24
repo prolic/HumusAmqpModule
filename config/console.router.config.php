@@ -1,5 +1,7 @@
 <?php
 
+namespace HumusAmqpModule;
+
 return array(
     'routes' => array(
         'humus_amqp_module-setup-fabric' => array(
