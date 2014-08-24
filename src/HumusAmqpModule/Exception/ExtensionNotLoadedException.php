@@ -1,6 +1,6 @@
 <?php
 
-namespace HumusAmqp\Exception;
+namespace HumusAmqpModule\Exception;
 
 class ExtensionNotLoadedException extends RuntimeException
 {
