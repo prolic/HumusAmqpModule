@@ -24,7 +24,7 @@ before_script:
   - sh -c "cd php-amqp && git checkout ${PHP_AMQP_VERSION}"
   - sh -c "cd php-amqp && phpize && ./configure && make && sudo make install"
   # add amqp extension to php.ini
-  - sh -c "phpenv config-add ./tests/amqp.ini"
+  - echo "extension = amqp.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   # get PSR-0 autoloader
   - sh -c "curl -s http://getcomposer.org/installer | php --"
   - sh -c "php composer.phar --dev install"
