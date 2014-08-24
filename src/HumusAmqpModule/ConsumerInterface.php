@@ -16,8 +16,55 @@
  * and is licensed under the MIT license.
  */
 
-namespace HumusAmqpModule\Amqp\Exception;
+namespace HumusAmqp;
 
-class QueueNotFoundException extends RuntimeException
+use AMQPChannel;
+use AMQPEnvelope;
+use AMQPQueue;
+
+interface ConsumerInterface
 {
+    /**
+     * Flag for message ack
+     */
+    const MSG_ACK = 1;
+
+    /**
+     * Flag for message defer
+     */
+    const MSG_DEFER = 0;
+
+    /**
+     * Flag for reject and drop
+     */
+    const MSG_REJECT = -1;
+
+    /**
+     * Flag for reject and requeue
+     */
+    const MSG_REJECT_REQUEUE = -2;
+
+    /**
+     * Start consumer
+     *
+     * @param int $msgAmount
+     */
+    public function consume($msgAmount = 0);
+
+    /**
+     * @return bool
+     */
+    public function flushDeferred();
+
+    /**
+     * @param AMQPEnvelope $message
+     * @param AMQPQueue $queue
+     * @return bool|null
+     */
+    public function handleDelivery(AMQPEnvelope $message, AMQPQueue $queue);
+
+    /**
+     * @return void
+     */
+    public function handleShutdownSignal();
 }

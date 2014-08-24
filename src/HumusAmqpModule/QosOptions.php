@@ -16,33 +16,51 @@
  * and is licensed under the MIT license.
  */
 
-namespace HumusAmqpModule\Amqp;
+namespace HumusAmqp;
 
-use PhpAmqpLib\Message\AMQPMessage;
+use Zend\Stdlib\AbstractOptions;
 
-interface MultipleConsumerInterface extends ConsumerInterface
+class QosOptions extends AbstractOptions
 {
     /**
-     * @param array|\Traversable $queues
-     * @throws Exception\InvalidArgumentException
+     * @var int
      */
-    public function setQueues($queues);
+    protected $prefetchSize = 3;
 
     /**
-     * @return QueueOptions[]
+     * @var int
      */
-    public function getQueues();
+    protected $prefetchCount = 0;
 
     /**
-     * @param string $queue
-     * @return string
+     * @param int $prefetchCount
      */
-    public function getQueueConsumerTag($queue);
+    public function setPrefetchCount($prefetchCount)
+    {
+        $this->prefetchCount = $prefetchCount;
+    }
 
     /**
-     * @param string $queueName
-     * @param AMQPMessage $msg
-     * @throws Exception\QueueNotFoundException
+     * @return int
      */
-    public function processQueueMessage($queueName, AMQPMessage $msg);
+    public function getPrefetchCount()
+    {
+        return $this->prefetchCount;
+    }
+
+    /**
+     * @param int $prefetchSize
+     */
+    public function setPrefetchSize($prefetchSize)
+    {
+        $this->prefetchSize = $prefetchSize;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPrefetchSize()
+    {
+        return $this->prefetchSize;
+    }
 }
