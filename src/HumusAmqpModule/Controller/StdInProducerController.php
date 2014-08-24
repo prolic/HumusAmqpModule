@@ -38,6 +38,7 @@ class StdInProducerController extends AbstractConsoleController
     {
         parent::dispatch($request, $response);
         /* @var $request \Zend\Console\Request */
+        /* @var $response \Zend\Console\Response */
 
         $producerName = $request->getParam('name');
         $producerManager = $this->getProducerManager();
@@ -48,7 +49,8 @@ class StdInProducerController extends AbstractConsoleController
                 ColorInterface::RED
             );
 
-            return null;
+            $response->setErrorLevel(1);
+            return;
         }
 
         $debug = $request->getParam('debug') || $request->getParam('d');

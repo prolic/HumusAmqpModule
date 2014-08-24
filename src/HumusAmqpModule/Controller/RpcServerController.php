@@ -18,7 +18,8 @@
 
 namespace HumusAmqpModule\Controller;
 
-use HumusAmqpModule\Amqp\RpcServer;
+use HumusAmqpModule\Exception;
+use HumusAmqpModule\RpcServer;
 use Zend\Console\ColorInterface;
 use Zend\Mvc\Controller\AbstractConsoleController;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -46,7 +47,24 @@ class RpcServerController extends AbstractConsoleController
     {
         parent::dispatch($request, $response);
 
+        if (!extension_loaded('pcntl')) {
+            throw new Exception\ExtensionNotLoadedException(
+                'pnctl extension missing'
+            );
+        }
+
+        if (!function_exists('pcntl_signal')) {
+            throw new Exception\BadFunctionCallException(
+                "Function 'pcntl_signal' is referenced in the php.ini 'disable_functions' and can't be called."
+            );
+        }
+
+        pcntl_signal(SIGTERM, array($this, 'stopRpcServer'));
+        pcntl_signal(SIGINT, array($this, 'stopRpcServer'));
+        pcntl_signal(SIGHUP, array($this, 'stopRpcServer'));
+
         /* @var $request \Zend\Console\Request */
+        /* @var $response \Zend\Console\Response */
 
         $rpcServerName = $request->getParam('name');
 
@@ -55,7 +73,8 @@ class RpcServerController extends AbstractConsoleController
                 'ERROR: RPC-Server "' . $rpcServerName . '" not found',
                 ColorInterface::RED
             );
-            return null;
+            $response->setErrorLevel(1);
+            return;
         }
 
         $debug = $request->getParam('debug') || $request->getParam('d');
@@ -68,27 +87,23 @@ class RpcServerController extends AbstractConsoleController
 
         if (!is_numeric($amount)) {
             $this->getConsole()->writeLine(
-                'Error: amount should be null or greater than 0',
+                'Error: Expected integer for amount',
                 ColorInterface::RED
             );
+            $response->setErrorLevel(1);
+            return;
         } else {
             $this->rpcServer = $this->getRpcServerManager()->get($rpcServerName);
             $this->rpcServer->start($amount);
         }
     }
 
+    /**
+     * @return void
+     */
     public function stopRpcServer()
     {
-        $this->rpcServer->forceStopConsumer();
-    }
-
-    /**
-     * @todo: return response without exit call
-     */
-    public function shutdownRpcServer()
-    {
-        $this->stopRpcServer();
-        exit;
+        $this->rpcServer->handleShutdownSignal();
     }
 
     /**

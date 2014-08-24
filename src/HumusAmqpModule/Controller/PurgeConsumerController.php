@@ -40,6 +40,7 @@ class PurgeConsumerController extends AbstractConsoleController implements Consu
         parent::dispatch($request, $response);
 
         /* @var $request \Zend\Console\Request */
+        /* @var $response \Zend\Console\Response */
 
         $consumerName = $request->getParam('consumer-name');
         $consumerManager = $this->getConsumerManager();
@@ -49,7 +50,8 @@ class PurgeConsumerController extends AbstractConsoleController implements Consu
                 'ERROR: Consumer "' . $consumerName . '" not found',
                 ColorInterface::RED
             );
-            return null;
+            $response->setErrorLevel(1);
+            return;
         }
 
         $confirm = new Prompt\Confirm('Are you sure you want to purge? [y/n]', 'y', 'n');
