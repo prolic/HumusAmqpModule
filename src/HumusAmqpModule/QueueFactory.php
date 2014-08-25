@@ -25,10 +25,16 @@ class QueueFactory
         $queue->setArguments($specification->getArguments());
 
         if ($autoDeclare) {
-            // @todo: declare exchanges, first
+            // @todo: declare error exchanges, first
             $queue->declareQueue();
-            foreach ($specification->getRoutingKeys() as $routingKey) {
-                $queue->bind($specification->getExchangeName(), $routingKey, $specification->getBindArguments());
+
+            $routingKeys = $specification->getRoutingKeys();
+            if (empty($routingKeys)) {
+                $queue->bind($specification->getExchange(), null, $specification->getBindArguments());
+            } else {
+                foreach ($routingKeys as $routingKey) {
+                    $queue->bind($specification->getExchange(), $routingKey, $specification->getBindArguments());
+                }
             }
         }
 

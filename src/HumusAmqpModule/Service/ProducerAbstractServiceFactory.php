@@ -18,6 +18,7 @@
 
 namespace HumusAmqpModule\Service;
 
+use HumusAmqpModule\Exception;
 use HumusAmqpModule\Producer;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -46,12 +47,58 @@ class ProducerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
         }
 
         $spec       = $this->getSpec($serviceLocator, $name, $requestedName);
+        $this->validateSpec($serviceLocator, $spec, $requestedName);
         $connection = $this->getConnection($serviceLocator, $spec);
         $channel    = $this->createChannel($connection, $spec);
 
-        $exchange = $this->getExchange($serviceLocator, $channel, $spec);
+        $exchange = $this->getExchange($serviceLocator, $channel, $spec['exchange'], $this->useAutoSetupFabric($spec));
         $producer = new Producer($exchange);
 
         return $producer;
+    }
+
+    /**
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param array $spec
+     * @param string $requestedName
+     * @throws Exception\InvalidArgumentException
+     */
+    protected function validateSpec(ServiceLocatorInterface $serviceLocator, array $spec, $requestedName)
+    {
+        $defaultConnection = $this->getDefaultConnectionName($serviceLocator);
+
+        if (isset($spec['connection'])) {
+            $connection = $spec['connection'];
+        } else {
+            $connection = $defaultConnection;
+        }
+
+        // exchange required
+        if (!isset($spec['exchange'])) {
+            throw new Exception\InvalidArgumentException(
+                'Exchange is missing for producer ' . $requestedName
+            );
+        }
+
+        $exchange = $spec['exchange'];
+        $config  = $this->getConfig($serviceLocator);
+        // validate exchange existence
+        if (!isset($config['exchanges'][$exchange])) {
+            throw new Exception\InvalidArgumentException(
+                'The producer exchange ' . $exchange . ' is missing in the exchanges configuration'
+            );
+        }
+
+        // validate exchange connection
+        $testConnection = isset($config['exchanges'][$exchange]['connection'])
+            ? $config['exchanges'][$exchange]['connection']
+            : $this->getDefaultConnectionName($serviceLocator);
+
+        if ($testConnection != $connection) {
+            throw new Exception\InvalidArgumentException(
+                'The producer connection for exchange ' . $exchange . ' (' . $testConnection . ') does not '
+                . 'match the producer connection for producer ' . $requestedName . ' (' . $connection . ')'
+            );
+        }
     }
 }

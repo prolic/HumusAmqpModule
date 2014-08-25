@@ -132,17 +132,25 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
 
     /**
      * @param ServiceLocatorInterface $services
-     * @return AMQPConnection
+     * @return string
      */
-    protected function getDefaultConnection(ServiceLocatorInterface $services)
+    protected function getDefaultConnectionName(ServiceLocatorInterface $services)
     {
         if (null === $this->defaultConnectionName) {
             $config = $this->getConfig($services);
             $this->defaultConnectionName = $config['default_connection'];
         }
+        return $this->defaultConnectionName;
+    }
 
+    /**
+     * @param ServiceLocatorInterface $services
+     * @return AMQPConnection
+     */
+    protected function getDefaultConnection(ServiceLocatorInterface $services)
+    {
         $connectionManager = $this->getConnectionManager($services);
-        $connection = $connectionManager->get($this->defaultConnectionName);
+        $connection = $connectionManager->get($this->getDefaultConnectionName($services));
 
         return $connection;
     }
@@ -169,13 +177,18 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
      *
      * @param ServiceLocatorInterface $services
      * @param AMQPChannel $channel
-     * @param array $spec
+     * @param string $name
+     * @param bool $autoSetupFabric
      * @return AMQPExchange
      */
-    protected function getExchange(ServiceLocatorInterface $services, AMQPChannel $channel, array $spec)
-    {
-        $exchangeSpec = $this->getExchangeSpec($services, $spec['exchange']);
-        $exchange = $this->getExchangeFactory()->create($exchangeSpec, $channel, $this->useAutoSetupFabric($spec));
+    protected function getExchange(
+        ServiceLocatorInterface $services,
+        AMQPChannel $channel,
+        $name,
+        $autoSetupFabric
+    ) {
+        $exchangeSpec = $this->getExchangeSpec($services, $name);
+        $exchange = $this->getExchangeFactory()->create($exchangeSpec, $channel, $autoSetupFabric);
 
         return $exchange;
     }
@@ -188,7 +201,6 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
     protected function createChannel(AMQPConnection $connection, array $spec)
     {
         $qosOptions = isset($spec['qos']) ? new QosOptions($spec['qos']) : new QosOptions();
-
         $channel = new AMQPChannel($connection);
         $channel->setPrefetchCount($qosOptions->getPrefetchCount());
         $channel->setPrefetchSize($qosOptions->getPrefetchSize());

@@ -19,7 +19,7 @@
 namespace HumusAmqpModule\PluginManager;
 
 use HumusAmqpModule\Exception;
-use HumusAmqp\ProducerInterface;
+use HumusAmqpModule\ProducerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
 
 class Producer extends AbstractPluginManager

@@ -54,7 +54,7 @@ abstract class AbstractAmqpQueueAbstractServiceFactory extends AbstractAmqpAbstr
     protected function getQueue(QueueSpecification $spec, AMQPChannel $channel, $autoSetupFabric)
     {
         $queue = $this->getQueueFactory()->create($spec, $channel, $autoSetupFabric);
-
+        // @todo: auto-declare error exchanges
         return $queue;
     }
 

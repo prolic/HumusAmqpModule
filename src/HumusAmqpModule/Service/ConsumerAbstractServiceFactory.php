@@ -47,20 +47,23 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
         }
 
         $spec = $this->getSpec($serviceLocator, $name, $requestedName);
-        $this->validateSpec($spec, $requestedName);
+        $this->validateSpec($serviceLocator, $spec, $requestedName);
 
         $connection = $this->getConnection($serviceLocator, $spec);
         $channel    = $this->createChannel($connection, $spec);
 
-        if ($this->useAutoSetupFabric($spec)) {
-            // will create the exchange to declare it on the channel
-            // the created exchange will not be used afterwards
-            $this->getExchange($serviceLocator, $channel, $spec);
-        }
-
+        $config = $this->getConfig($serviceLocator);
         $queues = array();
 
+
         foreach ($spec['queues'] as $queue) {
+            if ($this->useAutoSetupFabric($spec)) {
+                // will create the exchange to declare it on the channel
+                // the created exchange will not be used afterwards
+                $exchangeName = $config['queues'][$queue]['exchange'];
+                $this->getExchange($serviceLocator, $channel, $exchangeName, $this->useAutoSetupFabric($spec));
+            }
+
             $queueSpec = $this->getQueueSpec($serviceLocator, $queue);
             $queues[] = $this->getQueue($queueSpec, $channel, $this->useAutoSetupFabric($spec));
         }
@@ -69,6 +72,11 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
         $waitTimeout = isset($spec['wait_timeout']) ? $spec['wait_timeout'] : null;
 
         $consumer = new Consumer($queues, $idleTimeout, $waitTimeout);
+        $logger = new \Zend\Log\Logger();
+        $writers = new \Zend\Stdlib\SplPriorityQueue();
+        $writers->insert(new \Zend\Log\Writer\Null(), 0);
+        $logger->setWriters($writers);
+        $consumer->setLogger($logger);
 
         $callbackManager = $this->getCallbackManager($serviceLocator);
         $callback        = $callbackManager->get($spec['callback']);
@@ -84,22 +92,72 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
     }
 
     /**
+     * @param ServiceLocatorInterface $serviceLocator
      * @param array $spec
      * @param string $requestedName
      * @throws Exception\InvalidArgumentException
      */
-    protected function validateSpec(array $spec, $requestedName)
+    protected function validateSpec(ServiceLocatorInterface $serviceLocator, array $spec, $requestedName)
     {
+        // queues are required
         if (!isset($spec['queues'])) {
             throw new Exception\InvalidArgumentException(
                 'Queues are missing for consumer ' . $requestedName
             );
         }
 
+        // callback is required
         if (!isset($spec['callback'])) {
             throw new Exception\InvalidArgumentException(
                 'No delivery callback specified for consumer ' . $requestedName
             );
+        }
+
+        $defaultConnection = $this->getDefaultConnectionName($serviceLocator);
+
+        if (isset($spec['connection'])) {
+            $connection = $spec['connection'];
+        } else {
+            $connection = $defaultConnection;
+        }
+
+        $config  = $this->getConfig($serviceLocator);
+        foreach ($spec['queues'] as $queue) {
+            // validate queue existence
+            if (!isset($config['queues'][$queue])) {
+                throw new Exception\InvalidArgumentException(
+                    'Queue ' . $queue . ' is missing in the queue configuration'
+                );
+            }
+
+            // validate queue connection
+            $testConnection = isset($config['queues'][$queue]['connection'])
+                ? $config['queues'][$queue]['connection']
+                : $defaultConnection;
+
+            if ($testConnection != $connection) {
+                throw new Exception\InvalidArgumentException(
+                    'The queue connection for queue ' . $queue . ' (' . $testConnection . ') does not '
+                    . 'match the consumer connection for consumer ' . $requestedName . ' (' . $connection . ')'
+                );
+            }
+
+            // exchange binding is required
+            if (!isset($config['exchanges'][$config['queues'][$queue]['exchange']])) {
+                throw new Exception\InvalidArgumentException(
+                    'The queues exchange ' . $queue['exchange'] . ' is missing in the exchanges configuration'
+                );
+            }
+
+            // validate exchange connection
+            $exchange = $config['exchanges'][$config['queues'][$queue]['exchange']];
+            $testConnection = isset($exchange['connection']) ? $exchange['connection'] : $defaultConnection;
+            if ($testConnection != $connection) {
+                throw new Exception\InvalidArgumentException(
+                    'The exchange connection for exchange ' . $exchange . ' (' . $testConnection . ') does not '
+                    . 'match the consumer connection for consumer ' . $requestedName . ' (' . $connection . ')'
+                );
+            }
         }
     }
 }

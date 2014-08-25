@@ -25,12 +25,12 @@ class QosOptions extends AbstractOptions
     /**
      * @var int
      */
-    protected $prefetchSize = 3;
+    protected $prefetchSize = 0;
 
     /**
      * @var int
      */
-    protected $prefetchCount = 0;
+    protected $prefetchCount = 3;
 
     /**
      * @param int $prefetchCount

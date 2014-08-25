@@ -121,7 +121,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      */
     public function __construct($queues, $idleTimeout = 5.00, $waitTimeout = 1000)
     {
-        if (!is_array($queues) || !$queues instanceof \Traversable) {
+        if (!is_array($queues) && !$queues instanceof \Traversable) {
             throw new Exception\InvalidArgumentException(
                 'Expected an array or Traversable of queues'
             );

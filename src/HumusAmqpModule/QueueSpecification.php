@@ -19,7 +19,7 @@ class QueueSpecification extends AbstractOptions
     /**
      * @var string
      */
-    protected $exchangeName = '';
+    protected $exchange = '';
 
     /**
      * @var bool
@@ -94,17 +94,17 @@ class QueueSpecification extends AbstractOptions
     /**
      * @param string $exchangeName
      */
-    public function setExchangeName($exchangeName)
+    public function setExchange($exchangeName)
     {
-        $this->exchangeName = $exchangeName;
+        $this->exchange = $exchangeName;
     }
 
     /**
      * @return string
      */
-    public function getExchangeName()
+    public function getExchange()
     {
-        return $this->exchangeName;
+        return $this->exchange;
     }
 
     /**

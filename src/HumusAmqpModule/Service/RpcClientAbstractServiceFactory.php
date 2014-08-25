@@ -21,6 +21,7 @@ namespace HumusAmqpModule\Service;
 use AMQPChannel;
 use HumusAmqpModule\Exception;
 use HumusAmqpModule\RpcClient;
+use Zend\Json\Server\Smd\Service;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -49,7 +50,7 @@ class RpcClientAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
         }
 
         $spec       = $this->getSpec($serviceLocator, $name, $requestedName);
-        $this->validateSpec($spec, $requestedName);
+        $this->validateSpec($serviceLocator, $spec, $requestedName);
 
         $connection = $this->getConnection($serviceLocator, $spec);
         $channel    = $this->createChannel($connection, $spec);
@@ -63,14 +64,63 @@ class RpcClientAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
     }
 
     /**
+     * @param ServiceLocatorInterface $serviceLocator
      * @param array $spec
      * @param string $requestedName
      * @throws Exception\InvalidArgumentException
      */
-    protected function validateSpec(array $spec, $requestedName)
+    protected function validateSpec(ServiceLocatorInterface $serviceLocator, array $spec, $requestedName)
     {
         if (!isset($spec['queue'])) {
-            throw new Exception\InvalidArgumentException('Queue is missing for rpc server ' . $requestedName);
+            throw new Exception\InvalidArgumentException('Queue is missing for rpc client ' . $requestedName);
+        }
+
+        if (!isset($spec['exchange'])) {
+            throw new Exception\InvalidArgumentException('Exchange is missing for rpc client ' . $requestedName);
+        }
+
+        $defaultConnection = $this->getDefaultConnectionName($serviceLocator);
+
+        if (isset($spec['connection'])) {
+            $connection = $spec['connection'];
+        } else {
+            $connection = $defaultConnection;
+        }
+
+        $config  = $this->getConfig($serviceLocator);
+
+        // validate exchange existence
+        if (!isset($config['exchanges'][$spec['exchange']])) {
+            throw new Exception\InvalidArgumentException(
+                'The rpc client exchange ' . $spec['exchange'] . ' is missing in the exchanges configuration'
+            );
+        }
+        $exchange = $config['exchanges'][$spec['exchange']];
+
+        // validate exchange connection
+        $testConnection = isset($exchange['connection']) ? $exchange['connection'] : $defaultConnection;
+        if ($testConnection != $connection) {
+            throw new Exception\InvalidArgumentException(
+                'The rpc client connection for exchange ' . $spec['exchange'] . ' (' . $testConnection . ') does not '
+                . 'match the rpc client connection for rpc client ' . $requestedName . ' (' . $connection . ')'
+            );
+        }
+
+        // validate queue existence
+        if (!isset($config['queues'][$spec['queue']])) {
+            throw new Exception\InvalidArgumentException(
+                'The rpc client queue ' . $spec['queue'] . ' is missing in the queues configuration'
+            );
+        }
+
+        // validate queue connection
+        $queue = $config['queues'][$spec['queue']];
+        $testConnection = isset($queue['connection']) ? $queue['connection'] : $defaultConnection;
+        if ($testConnection != $connection) {
+            throw new Exception\InvalidArgumentException(
+                'The rpc client connection for queue ' . $spec['queue'] . ' (' . $testConnection . ') does not '
+                . 'match the rpc client connection for rpc client ' . $requestedName . ' (' . $connection . ')'
+            );
         }
     }
 }
