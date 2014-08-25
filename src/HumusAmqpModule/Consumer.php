@@ -25,11 +25,6 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
     protected $queues;
 
     /**
-     * @var callable[]
-     */
-    protected $callbacks;
-
-    /**
      * Number of consumed messages
      *
      * @var int
@@ -74,7 +69,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      *
      * @var int
      */
-    protected $blockSize = 1;
+    protected $blockSize = 0;
 
     /**
      * @var float
@@ -141,10 +136,13 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
                     . is_object($queue) ? get_class($queue) : gettype($queue) . ' given'
                 );
             }
+            if (null === $this->blockSize) {
+                $this->blockSize = $queue->getChannel()->getPrefetchSize();
+            }
             $q[] = $queue;
-            $this->blockSize = max($queue->getChannel()->getPrefetchSize(), $this->blockSize);
         }
         $this->idleTimeout = $idleTimeout;
+        $this->waitTimeout = $waitTimeout;
         $this->queues = new InfiniteIterator(new ArrayIterator($q));
     }
 
