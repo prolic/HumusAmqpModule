@@ -18,7 +18,6 @@
 
 namespace HumusAmqpModule\Service;
 
-use HumusAmqpModule\QueueSpecification;
 use HumusAmqpModule\RpcServer;
 use HumusAmqpModule\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
@@ -53,14 +52,21 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
         $connection = $this->getConnection($serviceLocator, $spec);
         $channel    = $this->createChannel($connection, $spec);
 
-        $exchange = $this->getExchange($serviceLocator, $channel, $spec);
+        //$exchange = $this->getExchange($serviceLocator, $channel, $spec['exchange'], $this->useAutoSetupFabric($spec));
         $queueSpec = $this->getQueueSpec($serviceLocator, $spec['queue']);
         $queue     = $this->getQueue($queueSpec, $channel, $this->useAutoSetupFabric($spec));
 
-        $idleTimeout = isset($spec['idle_timeout']) ? $spec['idle_timeout'] : null;
-        $waitTimeout = isset($spec['wait_timeout']) ? $spec['wait_timeout'] : null;
+        $idleTimeout = isset($spec['idle_timeout']) ? $spec['idle_timeout'] : 5.0;
+        $waitTimeout = isset($spec['wait_timeout']) ? $spec['wait_timeout'] : 100;
 
-        $rpcServer = new RpcServer($exchange, $queue, $idleTimeout, $waitTimeout);
+        $rpcServer = new RpcServer($queue, $idleTimeout, $waitTimeout);
+
+        // @todo: inject real logger instance
+        $logger = new \Zend\Log\Logger();
+        $writers = new \Zend\Stdlib\SplPriorityQueue();
+        $writers->insert(new \Zend\Log\Writer\Stream(STDOUT), 0);
+        $logger->setWriters($writers);
+        $rpcServer->setLogger($logger);
 
         $callbackManager = $this->getCallbackManager($serviceLocator);
         $callback        = $callbackManager->get($spec['callback']);
@@ -81,11 +87,11 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
         if (!isset($spec['queue'])) {
             throw new Exception\InvalidArgumentException('Queue is missing for rpc client ' . $requestedName);
         }
-
+/*
         if (!isset($spec['exchange'])) {
             throw new Exception\InvalidArgumentException('Exchange is missing for rpc client ' . $requestedName);
         }
-
+*/
         $defaultConnection = $this->getDefaultConnectionName($serviceLocator);
 
         if (isset($spec['connection'])) {
@@ -95,7 +101,7 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
         }
 
         $config  = $this->getConfig($serviceLocator);
-
+/*
         // validate exchange existence
         if (!isset($config['exchanges'][$spec['exchange']])) {
             throw new Exception\InvalidArgumentException(
@@ -112,7 +118,7 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
                 . 'match the rpc client connection for rpc client ' . $requestedName . ' (' . $connection . ')'
             );
         }
-
+*/
         // validate queue existence
         if (!isset($config['queues'][$spec['queue']])) {
             throw new Exception\InvalidArgumentException(

@@ -69,7 +69,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      *
      * @var int
      */
-    protected $blockSize = 0;
+    protected $blockSize;
 
     /**
      * @var float
@@ -137,7 +137,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
                 );
             }
             if (null === $this->blockSize) {
-                $this->blockSize = $queue->getChannel()->getPrefetchSize();
+                $this->blockSize = $queue->getChannel()->getPrefetchCount();
             }
             $q[] = $queue;
         }
@@ -238,9 +238,10 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
 
             $now = microtime(1);
 
-            if ($this->countMessagesUnacked == $this->blockSize
+            if ($this->countMessagesUnacked > 0
+                && ($this->countMessagesUnacked == $this->blockSize
                 || ($now - $this->timestampLastAck) > $this->idleTimeout
-            ) {
+            )) {
                 $this->ack();
             }
 

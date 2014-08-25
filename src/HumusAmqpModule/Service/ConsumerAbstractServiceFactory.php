@@ -72,9 +72,11 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
         $waitTimeout = isset($spec['wait_timeout']) ? $spec['wait_timeout'] : null;
 
         $consumer = new Consumer($queues, $idleTimeout, $waitTimeout);
+
+        // @todo: inject real logger instance
         $logger = new \Zend\Log\Logger();
         $writers = new \Zend\Stdlib\SplPriorityQueue();
-        $writers->insert(new \Zend\Log\Writer\Null(), 0);
+        $writers->insert(new \Zend\Log\Writer\Stream(STDOUT), 0);
         $logger->setWriters($writers);
         $consumer->setLogger($logger);
 

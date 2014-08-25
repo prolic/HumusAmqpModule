@@ -16,11 +16,8 @@ class QueueFactory
      */
     public function create(QueueSpecification $specification, AMQPChannel $channel, $autoDeclare = true)
     {
-        $channel->setPrefetchCount($specification->getQosOptions()->getPrefetchCount());
-        $channel->setPrefetchSize($specification->getQosOptions()->getPrefetchSize());
-
         $queue = new AMQPQueue($channel);
-        $queue->setName($specification->getName());
+        //$queue->setName($specification->getName());
         $queue->setFlags($specification->getFlags());
         $queue->setArguments($specification->getArguments());
 

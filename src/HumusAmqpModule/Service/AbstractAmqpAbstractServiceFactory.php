@@ -201,9 +201,10 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
     protected function createChannel(AMQPConnection $connection, array $spec)
     {
         $qosOptions = isset($spec['qos']) ? new QosOptions($spec['qos']) : new QosOptions();
+
         $channel = new AMQPChannel($connection);
-        $channel->setPrefetchCount($qosOptions->getPrefetchCount());
         $channel->setPrefetchSize($qosOptions->getPrefetchSize());
+        $channel->setPrefetchCount($qosOptions->getPrefetchCount());
 
         return $channel;
     }

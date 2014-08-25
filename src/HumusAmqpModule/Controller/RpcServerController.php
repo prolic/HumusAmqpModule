@@ -94,7 +94,7 @@ class RpcServerController extends AbstractConsoleController
             return;
         } else {
             $this->rpcServer = $this->getRpcServerManager()->get($rpcServerName);
-            $this->rpcServer->start($amount);
+            $this->rpcServer->consume($amount);
         }
     }
 

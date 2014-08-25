@@ -57,11 +57,6 @@ class QueueSpecification extends AbstractOptions
     protected $bindArguments = array();
 
     /**
-     * @var QosOptions
-     */
-    protected $qosOptions;
-
-    /**
      * @return int
      */
     public function getFlags()
@@ -121,30 +116,6 @@ class QueueSpecification extends AbstractOptions
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * @param array|\Traversable|QosOptions $qosOptions
-     */
-    public function setQosOptions($qosOptions)
-    {
-        if (!$qosOptions instanceof QosOptions) {
-            $qosOptions = new QosOptions($qosOptions);
-        }
-
-        $this->qosOptions = $qosOptions;
-    }
-
-    /**
-     * @return QosOptions
-     */
-    public function getQosOptions()
-    {
-        if (null === $this->qosOptions) {
-            $this->qosOptions = new QosOptions();
-        }
-
-        return $this->qosOptions;
     }
 
     /**

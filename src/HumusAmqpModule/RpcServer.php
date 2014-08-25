@@ -14,23 +14,16 @@ class RpcServer extends Consumer
     protected $exchange;
 
     /**
-     * @var callable[]
-     */
-    protected $callbacks;
-
-    /**
      * Constructor
      *
-     * @param AMQPExchange $exchange
      * @param AMQPQueue $queue
      * @param float $idleTimeout in seconds
      * @param int $waitTimeout in microseconds
      */
-    public function __construct(AMQPExchange $exchange, AMQPQueue $queue, $idleTimeout = 5.00, $waitTimeout = 1000)
+    public function __construct(AMQPQueue $queue, $idleTimeout = 5.00, $waitTimeout = 1000)
     {
         $queues = array($queue);
         parent::__construct($queues, $idleTimeout, $waitTimeout);
-        $this->exchange = $exchange;
     }
 
 
@@ -53,11 +46,10 @@ class RpcServer extends Consumer
             $result = call_user_func_array($callback, array($message, $queue));
 
             $reponse = json_encode(array('success' => true, 'result' => $result));
-
             $this->sendReply($reponse, $message->getReplyTo(), $message->getCorrelationId());
         } catch (\Exception $e) {
-            $result = json_encode(array('success' => false, 'error' => $e->getMessage()));
-            $this->sendReply($result, $message->getReplyTo(), $message->getCorrelationId());
+            $reponse = json_encode(array('success' => false, 'error' => $e->getMessage()));
+            $this->sendReply($reponse, $message->getReplyTo(), $message->getCorrelationId());
         }
     }
 
@@ -73,7 +65,7 @@ class RpcServer extends Consumer
         $messageAttributes = new MessageAttributes();
         $messageAttributes->setCorrelationId($correlationId);
 
-        $this->exchange->publish($body, $client, AMQP_NOPARAM, $messageAttributes->toArray());
+        $this->getExchange()->publish($body, $client, AMQP_NOPARAM, $messageAttributes->toArray());
     }
 
     /**
@@ -86,5 +78,20 @@ class RpcServer extends Consumer
     protected function handleProcessFlag(AMQPEnvelope $message, $flag)
     {
         // ignore, do nothing, message was already acked
+    }
+
+    /**
+     * @return AMQPExchange
+     */
+    protected function getExchange()
+    {
+        if (null !== $this->exchange) {
+            return $this->exchange;
+        }
+        $channel = $this->getQueue()->getChannel();
+        $exchange = new AMQPExchange($channel);
+        $exchange->setType(AMQP_EX_TYPE_DIRECT);
+        $this->exchange = $exchange;
+        return $exchange;
     }
 }
