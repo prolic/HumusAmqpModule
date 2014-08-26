@@ -48,6 +48,7 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
     {
         parent::dispatch($request, $response);
         /* @var $request \Zend\Console\Request */
+        /* @var $response \Zend\Console\Response */
 
         if (!defined('AMQP_DEBUG') && ($request->getParam('debug') || $request->getParam('d'))) {
             define('AMQP_DEBUG', true);
@@ -79,7 +80,8 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
                 ColorInterface::RED
             );
 
-            return null;
+            $response->setErrorLevel(1);
+            return;
         }
 
         $this->consumer = $cm->get($request->getParam('name'));
@@ -92,7 +94,8 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
                 ColorInterface::RED
             );
 
-            return null;
+            $response->setErrorLevel(1);
+            return;
         }
 
         $this->consumer->consume($amount);
