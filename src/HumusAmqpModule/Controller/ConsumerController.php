@@ -41,8 +41,6 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
 
     /**
      * {@inheritdoc}
-     *
-     * @todo: handle unix signals
      */
     public function dispatch(RequestInterface $request, ResponseInterface $response = null)
     {

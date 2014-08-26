@@ -40,8 +40,6 @@ class RpcServerController extends AbstractConsoleController
 
     /**
      * {@inheritdoc}
-     *
-     * @todo: handle unix signals
      */
     public function dispatch(RequestInterface $request, ResponseInterface $response = null)
     {
