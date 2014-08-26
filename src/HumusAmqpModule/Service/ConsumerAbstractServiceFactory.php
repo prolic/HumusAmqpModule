@@ -68,8 +68,8 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
             $queues[] = $this->getQueue($queueSpec, $channel, $this->useAutoSetupFabric($spec));
         }
 
-        $idleTimeout = isset($spec['idle_timeout']) ? $spec['idle_timeout'] : null;
-        $waitTimeout = isset($spec['wait_timeout']) ? $spec['wait_timeout'] : null;
+        $idleTimeout = isset($spec['idle_timeout']) ? $spec['idle_timeout'] : 5.0;
+        $waitTimeout = isset($spec['wait_timeout']) ? $spec['wait_timeout'] : 1000;
 
         $consumer = new Consumer($queues, $idleTimeout, $waitTimeout);
 
