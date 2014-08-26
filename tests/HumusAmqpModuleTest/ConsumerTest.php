@@ -95,7 +95,7 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $message->expects($this->any())->method('getDeliveryTag')->willReturnCallback(function() {
+        $message->expects($this->any())->method('getDeliveryTag')->willReturnCallback(function () {
             return uniqid();
         });
 
@@ -139,7 +139,7 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
             }
         };
         $consumer->setDeliveryCallback($callbackFunction);
-        $consumer->setFlushCallback(function() {
+        $consumer->setFlushCallback(function () {
             static $i = 0;
             $i++;
             if ($i == 1) {
@@ -153,5 +153,4 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
 
         $consumer->consume(5);
     }
-
 }
