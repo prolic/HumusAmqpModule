@@ -18,15 +18,14 @@
 
 namespace HumusAmqpModuleTest\PluginManager;
 
-use HumusAmqpModule\PluginManager\Connection as ConnectionPluginManager;
+use HumusAmqpModule\PluginManager\Callback as CallbackPluginManager;
 
-class ConnectionTest extends \PHPUnit_Framework_TestCase
+class CallbackTest extends \PHPUnit_Framework_TestCase
 {
     public function testValidatePlugin()
     {
-        $mock = $this->getMockForAbstractClass('AMQPConnection');
-        $manager = new ConnectionPluginManager();
-        $manager->validatePlugin($mock);
+        $manager = new CallbackPluginManager();
+        $manager->validatePlugin('str_replace');
     }
 
     /**
@@ -34,7 +33,7 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidPlugin()
     {
-        $manager = new ConnectionPluginManager();
+        $manager = new CallbackPluginManager();
         $manager->validatePlugin('foo');
     }
 }

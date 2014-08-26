@@ -18,14 +18,14 @@
 
 namespace HumusAmqpModuleTest\PluginManager;
 
-use HumusAmqpModule\PluginManager\Consumer as ConsumerPluginManager;
+use HumusAmqpModule\PluginManager\Connection as ConnectionPluginManager;
 
-class ConsumerTest extends \PHPUnit_Framework_TestCase
+class ConnectionTest extends \PHPUnit_Framework_TestCase
 {
     public function testValidatePlugin()
     {
-        $mock = $this->getMockForAbstractClass('HumusAmqpModule\\ConsumerInterface');
-        $manager = new ConsumerPluginManager();
+        $mock = $this->getMockForAbstractClass('AMQPConnection');
+        $manager = new ConnectionPluginManager();
         $manager->validatePlugin($mock);
     }
 
@@ -34,7 +34,7 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
      */
     public function testInvalidPlugin()
     {
-        $manager = new ConsumerPluginManager();
+        $manager = new ConnectionPluginManager();
         $manager->validatePlugin('foo');
     }
 }
