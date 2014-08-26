@@ -36,38 +36,78 @@ class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
 /*
     public function testDispatch()
     {
-        $producer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestProducer', array('setupFabric'));
-        $producer
-            ->expects($this->once())
-            ->method('setupFabric');
-
-        $partsHolder = $this->getMock('HumusAmqpModule\Amqp\PartsHolder', array('hasParts', 'getParts'));
-        $partsHolder
-            ->expects($this->any())
-            ->method('hasParts')
-            ->with($this->anything())
-            ->willReturnOnConsecutiveCalls(false, false, false, false, true);
-
-        $partsHolder
-            ->expects($this->once())
-            ->method('getParts')
-            ->with($this->anything())
-            ->willReturn(array('test-producer' => $producer));
-
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('HumusAmqpModule\Amqp\PartsHolder', $partsHolder);
+        $c = $serviceManager->get('Config');
+        $c['humus_amqp_module']['exchanges'] = array(
+            'foo' => array(
+                'name' => 'foo',
+                'type' => 'direct'
+            )
+        );
+        $c['humus_amqp_module']['queues'] = array(
+            'bar' => array(
+                'name' => 'bar',
+                'type' => 'direct',
+                'exchange' => 'foo'
+            )
+        );
+        $serviceManager->setService('Config', $c);
+        $cm = $serviceManager->get('ControllerManager');
+        $controller = new TestAsset\SetupFabricController();
+        $controller->setConsole(new TestAsset\ConsoleAdapter());
+        $controller->setConfig($c['humus_amqp_module']);
+        $cm->setService('HumusAmqpModule\Controller\SetupFabric', $controller);
+        $c = $cm->get('HumusAmqpModule\Controller\SetupFabric');
 
         ob_start();
         $this->dispatch('humus amqp setup-fabric');
-        $this->assertResponseStatusCode(0);
         $res = ob_get_clean();
 
-        $this->assertNotFalse(strstr($res, 'No consumers found to configure'));
-        $this->assertNotFalse(strstr($res, 'No multiple_consumers found to configure'));
-        $this->assertNotFalse(strstr($res, 'No anon_consumers found to configure'));
-        $this->assertNotFalse(strstr($res, 'No rpc_servers found to configure'));
-        $this->assertNotFalse(strstr($res, 'Declaring exchanges and queues for producers'));
+        $this->assertResponseStatusCode(1);
+        $this->assertNotFalse(strstr($res, 'No queues found to configure'));
+    }*/
+
+    public function testDispatchWithEmptyExchangeConfig()
+    {
+        $serviceManager = $this->getApplicationServiceLocator();
+        $serviceManager->setAllowOverride(true);
+        $serviceManager->setService('Config', array(
+            'humus_amqp_module' => array(
+                'exchanges' => array(),
+                'queues' => array()
+            )
+        ));
+
+        ob_start();
+        $this->dispatch('humus amqp setup-fabric');
+        $this->assertResponseStatusCode(1);
+        $res = ob_get_clean();
+
+        $this->assertNotFalse(strstr($res, 'No exchanges found to configure'));
     }
-*/
+
+    public function testDispatchWithEmptyQueueConfig()
+    {
+        $serviceManager = $this->getApplicationServiceLocator();
+        $serviceManager->setAllowOverride(true);
+        $serviceManager->setService('Config', array(
+            'humus_amqp_module' => array(
+                'exchanges' => array(
+                    'foo' => array(
+                        'name' => 'foo',
+                        'type' => 'direct'
+                    )
+                ),
+                'queues' => array()
+            )
+        ));
+
+        ob_start();
+        $this->dispatch('humus amqp setup-fabric');
+        $this->assertResponseStatusCode(1);
+        $res = ob_get_clean();
+
+        $this->assertNotFalse(strstr($res, 'No queues found to configure'));
+    }
 }
