@@ -35,7 +35,7 @@ class ConsumerControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatchWithTestConsumer()
     {
-        $consumer = $this->getMock('HumusAmqpModule\Consumer', array('consume'));
+        $consumer = $this->getMock('HumusAmqpModule\Consumer', array('consume'), array(), '', false);
         $consumer
             ->expects($this->once())
             ->method('consume')
@@ -47,7 +47,7 @@ class ConsumerControllerTest extends AbstractConsoleControllerTestCase
         $cm->setService('test-consumer', $consumer);
 
         ob_start();
-        $this->dispatch('humus amqp consumer test-consumer 5 --route=bar');
+        $this->dispatch('humus amqp consumer test-consumer 5');
         ob_end_clean();
 
         $this->assertResponseStatusCode(0);
@@ -63,7 +63,7 @@ class ConsumerControllerTest extends AbstractConsoleControllerTestCase
         $this->dispatch('humus amqp consumer invalid-consumer');
         $res = ob_get_clean();
 
-        $this->assertResponseStatusCode(0);
+        $this->assertResponseStatusCode(1);
         $this->assertNotFalse($res, strstr($res, 'Error: unknown consumer "invalid-consumer"'));
     }
 
@@ -73,7 +73,7 @@ class ConsumerControllerTest extends AbstractConsoleControllerTestCase
         $this->dispatch('humus amqp consumer EventManager');
         $res = ob_get_clean();
 
-        $this->assertResponseStatusCode(0);
+        $this->assertResponseStatusCode(1);
         $this->assertNotFalse($res, strstr($res, 'Error: unknown consumer "invalid-consumer"'));
     }
 
@@ -90,7 +90,7 @@ class ConsumerControllerTest extends AbstractConsoleControllerTestCase
         $this->dispatch('humus amqp consumer test-consumer invalidamount');
         $res = ob_get_clean();
 
-        $this->assertResponseStatusCode(0);
+        $this->assertResponseStatusCode(1);
         $this->assertNotFalse($res, strstr($res, 'Error: amount should be null or greater than 0'));
     }
 }

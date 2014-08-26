@@ -28,9 +28,23 @@ class ProducerTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $exchange
+            ->expects($this->once())
+            ->method('publish')
+            ->with(
+                'foo',
+                'bar',
+                AMQP_NOPARAM,
+                array(
+                    'content_type' => 'text/plain',
+                    'delivery_mode' => 2,
+                    'headers' => array()
+                )
+            );
+
         $producer = new Producer($exchange);
 
-        $producer->publish('foo', 'bar', array('baz' => 'bam'));
+        $producer->publish('foo', 'bar');
     }
 
     public function testBatchPublish()
@@ -39,16 +53,20 @@ class ProducerTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $producer = new Producer($exchange);
-/*
-        $amqpChannel
+        $exchange
             ->expects($this->exactly(2))
-            ->method('batch_basic_publish');
+            ->method('publish')
+            ->with(
+                $this->anything(),
+                '',
+                AMQP_NOPARAM,
+                array(
+                    'content_type' => 'text/plain',
+                    'delivery_mode' => 2,
+                    'headers' => array()
+                )
+            );
 
-        $amqpChannel
-            ->expects($this->once())
-            ->method('publish_batch');
-*/
         $producer = new Producer($exchange);
 
         $producer->publishBatch(array('foo', 'bar'));
