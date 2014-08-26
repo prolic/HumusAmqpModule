@@ -109,11 +109,6 @@ $config = array(
             )
         )
     ),
-    'service_manager' => array(
-        'factories' => array(
-            __NAMESPACE__ . '\\Amqp\\PartsHolder' => 'HumusAmqpModule\Service\PartsHolderFactory'
-        ),
-    )
 );
 
 if (class_exists('HumusSupervisorModule\\Module')) {

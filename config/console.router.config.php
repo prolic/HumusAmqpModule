@@ -6,7 +6,7 @@ return array(
     'routes' => array(
         'humus_amqp_module-setup-fabric' => array(
             'options' => array(
-                'route'    => 'humus amqp setup-fabric [--debug|-d]',
+                'route'    => 'humus amqp setup-fabric',
                 'defaults' => array(
                     'controller' => __NAMESPACE__ . '\\Controller\\SetupFabric',
                 )
@@ -14,7 +14,7 @@ return array(
         ),
         'humus_amqp_module-consumer' => array(
             'options' => array(
-                'route'    => 'humus amqp consumer <name> [<amount>] [--debug|-d]',
+                'route'    => 'humus amqp consumer <name> [<amount>]',
                 'defaults' => array(
                     'controller' => __NAMESPACE__ . '\\Controller\\Consumer',
                 )
@@ -38,7 +38,7 @@ return array(
         ),
         'humus_amqp_module-stdin-producer' => array(
             'options' => array(
-                'route'    => 'humus amqp stdin-producer <name> [--route=] <msg> [--debug|-d]',
+                'route'    => 'humus amqp stdin-producer <name> [--route=] <msg>',
                 'defaults' => array(
                     'controller' => __NAMESPACE__ . '\\Controller\\StdInProducer',
                 )
@@ -70,7 +70,7 @@ return array(
         ),
         'humus_amqp_module-rpc-server' => array(
             'options' => array(
-                'route' => 'humus amqp rpc-server <name> [<amount>] [--debug|-d]',
+                'route' => 'humus amqp rpc-server <name> [<amount>]',
                 'defaults' => array(
                     'controller' => __NAMESPACE__ . '\\Controller\\RpcServer',
                 )
