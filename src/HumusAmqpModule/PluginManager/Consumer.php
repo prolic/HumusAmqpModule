@@ -19,7 +19,7 @@
 namespace HumusAmqpModule\PluginManager;
 
 use HumusAmqpModule\Exception;
-use HumusAmqpModule\Amqp\ConsumerInterface;
+use HumusAmqpModule\ConsumerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
 
 class Consumer extends AbstractPluginManager
@@ -44,7 +44,7 @@ class Consumer extends AbstractPluginManager
         throw new Exception\RuntimeException(sprintf(
             'Plugin of type %s is invalid; must implement %s',
             (is_object($plugin) ? get_class($plugin) : gettype($plugin)),
-            'HumusAmqpModule\Amqp\ConsumerInterface'
+            'HumusAmqpModule\ConsumerInterface'
         ));
     }
 }

@@ -15,7 +15,7 @@ Humus AMQP Module is a Module for Zend Framework 2 based on php-amqplib.
 About
 -----
 
-The Humus AMQP Module incorporates messaging in your zf2 application via [RabbitMQ](http://www.rabbitmq.com/) using the [php-amqplib](http://github.com/videlalvaro/php-amqplib) library.
+The Humus AMQP Module incorporates messaging in your zf2 application via [RabbitMQ](http://www.rabbitmq.com/) using the [PHP AMQP Extension](https://github.com/pdezwart/php-amqp).
 
 This module implements several messaging patterns as seen on the [Thumper](https://github.com/videlalvaro/Thumper) library.
 
@@ -29,8 +29,8 @@ You can install the [Demo-Module](https://github.com/prolic/HumusAmqpDemoModule)
 Dependencies
 ------------
 
- - PHP 5.3.23
- - [php-amqplib](https://github.com/videlalvaro/php-amqplib)
+ - PHP 5.4.0
+ - [ext-amqp](https://github.com/pdezwart/php-amqp)
  - [HumusSupervisorModule](https://github.com/prolic/HumusSupervisorModule) (optional)
 
 Installation
@@ -63,8 +63,6 @@ see: php public/index.php
 TODOS:
 ------
 
- - Write more tests
- - Move factories to AbstractServiceFactory
  - Add documentation
  - Add data collectors
  - Restart consumers

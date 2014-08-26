@@ -48,33 +48,20 @@ class Module implements
 
         // Use naming conventions to set up a bunch of services based on namespace:
         $namespaces = array(
-            'Callback' => 'callbacks',
-            'Connection' => 'connections',
-            'Producer' => 'producers',
-            'Consumer' => 'consumers',
-            'MultipleConsumer' => 'mutiple_consumers',
-            'AnonConsumer' => 'anon_consumers',
-            'RpcClient' => 'rpc_clients',
-            'RpcServer' => 'rpc_servers'
+            'Callback' => 'callback',
+            'Connection' => 'connection',
+            'Producer' => 'producer',
+            'Consumer' => 'consumer',
+            'RpcClient' => 'rpc_client',
+            'RpcServer' => 'rpc_server'
         );
 
         // register plugin managers
         foreach ($namespaces as $ns => $configKey) {
             $serviceName = __NAMESPACE__ . '\\PluginManager\\' . $ns;
             $factory = function () use ($serviceName, $config, $ns, $configKey, $serviceManager) {
-
-
-                $serviceConfig = isset($config['humus_amqp_module']['plugin_managers'][$configKey])
-                    ? $config['humus_amqp_module']['plugin_managers'][$configKey]
-                    : array();
-
-                /* @var $service AbstractPluginManager */
+                $serviceConfig = $config['humus_amqp_module']['plugin_managers'][$configKey];
                 $service = new $serviceName(new \Zend\ServiceManager\Config($serviceConfig));
-                // add abstract factory
-                if ('Callback' != $ns) { // callbacks are defined in plugin manager configuration
-                    $service->addAbstractFactory(__NAMESPACE__ . '\\Service\\' . $ns . 'AbstractServiceFactory');
-                }
-                $service->setServiceLocator($serviceManager);
                 return $service;
             };
             $serviceManager->setFactory($serviceName, $factory);

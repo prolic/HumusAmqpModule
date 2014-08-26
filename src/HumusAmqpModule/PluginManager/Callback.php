@@ -19,7 +19,6 @@
 namespace HumusAmqpModule\PluginManager;
 
 use HumusAmqpModule\Exception;
-use PhpAmqpLib\Connection\AbstractConnection;
 use Zend\ServiceManager\AbstractPluginManager;
 
 class Callback extends AbstractPluginManager

@@ -33,6 +33,7 @@ class ListController extends AbstractConsoleController
         parent::dispatch($request, $response);
 
         /* @var $request \Zend\Console\Request */
+        /* @var $response \Zend\Console\Response */
 
         $type = $request->getParam('type');
         $config = $this->getServiceLocator()->get('Config');
@@ -43,7 +44,7 @@ class ListController extends AbstractConsoleController
         $cType = str_replace('-', '_', $type);
         if (!isset($moduleConfig[$cType])) {
             $this->getConsole()->writeLine('No ' . $type . ' found', ColorInterface::RED);
-            return null;
+            return;
         }
 
         $list = array_keys($moduleConfig[str_replace('-', '_', $type)]);

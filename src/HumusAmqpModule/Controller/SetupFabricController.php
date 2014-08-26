@@ -18,7 +18,12 @@
 
 namespace HumusAmqpModule\Controller;
 
-use HumusAmqpModule\Amqp\PartsHolder;
+use AMQPChannel;
+use HumusAmqpModule\ExchangeFactory;
+use HumusAmqpModule\ExchangeSpecification;
+use HumusAmqpModule\PluginManager\Connection as ConnectionManager;
+use HumusAmqpModule\QueueFactory;
+use HumusAmqpModule\QueueSpecification;
 use Zend\Console\ColorInterface;
 use Zend\Mvc\Controller\AbstractConsoleController;
 use Zend\Stdlib\RequestInterface;
@@ -27,17 +32,24 @@ use Zend\Stdlib\ResponseInterface;
 class SetupFabricController extends AbstractConsoleController
 {
     /**
-     * @var PartsHolder
+     * @var ConnectionManager
      */
-    protected $partsHolder;
+    protected $connectionManager;
 
     /**
-     * @param PartsHolder $partsHolder
+     * @var array
      */
-    public function setPartsHolder(PartsHolder $partsHolder)
-    {
-        $this->partsHolder = $partsHolder;
-    }
+    protected $config;
+
+    /**
+     * @var ExchangeFactory
+     */
+    protected $exchangeFactory;
+
+    /**
+     * @var QueueFactory
+     */
+    protected $queueFactory;
 
     /**
      * {@inheritdoc}
@@ -47,39 +59,115 @@ class SetupFabricController extends AbstractConsoleController
         parent::dispatch($request, $response);
 
         /* @var $request \Zend\Console\Request */
+        /* @var $response \Zend\Console\Response */
 
-        $debug = $request->getParam('debug') || $request->getParam('d');
+        $console = $this->getConsole();
+        $console->writeLine('Setting up the AMQP fabric');
 
-        if ($debug && !defined('AMQP_DEBUG')) {
-            define('AMQP_DEBUG', true);
+        $config = $this->getConfig();
+
+        if (empty($config['exchanges'])) {
+            $console->writeLine('No exchanges found to configure', ColorInterface::RED);
+            $response->setErrorLevel(1);
+            return;
         }
 
-        $this->console->writeLine('Setting up the AMQP fabric');
+        if (empty($config['queues'])) {
+            $console->writeLine('No queues found to configure', ColorInterface::RED);
+            $response->setErrorLevel(1);
+            return;
+        }
 
-        $that = $this;
-        $partsHolder = $this->partsHolder;
+        $console->write('Declaring exchanges ...' . PHP_EOL);
+        $exchangeFactory = $this->getExchangeFactory();
+        foreach ($config['exchanges'] as $name => $spec) {
+            $channel = $this->createChannel($spec, $config['default_connection']);
 
-        array_map(
-            function ($name) use ($that, $partsHolder) {
-                if ($partsHolder->hasParts($name)) {
-                    $that->getConsole()->write('Declaring exchanges and queues for ' . $name . ' ');
-                    foreach ($partsHolder->getParts($name) as $part) {
-                        $part->setupFabric();
-                    }
-                    $that->getConsole()->writeLine('OK', ColorInterface::GREEN);
-                } else {
-                    $that->getConsole()->writeLine('No ' . $name . ' found to configure', ColorInterface::YELLOW);
-                }
-            },
-            array(
-                'consumers',
-                'multiple_consumers',
-                'anon_consumers',
-                'rpc_servers',
-                'producers'
-            )
-        );
+            $spec = new ExchangeSpecification($spec);
+            $exchangeFactory->create($spec, $channel, true);
+        }
 
-        $this->console->writeLine('DONE', ColorInterface::GREEN);
+        $console->write('Declaring queues ...' . PHP_EOL);
+        $queueFactory = $this->getQueueFactory();
+        foreach ($config['queues'] as $name => $spec) {
+            $channel = $this->createChannel($spec, $config['default_connection']);
+
+            $spec = new QueueSpecification($spec);
+            $queueFactory->create($spec, $channel, true);
+        }
+
+        $console->writeLine('DONE', ColorInterface::GREEN);
+    }
+
+    /**
+     * @param ConnectionManager $connectionManager
+     */
+    public function setConnectionManager($connectionManager)
+    {
+        $this->connectionManager = $connectionManager;
+    }
+
+    /**
+     * @return ConnectionManager
+     */
+    public function getConnectionManager()
+    {
+        return $this->connectionManager;
+    }
+
+    /**
+     * @param array $config
+     */
+    public function setConfig(array $config)
+    {
+        $this->config = $config;
+    }
+
+    /**
+     * @return array
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * @return ExchangeFactory
+     */
+    protected function getExchangeFactory()
+    {
+        if (null === $this->exchangeFactory) {
+            $this->exchangeFactory = new ExchangeFactory();
+        }
+        return $this->exchangeFactory;
+    }
+
+    /**
+     * @return QueueFactory
+     */
+    protected function getQueueFactory()
+    {
+        if (null === $this->queueFactory) {
+            $this->queueFactory = new QueueFactory();
+        }
+        return $this->queueFactory;
+    }
+
+    /**
+     * @param array $spec
+     * @param string $defaultConnectionName
+     * @return AMQPChannel
+     */
+    protected function createChannel(array $spec, $defaultConnectionName)
+    {
+        if (isset($spec['connection'])) {
+            $connectionName = $spec['connection'];
+        } else {
+            $connectionName = $defaultConnectionName;
+        }
+        $connection = $this->getConnectionManager()->get($connectionName);
+        $channel = new AMQPChannel($connection);
+
+        return $channel;
     }
 }

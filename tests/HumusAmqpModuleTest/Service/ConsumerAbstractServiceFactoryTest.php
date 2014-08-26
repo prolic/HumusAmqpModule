@@ -129,19 +129,6 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('HumusAmqpModuleTest\Service\TestAsset\CustomConsumer', $consumer);
     }
 
-    public function testCreateConsumerWithInvalidConsumerClass()
-    {
-        $this->setExpectedException(
-            'HumusAmqpModule\Exception\RuntimeException',
-            'Consumer of type stdClass is invalid; must implement HumusAmqpModule\Amqp\ConsumerInterface'
-        );
-        $config = $this->services->get('Config');
-        $config['humus_amqp_module']['consumers']['test-consumer']['class'] = 'stdClass';
-        $this->services->setService('Config', $config);
-
-        $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
-    }
-
     /**
      * @expectedException HumusAmqpModule\Exception\RuntimeException
      * @expectedExceptionMessage Plugin of type stdClass is invalid; must be a callable

@@ -18,9 +18,8 @@
 
 namespace HumusAmqpModule\Controller;
 
-use HumusAmqpModule\Amqp\ConsumerInterface;
+use HumusAmqpModule\ConsumerInterface;
 use HumusAmqpModule\Exception;
-use HumusAmqpModule\Amqp\Consumer;
 use Zend\Console\ColorInterface;
 use Zend\Mvc\Controller\AbstractConsoleController;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -49,10 +48,23 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
     {
         parent::dispatch($request, $response);
         /* @var $request \Zend\Console\Request */
+        /* @var $response \Zend\Console\Response */
 
-        if (!defined('AMQP_DEBUG') && ($request->getParam('debug') || $request->getParam('d'))) {
-            define('AMQP_DEBUG', true);
+        if (!extension_loaded('pcntl')) {
+            throw new Exception\ExtensionNotLoadedException(
+                'pnctl extension missing'
+            );
         }
+
+        if (!function_exists('pcntl_signal')) {
+            throw new Exception\BadFunctionCallException(
+                "Function 'pcntl_signal' is referenced in the php.ini 'disable_functions' and can't be called."
+            );
+        }
+
+        pcntl_signal(SIGTERM, array($this, 'stopConsumer'));
+        pcntl_signal(SIGINT, array($this, 'stopConsumer'));
+        pcntl_signal(SIGHUP, array($this, 'stopConsumer'));
 
         $cm = $this->getConsumerManager();
 
@@ -64,17 +76,11 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
                 ColorInterface::RED
             );
 
-            return null;
+            $response->setErrorLevel(1);
+            return;
         }
 
         $this->consumer = $cm->get($request->getParam('name'));
-
-        if (!$this->consumer) {
-            return null;
-        }
-
-        $this->consumer->setMemoryLimit($request->getParam('memory_limit'));
-        $this->consumer->setRoutingKey($request->getParam('route'));
 
         $amount = $request->getParam('amount', 0);
 
@@ -84,25 +90,21 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
                 ColorInterface::RED
             );
 
-            return null;
+            $response->setErrorLevel(1);
+            return;
         }
 
         $this->consumer->consume($amount);
     }
 
+    /**
+     * Stops the consumer
+     *
+     * @return void
+     */
     public function stopConsumer()
     {
-        $this->consumer->forceStopConsumer();
-    }
-
-    /**
-     * @todo: return response without exit call
-     */
-    public function shutdownConsumer()
-    {
-        echo 'received shutdown signal' . "\n";
-        $this->stopConsumer();
-        exit;
+        $this->consumer->handleShutdownSignal();
     }
 
     /**

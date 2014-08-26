@@ -18,7 +18,10 @@
 
 namespace HumusAmqpModule\Service\Controller;
 
+use AMQPChannel;
 use HumusAmqpModule\Controller\SetupFabricController;
+use HumusAmqpModule\ExchangeFactory;
+use HumusAmqpModule\QueueFactory;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -33,10 +36,12 @@ class SetupFabricFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $sm = $serviceLocator->getServiceLocator();
-        $partsHolder = $sm->get('HumusAmqpModule\Amqp\PartsHolder');
+
+        $config = $sm->get('Config')['humus_amqp_module'];
 
         $controller  = new SetupFabricController();
-        $controller->setPartsHolder($partsHolder);
+        $controller->setConnectionManager($sm->get('HumusAmqpModule\PluginManager\Connection'));
+        $controller->setConfig($config);
 
         return $controller;
     }

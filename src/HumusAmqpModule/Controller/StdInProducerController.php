@@ -38,6 +38,7 @@ class StdInProducerController extends AbstractConsoleController
     {
         parent::dispatch($request, $response);
         /* @var $request \Zend\Console\Request */
+        /* @var $response \Zend\Console\Response */
 
         $producerName = $request->getParam('name');
         $producerManager = $this->getProducerManager();
@@ -48,13 +49,8 @@ class StdInProducerController extends AbstractConsoleController
                 ColorInterface::RED
             );
 
-            return null;
-        }
-
-        $debug = $request->getParam('debug') || $request->getParam('d');
-
-        if ($debug && !defined('AMQP_DEBUG')) {
-            define('AMQP_DEBUG', true);
+            $response->setErrorLevel(1);
+            return;
         }
 
         $producer = $producerManager->get($producerName);

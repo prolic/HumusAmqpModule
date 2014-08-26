@@ -55,48 +55,6 @@ class PurgeConsumerControllerTest extends AbstractConsoleControllerTestCase
         $this->assertNotFalse(strstr($res, 'OK'));
     }
 
-    public function testDispatchWithAnonConsumer()
-    {
-        $consumer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestConsumer', array('purge'));
-        $consumer
-            ->expects($this->once())
-            ->method('purge');
-
-        $serviceManager = $this->getApplicationServiceLocator();
-        $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('HumusAmqpModule\PluginManager\AnonConsumer', $cm = new ServiceManager());
-        $cm->setService('test-consumer', $consumer);
-
-        ob_start();
-        $this->dispatch('humus amqp purge-anon-consumer test-consumer --no-confirmation');
-
-        $this->assertResponseStatusCode(0);
-        $res = ob_get_clean();
-
-        $this->assertNotFalse(strstr($res, 'OK'));
-    }
-
-    public function testDispatchWithMultipleConsumer()
-    {
-        $consumer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestConsumer', array('purge'));
-        $consumer
-            ->expects($this->once())
-            ->method('purge');
-
-        $serviceManager = $this->getApplicationServiceLocator();
-        $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('HumusAmqpModule\PluginManager\MultipleConsumer', $cm = new ServiceManager());
-        $cm->setService('test-consumer', $consumer);
-
-        ob_start();
-        $this->dispatch('humus amqp purge-multiple-consumer test-consumer --no-confirmation');
-
-        $this->assertResponseStatusCode(0);
-        $res = ob_get_clean();
-
-        $this->assertNotFalse(strstr($res, 'OK'));
-    }
-
     public function testDispatchWithInvalidConsumerName()
     {
         $serviceManager = $this->getApplicationServiceLocator();
@@ -106,7 +64,7 @@ class PurgeConsumerControllerTest extends AbstractConsoleControllerTestCase
         ob_start();
         $this->dispatch('humus amqp purge-consumer invalid-consumer --no-confirmation');
 
-        $this->assertResponseStatusCode(0);
+        $this->assertResponseStatusCode(1);
         $res = ob_get_clean();
 
         $this->assertNotFalse(strstr($res, 'ERROR: Consumer "invalid-consumer" not found'));

@@ -38,8 +38,8 @@ class ExchangesControllerTest extends AbstractConsoleControllerTestCase
         $this->dispatch('humus amqp list-exchanges');
         $res = ob_get_clean();
 
-        $this->assertResponseStatusCode(0);
-        $this->assertNotFalse(strstr($res, 'List of all exchanges'));
+        $this->assertResponseStatusCode(1);
+        $this->assertNotFalse(strstr($res, 'No exchanges found'));
     }
 
     public function testDispatchWithConfig()
@@ -47,23 +47,17 @@ class ExchangesControllerTest extends AbstractConsoleControllerTestCase
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
         $config = $serviceManager->get('Config');
-        $config['humus_amqp_module']['consumers']['myconsumer'] = array(
-            'exchange_options' => array(
-                'name' => 'foo',
-                'type' => 'topic'
-            )
+        $config['humus_amqp_module']['exchanges']['foo'] = array(
+            'name' => 'foo',
+            'type' => 'topic'
         );
-        $config['humus_amqp_module']['consumers']['myconsumer-2'] = array(
-            'exchange_options' => array(
-                'name' => 'bar',
-                'type' => 'topic'
-            )
+        $config['humus_amqp_module']['exchanges']['bar'] = array(
+            'name' => 'bar',
+            'type' => 'topic'
         );
-        $config['humus_amqp_module']['rpc_servers']['rpc'] = array(
-            'exchange_options' => array(
-                'name' => 'baz',
-                'type' => 'direct'
-            )
+        $config['humus_amqp_module']['exchanges']['baz'] = array(
+            'name' => 'baz',
+            'type' => 'direct'
         );
         $serviceManager->setService('Config', $config);
 

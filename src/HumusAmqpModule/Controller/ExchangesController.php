@@ -18,6 +18,7 @@
 
 namespace HumusAmqpModule\Controller;
 
+use HumusAmqpModule\ExchangeSpecification;
 use Zend\Console\ColorInterface;
 use Zend\Mvc\Controller\AbstractConsoleController;
 use Zend\Stdlib\RequestInterface;
@@ -31,27 +32,25 @@ class ExchangesController extends AbstractConsoleController
     public function dispatch(RequestInterface $request, ResponseInterface $response = null)
     {
         parent::dispatch($request, $response);
+        /* @var $response \Zend\Console\Response */
 
         $config = $this->getServiceLocator()->get('Config');
         $moduleConfig = $config['humus_amqp_module'];
 
-        $this->getConsole()->writeLine('List of all exchanges', ColorInterface::GREEN);
-
         $exchanges = array();
-        foreach ($moduleConfig as $type) {
-            foreach ($type as $configPart) {
-
-                if (!is_array($configPart)) {
-                    continue;
-                }
-
-                foreach ($configPart as $key => $value) {
-                    if ($key == 'exchange_options') {
-                        $exchanges[$value['type']][] = $value['name'];
-                    }
-                }
-            }
+        foreach ($moduleConfig['exchanges'] as $name => $options) {
+            $spec = new ExchangeSpecification($options);
+            $type = $spec->getType();
+            $exchanges[$type->getValue()][] = $name;
         }
+
+        if (empty($exchanges)) {
+            $this->getConsole()->writeLine('No exchanges found', ColorInterface::RED);
+            $response->setErrorLevel(1);
+            return;
+        }
+
+        $this->getConsole()->writeLine('List of all exchanges', ColorInterface::GREEN);
 
         foreach ($exchanges as $type => $values) {
             $this->getConsole()->writeLine('Exchange-Type: ' . $type, ColorInterface::GREEN);

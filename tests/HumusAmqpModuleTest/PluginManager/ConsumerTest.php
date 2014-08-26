@@ -24,7 +24,7 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
 {
     public function testValidatePlugin()
     {
-        $mock = $this->getMockForAbstractClass('HumusAmqpModule\\Amqp\\ConsumerInterface');
+        $mock = $this->getMockForAbstractClass('HumusAmqpModule\\ConsumerInterface');
         $manager = new ConsumerPluginManager();
         $manager->validatePlugin($mock);
     }

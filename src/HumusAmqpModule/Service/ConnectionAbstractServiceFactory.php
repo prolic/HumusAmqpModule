@@ -18,10 +18,13 @@
 
 namespace HumusAmqpModule\Service;
 
-use HumusAmqpModule\Exception;
-use PhpAmqpLib\Connection\AbstractConnection;
+use AMQPConnection;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
+/**
+ * Instantiates an AMQPConnection and created the connection
+ * (persistent or not-persistent) dependent on specification
+ */
 class ConnectionAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
 {
     /**
@@ -33,50 +36,23 @@ class ConnectionAbstractServiceFactory extends AbstractAmqpAbstractServiceFactor
      * Create service with name
      *
      * @param ServiceLocatorInterface $serviceLocator
-     * @param $name
-     * @param $requestedName
-     * @return mixed
+     * @param string $name
+     * @param string $requestedName
+     * @return AMQPConnection
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        if (isset($this->instances[$requestedName])) {
-            return $this->instances[$requestedName];
-        }
         $config  = $this->getConfig($serviceLocator);
 
         $spec = $config[$this->subConfigKey][$requestedName];
 
-        if (isset($spec['class'])) {
-            $class = $spec['class'];
-        } elseif (!isset($spec['lazy']) || true == $spec['lazy']) {
-            $class = $config['classes']['lazy_connection'];
+        $connection = new AMQPConnection($spec);
+
+        if (isset($spec['persistent']) && $spec['persistent']) {
+            $connection->pconnect();
         } else {
-            $class = $config['classes']['connection'];
+            $connection->connect();
         }
-
-        if (!class_exists($class)) {
-            throw new Exception\RuntimeException(
-                'Class "' . $class . '" not found'
-            );
-        }
-
-        $connection = new $class(
-            $spec['host'],
-            $spec['port'],
-            $spec['user'],
-            $spec['password'],
-            $spec['vhost']
-        );
-
-        if (!$connection instanceof AbstractConnection) {
-            throw new Exception\RuntimeException(sprintf(
-                'Producer of type %s is invalid; must implement %s',
-                (is_object($connection) ? get_class($connection) : gettype($connection)),
-                'PhpAmqpLib\Connection\AbstractConnection'
-            ));
-        }
-
-        $this->instances[$requestedName] = $connection;
 
         return $connection;
     }

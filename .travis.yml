@@ -1,7 +1,6 @@
 language: php
 
 php:
-  - 5.3
   - 5.4
   - 5.5
   - 5.6
@@ -11,8 +10,25 @@ matrix:
   allow_failures:
     - php: hhvm
 
+env:
+- LIBRABBITMQ_VERSION=v0.5.1 PHP_AMQP_VERSION=v1.4.0
+
 before_script:
-  - composer update --prefer-source
+  # install librabbitmq C library (required by php-amqp)
+  - sh -c "git clone git://github.com/alanxz/rabbitmq-c.git"
+  - sh -c "cd rabbitmq-c && git checkout ${LIBRABBITMQ_VERSION}"
+  - sh -c "cd rabbitmq-c && cmake -DBUILD_EXAMPLES=No -DBUILD_TOOLS=No -DBUILD_TESTS=No ."
+  - sh -c "cd rabbitmq-c && make && sudo make install"
+  # install php-amqp extension
+  - sh -c "git clone git://github.com/pdezwart/php-amqp.git"
+  - sh -c "cd php-amqp && git checkout ${PHP_AMQP_VERSION}"
+  - sh -c "cd php-amqp && phpize && ./configure && make && sudo make install"
+  # add amqp extension to php.ini
+  - echo "extension = amqp.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - sh -c "php -i"
+  # update composer and fetch dependencies
+  - composer self-update
+  - composer install --dev
 
 script:
   - ./vendor/bin/phpunit --coverage-clover ./build/clover.xml

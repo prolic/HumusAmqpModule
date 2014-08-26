@@ -34,10 +34,10 @@ class RpcServerControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatch()
     {
-        $rpcServer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestRpcServer', array('start'));
+        $rpcServer = $this->getMock('HumusAmqpModule\RpcServer', array('consume'), array(), '', false);
         $rpcServer
             ->expects($this->once())
-            ->method('start')
+            ->method('consume')
             ->with(100);
 
         $serviceManager = $this->getApplicationServiceLocator();
@@ -52,7 +52,7 @@ class RpcServerControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatchWithInvalidAmount()
     {
-        $rpcServer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestRpcServer', array('start'));
+        $rpcServer = $this->getMock('HumusAmqpModule\RpcServer', array('start'), array(), '', false);
 
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
@@ -61,7 +61,7 @@ class RpcServerControllerTest extends AbstractConsoleControllerTestCase
         ob_start();
         $this->dispatch('humus amqp rpc-server test-rpc-server invalidamount');
         $res = ob_get_clean();
-        $this->assertResponseStatusCode(0);
+        $this->assertResponseStatusCode(1);
 
         $this->assertNotFalse($res, 'Error: amount should be null or greater than 0');
     }
@@ -71,7 +71,7 @@ class RpcServerControllerTest extends AbstractConsoleControllerTestCase
         ob_start();
         $this->dispatch('humus amqp rpc-server test-rpc-server');
         $res = ob_get_clean();
-        $this->assertResponseStatusCode(0);
+        $this->assertResponseStatusCode(1);
 
         $this->assertNotFalse($res, 'ERROR: RPC-Server "test-rpc-server" not found');
     }

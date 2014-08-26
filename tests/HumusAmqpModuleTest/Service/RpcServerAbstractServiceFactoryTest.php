@@ -41,27 +41,21 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $config = array(
             'humus_amqp_module' => array(
-                'classes' => array(
-                    'connection' => 'PhpAmqpLib\Connection\AMQPConnection',
-                    'lazy_connection' => 'PhpAmqpLib\Connection\AMQPLazyConnection',
-                    'rpc_server' => 'HumusAmqpModule\Amqp\RpcServer',
-                ),
                 'rpc_servers' => array(
                     'test-rpc-server' => array(
                         'callback' => 'test-callback',
-                        'qos_options' => array(
+                        'qos' => array(
                             'prefetchSize' => 0,
-                            'prefetchCount' => 0,
-                            'global' => false
+                            'prefetchCount' => 1,
                         ),
                     ),
                 ),
             )
         );
 
-        $channel = $this->getMock('PhpAmqpLib\Channel\AmqpChannel', array(), array(), '', false);
+        $channel = $this->getMock('AmqpChannel', array(), array(), '', false);
 
-        $connectionMock = $this->getMock('PhpAmqpLib\Connection\AMQPLazyConnection', array(), array(), '', false);
+        $connectionMock = $this->getMock('AMQPConnection', array(), array(), '', false);
         $connectionMock
             ->expects($this->any())
             ->method('channel')
@@ -94,38 +88,12 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $rpcServer = $this->components->createServiceWithName($this->services, 'test-rpc-server', 'test-rpc-server');
         $this->assertInstanceOf('HumusAmqpModule\Amqp\RpcServer', $rpcServer);
-        /* @var $rpcServer \HumusAmqpModule\Amqp\RpcServer */
-        $this->assertEquals('direct', $rpcServer->getExchangeOptions()->getType());
-    }
-
-    public function testCreateRpcServerWithCustomClass()
-    {
-        $config = $this->services->get('Config');
-        $config['humus_amqp_module']['rpc_servers']['test-rpc-server']['class'] = __NAMESPACE__
-            . '\TestAsset\CustomRpcServer';
-        $this->services->setService('Config', $config);
-
-        $rpcServer = $this->components->createServiceWithName($this->services, 'test-rpc-server', 'test-rpc-server');
-        $this->assertInstanceOf(__NAMESPACE__ . '\TestAsset\CustomRpcServer', $rpcServer);
-        /* @var $rpcServer \HumusAmqpModule\Amqp\RpcServer */
+        /* @var $rpcServer \HumusAmqpModule\RpcServer */
         $this->assertEquals('direct', $rpcServer->getExchangeOptions()->getType());
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\RuntimeException
-     * @expectedExceptionMessage Consumer of type stdClass is invalid; must extends HumusAmqpModule\Amqp\RpcServer
-     */
-    public function testCreateRpcServerWithInvalidCustomClass()
-    {
-        $config = $this->services->get('Config');
-        $config['humus_amqp_module']['rpc_servers']['test-rpc-server']['class'] = 'stdClass';
-        $this->services->setService('Config', $config);
-
-        $this->components->createServiceWithName($this->services, 'test-rpc-server', 'test-rpc-server');
-    }
-
-    /**
-     * @expectedException HumusAmqpModule\Exception\RuntimeException
+     * @expectedException HumusAmqpModule\Exception\InvalidArgumentException
      * @expectedExceptionMessage callback is missing for rpc server
      */
     public function testCreateRpcServerWithoutCallback()
