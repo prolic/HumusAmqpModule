@@ -35,15 +35,6 @@ class Callback extends AbstractPluginManager
      */
     public function validatePlugin($plugin)
     {
-        if (is_callable($plugin)) {
-            // we're okay
-            return;
-        }
-
-        throw new Exception\RuntimeException(sprintf(
-            'Plugin of type %s is invalid; must be a callable',
-            (is_object($plugin) ? get_class($plugin) : gettype($plugin))
-        ));
-
+        // we're okay
     }
 }
