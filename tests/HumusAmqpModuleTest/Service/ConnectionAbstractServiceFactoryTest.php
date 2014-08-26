@@ -65,6 +65,7 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetNonPersistentConnection()
     {
+        $this->markTestSkipped('This test requires a running amqp broker to test');
         $conn = $this->services->get('HumusAmqpModule\PluginManager\Connection')->get('default');
         $this->assertInstanceOf('AMQPConnection', $conn);
         $this->assertTrue($conn->isConnected());
@@ -75,6 +76,7 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetPersistentConnection()
     {
+        $this->markTestSkipped('This test requires a running amqp broker to test');
         $config = array(
             'humus_amqp_module' => array(
                 'connections' => array(
