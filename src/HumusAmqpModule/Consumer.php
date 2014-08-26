@@ -144,6 +144,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
         $this->idleTimeout = $idleTimeout;
         $this->waitTimeout = $waitTimeout;
         $this->queues = new InfiniteIterator(new ArrayIterator($q));
+
     }
 
     /**
@@ -216,7 +217,6 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
         $this->target = $msgAmount;
 
         do {
-
             if (!$this->timestampLastAck) {
                 $this->timestampLastAck = microtime(1);
             }
@@ -242,7 +242,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
                 && ($this->countMessagesUnacked == $this->blockSize
                 || ($now - $this->timestampLastAck) > $this->idleTimeout
             )) {
-                $this->ack();
+                $this->ackOrNackBlock();
             }
 
         } while ($this->keepAlive && ($this->countMessagesConsumed < $this->target || 0 == $this->target));
