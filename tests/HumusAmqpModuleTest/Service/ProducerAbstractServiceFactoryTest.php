@@ -40,11 +40,7 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $config = array(
             'humus_amqp_module' => array(
-                'classes' => array(
-                    'connection' => 'PhpAmqpLib\Connection\AMQPConnection',
-                    'lazy_connection' => 'PhpAmqpLib\Connection\AMQPLazyConnection',
-                    'producer' => 'HumusAmqpModule\Amqp\Producer',
-                ),
+                'default_connection' => 'default',
                 'connections' => array(
                     'default' => array(
                         'host' => 'localhost',
@@ -52,43 +48,32 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                         'user' => 'guest',
                         'password' => 'guest',
                         'vhost' => '/',
-                        'lazy' => true
+                    )
+                ),
+                'exchanges' => array(
+                    'demo-exchange' => array(
+                        'name' => 'demo-exchange',
+                        'type' => 'direct',
+                        'durable' => false,
+                        'autoDelete' => true
+                    )
+                ),
+                'queues' => array(
+                    'test-queue' => array(
+                        'name' => 'test-queue',
+                        'exchange' => 'demo-exchange',
+                        'autoDelete' => true
                     )
                 ),
                 'producers' => array(
                     'test-producer' => array(
                         'connection' => 'default',
-                        'class' => __NAMESPACE__ . '\\TestAsset\\CustomProducer',
-                        'exchange_options' => array(
-                            'name' => 'demo-exchange',
-                            'type' => 'direct',
-                            'arguments' => array(),
-                            'autoDelete' => false,
-                            'declare' => true,
-                            'durable' => false,
-                            'internal' => true,
-                            'nowait' => false,
-                            'passive' => true,
-                            'ticket' => null
-                        ),
-                        'queue_options' => array(
-                            'passive' => false,
-                            'routingKeys' => array(),
-                            'arguments' => array(),
-                            'autoDelete' => true,
-                            'durable' => false,
-                            'exclusive' => true,
-                            'name' => 'testname',
-                            'nowait' => true,
-                            'ticket' => null,
-                        ),
-                        'auto_setup_fabric' => false
+                        'exchange' => 'demo-exchange',
+                        'auto_setup_fabric' => true
                     ),
                     'test-producer-2' => array(
-                        'exchange_options' => array(
-                            'name' => 'demo-exchange',
-                            'type' => 'direct'
-                        )
+                        'exchange' => 'demo-exchange',
+                        'auto_setup_fabric' => true
                     ),
                 )
             )
@@ -112,25 +97,20 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     public function testCreateProducer()
     {
         $producer = $this->components->createServiceWithName($this->services, 'test-producer', 'test-producer');
-        $this->assertInstanceOf('HumusAmqpModule\Amqp\Producer', $producer);
-        /* @var $producer \HumusAmqpModule\Amqp\Producer */
-        $this->assertEquals('demo-exchange', $producer->getExchangeOptions()->getName());
-        $this->assertEquals('direct', $producer->getExchangeOptions()->getType());
+        $this->assertInstanceOf('HumusAmqpModule\ProducerInterface', $producer);
     }
 
     public function testCreateProducerWithoutConnectionName()
     {
         $producer = $this->components->createServiceWithName($this->services, 'test-producer-2', 'test-producer-2');
-        $this->assertInstanceOf('HumusAmqpModule\Amqp\Producer', $producer);
-        /* @var $producer \HumusAmqpModule\Amqp\Producer */
-        $this->assertEquals('demo-exchange', $producer->getExchangeOptions()->getName());
-        $this->assertEquals('direct', $producer->getExchangeOptions()->getType());
+        $this->assertInstanceOf('HumusAmqpModule\ProducerInterface', $producer);
     }
 
     public function testCannotCreateProducerWhenConnectionPluginManagerIsMissing()
     {
         $config = array(
             'humus_amqp_module' => array(
+                'default_connection' => 'default',
                 'connections' => array(
                     'default' => array(
                         'host' => 'localhost',
@@ -138,23 +118,32 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                         'user' => 'guest',
                         'password' => 'guest',
                         'vhost' => '/',
-                        'lazy' => true
+                    )
+                ),
+                'exchanges' => array(
+                    'demo-exchange' => array(
+                        'name' => 'demo-exchange',
+                        'type' => 'direct',
+                        'durable' => false,
+                        'autoDelete' => true
+                    )
+                ),
+                'queues' => array(
+                    'test-queue' => array(
+                        'name' => 'test-queue',
+                        'exchange' => 'demo-exchange',
+                        'autoDelete' => true
                     )
                 ),
                 'producers' => array(
                     'test-producer' => array(
                         'connection' => 'default',
-                        'class' => __NAMESPACE__ . '\\TestAsset\\CustomProducer',
-                        'exchange_options' => array(
-                            'name' => 'demo-exchange',
-                            'type' => 'direct'
-                        )
+                        'exchange' => 'demo-exchange',
+                        'auto_setup_fabric' => true
                     ),
                     'test-producer-2' => array(
-                        'exchange_options' => array(
-                            'name' => 'demo-exchange',
-                            'type' => 'direct'
-                        )
+                        'exchange' => 'demo-exchange',
+                        'auto_setup_fabric' => true
                     ),
                 )
             )
