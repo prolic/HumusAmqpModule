@@ -77,12 +77,6 @@ class RpcServerController extends AbstractConsoleController
             return;
         }
 
-        $debug = $request->getParam('debug') || $request->getParam('d');
-
-        if ($debug && !defined('AMQP_DEBUG')) {
-            define('AMQP_DEBUG', true);
-        }
-
         $amount = $request->getParam('amount', 0);
 
         if (!is_numeric($amount)) {

@@ -61,12 +61,6 @@ class SetupFabricController extends AbstractConsoleController
         /* @var $request \Zend\Console\Request */
         /* @var $response \Zend\Console\Response */
 
-        $debug = $request->getParam('debug') || $request->getParam('d');
-
-        if ($debug && !defined('AMQP_DEBUG')) {
-            define('AMQP_DEBUG', true);
-        }
-
         $console = $this->getConsole();
         $console->writeLine('Setting up the AMQP fabric');
 
@@ -84,19 +78,20 @@ class SetupFabricController extends AbstractConsoleController
             return;
         }
 
-        $connection = $this->getConnectionManager()->get($config['default_connection']);
-        $channel = new AMQPChannel($connection);
-
-        $console->write('Declaring exchanges ...');
+        $console->write('Declaring exchanges ...' . PHP_EOL);
         $exchangeFactory = $this->getExchangeFactory();
         foreach ($config['exchanges'] as $name => $spec) {
+            $channel = $this->createChannel($spec, $config['default_connection']);
+
             $spec = new ExchangeSpecification($spec);
             $exchangeFactory->create($spec, $channel, true);
         }
 
-        $console->write('Declaring queues ...');
+        $console->write('Declaring queues ...' . PHP_EOL);
         $queueFactory = $this->getQueueFactory();
         foreach ($config['queues'] as $name => $spec) {
+            $channel = $this->createChannel($spec, $config['default_connection']);
+
             $spec = new QueueSpecification($spec);
             $queueFactory->create($spec, $channel, true);
         }
@@ -156,5 +151,23 @@ class SetupFabricController extends AbstractConsoleController
             $this->queueFactory = new QueueFactory();
         }
         return $this->queueFactory;
+    }
+
+    /**
+     * @param array $spec
+     * @param string $defaultConnectionName
+     * @return AMQPChannel
+     */
+    protected function createChannel(array $spec, $defaultConnectionName)
+    {
+        if (isset($spec['connection'])) {
+            $connectionName = $spec['connection'];
+        } else {
+            $connectionName = $defaultConnectionName;
+        }
+        $connection = $this->getConnectionManager()->get($connectionName);
+        $channel = new AMQPChannel($connection);
+
+        return $channel;
     }
 }

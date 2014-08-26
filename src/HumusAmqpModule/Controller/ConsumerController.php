@@ -50,10 +50,6 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
         /* @var $request \Zend\Console\Request */
         /* @var $response \Zend\Console\Response */
 
-        if (!defined('AMQP_DEBUG') && ($request->getParam('debug') || $request->getParam('d'))) {
-            define('AMQP_DEBUG', true);
-        }
-
         if (!extension_loaded('pcntl')) {
             throw new Exception\ExtensionNotLoadedException(
                 'pnctl extension missing'

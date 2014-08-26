@@ -53,12 +53,6 @@ class StdInProducerController extends AbstractConsoleController
             return;
         }
 
-        $debug = $request->getParam('debug') || $request->getParam('d');
-
-        if ($debug && !defined('AMQP_DEBUG')) {
-            define('AMQP_DEBUG', true);
-        }
-
         $producer = $producerManager->get($producerName);
 
         $route = $request->getParam('route', '');
