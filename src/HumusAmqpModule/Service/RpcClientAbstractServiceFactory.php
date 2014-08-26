@@ -55,7 +55,6 @@ class RpcClientAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
         $connection = $this->getConnection($serviceLocator, $spec);
         $channel    = $this->createChannel($connection, $spec);
 
-        //$exchange  = $this->getExchange($serviceLocator, $channel, $spec['exchange'], $this->useAutoSetupFabric($spec));
         $queueSpec = $this->getQueueSpec($serviceLocator, $spec['queue']);
         $queue     = $this->getQueue($queueSpec, $channel, $this->useAutoSetupFabric($spec));
 
@@ -74,11 +73,7 @@ class RpcClientAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
         if (!isset($spec['queue'])) {
             throw new Exception\InvalidArgumentException('Queue is missing for rpc client ' . $requestedName);
         }
-/*
-        if (!isset($spec['exchange'])) {
-            throw new Exception\InvalidArgumentException('Exchange is missing for rpc client ' . $requestedName);
-        }
-*/
+
         $defaultConnection = $this->getDefaultConnectionName($serviceLocator);
 
         if (isset($spec['connection'])) {
@@ -88,24 +83,7 @@ class RpcClientAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
         }
 
         $config  = $this->getConfig($serviceLocator);
-        /*
-        // validate exchange existence
-        if (!isset($config['exchanges'][$spec['exchange']])) {
-            throw new Exception\InvalidArgumentException(
-                'The rpc client exchange ' . $spec['exchange'] . ' is missing in the exchanges configuration'
-            );
-        }
-        $exchange = $config['exchanges'][$spec['exchange']];
 
-        // validate exchange connection
-        $testConnection = isset($exchange['connection']) ? $exchange['connection'] : $defaultConnection;
-        if ($testConnection != $connection) {
-            throw new Exception\InvalidArgumentException(
-                'The rpc client connection for exchange ' . $spec['exchange'] . ' (' . $testConnection . ') does not '
-                . 'match the rpc client connection for rpc client ' . $requestedName . ' (' . $connection . ')'
-            );
-        }
-*/
         // validate queue existence
         if (!isset($config['queues'][$spec['queue']])) {
             throw new Exception\InvalidArgumentException(
