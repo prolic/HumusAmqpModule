@@ -48,7 +48,7 @@ class GenSupervisordConfigController extends AbstractConsoleController
         $supervisordConfig = $config['humus_supervisor_module']['humus-amqp-supervisor']['supervisord'];
 
         $consumerTypes = array(
-            'consumers', 'multiple_consumers', 'anon_consumers', 'rpc_servers'
+            'consumers', 'rpc_servers'
         );
 
         $config = new Configuration();
@@ -85,7 +85,7 @@ class GenSupervisordConfigController extends AbstractConsoleController
                     'autorestart' => true,
                     'numprocs' => 1,
                     'command' => 'php public/index.php humus amqp '
-                        . strtolower(substr($consumerType, 0, -1)) . ' ' . $name
+                        . str_replace('_', '-', strtolower(substr($consumerType, 0, -1))) . ' ' . $name
                 ));
 
                 if (isset($part['supervisord']) && is_array($part['supervisord'])) {

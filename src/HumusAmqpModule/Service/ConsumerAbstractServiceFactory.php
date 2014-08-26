@@ -55,7 +55,6 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
         $config = $this->getConfig($serviceLocator);
         $queues = array();
 
-
         foreach ($spec['queues'] as $queue) {
             if ($this->useAutoSetupFabric($spec)) {
                 // will create the exchange to declare it on the channel
