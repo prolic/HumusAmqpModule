@@ -10,8 +10,6 @@ Humus AMQP Module
 [![Total Downloads](https://poser.pugx.org/prolic/humus-amqp-module/downloads.svg)](https://packagist.org/packages/prolic/humus-amqp-module)
 [![Dependency Status](http://www.versioneye.com/user/projects/53c69599a54f97bc3c00000a/badge.svg?style=flat)](http://www.versioneye.com/user/projects/53c69599a54f97bc3c00000a)
 
-Humus AMQP Module is a Module for Zend Framework 2 based on php-amqplib.
-
 About
 -----
 
@@ -19,7 +17,12 @@ The Humus AMQP Module incorporates messaging in your zf2 application via [Rabbit
 
 This module implements several messaging patterns as seen on the [Thumper](https://github.com/videlalvaro/Thumper) library.
 
-A lot of ideas and even implementation details came from the [RabbitMqBundle](https://github.com/videlalvaro/RabbitMqBundle), special thanks to [Alvaro Videla](https://github.com/videlalvaro) and the contributors of this project.
+A lot of ideas and even implementation details came from the [RabbitMQ Java Client](https://github.com/rabbitmq/rabbitmq-java-client) and the [RabbitMqBundle](https://github.com/videlalvaro/RabbitMqBundle), special thanks to [Alvaro Videla](https://github.com/videlalvaro) and the contributors of this project.
+
+Documentation
+-------------
+
+Documentation is [available here](http://humus-amqp-module.readthedocs.org/), powered by [Read the docs](http://readthedocs.org/).
 
 Demo
 ----
