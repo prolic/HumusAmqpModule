@@ -85,7 +85,7 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
         $consumer->setDeliveryCallback($callback);
 
         if (isset($spec['flush_callback'])) {
-            $flushCallback = $callbackManager->get($spec['callback']);
+            $flushCallback = $callbackManager->get($spec['flush_callback']);
             $consumer->setFlushCallback($flushCallback);
         }
 
