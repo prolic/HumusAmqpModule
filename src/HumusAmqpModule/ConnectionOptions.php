@@ -19,7 +19,7 @@ class ConnectionOptions extends AbstractOptions
     /**
      * @var string
      */
-    protected $user = 'guest';
+    protected $login = 'guest';
 
     /**
      * @var string
@@ -127,19 +127,19 @@ class ConnectionOptions extends AbstractOptions
     }
 
     /**
-     * @param string $user
+     * @param string $login
      */
-    public function setUser($user)
+    public function setLogin($login)
     {
-        $this->user = $user;
+        $this->login = $login;
     }
 
     /**
      * @return string
      */
-    public function getUser()
+    public function getLogin()
     {
-        return $this->user;
+        return $this->login;
     }
 
     /**
