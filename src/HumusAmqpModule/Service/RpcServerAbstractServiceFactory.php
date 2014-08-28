@@ -76,6 +76,16 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
 
         $rpcServer->setDeliveryCallback($callback);
 
+        if (isset($spec['error_callback'])) {
+            if (!$callbackManager->has($spec['error_callback'])) {
+                throw new Exception\InvalidArgumentException(
+                    'The required callback ' . $spec['error_callback'] . ' can not be found'
+                );
+            }
+            $errorCallback = $callbackManager->get($spec['error_callback']);
+            $rpcServer->setFlushCallback($errorCallback);
+        }
+
         return $rpcServer;
     }
 
