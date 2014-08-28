@@ -72,19 +72,33 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
 
         $consumer = new Consumer($queues, $idleTimeout, $waitTimeout);
 
-        // @todo: inject real logger instance
-        $logger = new \Zend\Log\Logger();
-        $writers = new \Zend\Stdlib\SplPriorityQueue();
-        $writers->insert(new \Zend\Log\Writer\Stream(STDOUT), 0);
-        $logger->setWriters($writers);
-        $consumer->setLogger($logger);
+        if (isset($spec['logger'])) {
+            if (!$serviceLocator->has($spec['logger'])) {
+                throw new Exception\InvalidArgumentException(
+                    'The logger ' . $spec['logger'] . ' is not configured'
+                );
+            }
+            $consumer->setLogger($serviceLocator->get($spec['logger']));
+        } else {
+            $consumer->setLogger($this->getDefaultNullLogger());
+        }
 
         $callbackManager = $this->getCallbackManager($serviceLocator);
+        if (!$callbackManager->has($spec['callback'])) {
+            throw new Exception\InvalidArgumentException(
+                'The required callback ' . $spec['callback'] . ' can not be found'
+            );
+        }
         $callback        = $callbackManager->get($spec['callback']);
 
         $consumer->setDeliveryCallback($callback);
 
         if (isset($spec['flush_callback'])) {
+            if (!$callbackManager->has($spec['flush_callback'])) {
+                throw new Exception\InvalidArgumentException(
+                    'The required callback ' . $spec['callback'] . ' can not be found'
+                );
+            }
             $flushCallback = $callbackManager->get($spec['flush_callback']);
             $consumer->setFlushCallback($flushCallback);
         }
@@ -160,5 +174,17 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
                 );
             }
         }
+    }
+
+    /**
+     * @return \Zend\Log\Logger
+     */
+    protected function getDefaultNullLogger()
+    {
+        $logger = new \Zend\Log\Logger();
+        $writers = new \Zend\Stdlib\SplPriorityQueue();
+        $writers->insert(new \Zend\Log\Writer\Null(), 1000);
+        $logger->setWriters($writers);
+        return $logger;
     }
 }

@@ -21,16 +21,10 @@ namespace HumusAmqpModule\Service;
 use AMQPChannel;
 use AMQPConnection;
 use AMQPExchange;
+use AMQPQueue;
 use HumusAmqpModule\Exception;
-use HumusAmqpModule\ExchangeFactory;
-use HumusAmqpModule\ExchangeSpecification;
-use HumusAmqpModule\PluginManager\Connection as ConnectionManager;
-use HumusAmqpModule\QosOptions;
 use HumusAmqpModule\QueueFactory;
 use HumusAmqpModule\QueueSpecification;
-use Traversable;
-use Zend\ServiceManager\AbstractFactoryInterface;
-use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 abstract class AbstractAmqpQueueAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
@@ -49,12 +43,11 @@ abstract class AbstractAmqpQueueAbstractServiceFactory extends AbstractAmqpAbstr
      * @param QueueSpecification $spec
      * @param AMQPChannel $channel
      * @param $autoSetupFabric
-     * @return \AMQPQueue
+     * @return AMQPQueue
      */
     protected function getQueue(QueueSpecification $spec, AMQPChannel $channel, $autoSetupFabric)
     {
         $queue = $this->getQueueFactory()->create($spec, $channel, $autoSetupFabric);
-        // @todo: auto-declare error exchanges
         return $queue;
     }
 

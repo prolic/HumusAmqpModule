@@ -17,12 +17,13 @@ class QueueFactory
     public function create(QueueSpecification $specification, AMQPChannel $channel, $autoDeclare = true)
     {
         $queue = new AMQPQueue($channel);
-        //$queue->setName($specification->getName());
+        if ($specification->getName() != '') {
+            $queue->setName($specification->getName());
+        }
         $queue->setFlags($specification->getFlags());
         $queue->setArguments($specification->getArguments());
 
         if ($autoDeclare) {
-            // @todo: declare error exchanges, first
             $queue->declareQueue();
 
             $routingKeys = $specification->getRoutingKeys();
