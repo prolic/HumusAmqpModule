@@ -60,12 +60,16 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
 
         $rpcServer = new RpcServer($queue, $idleTimeout, $waitTimeout);
 
-        // @todo: inject real logger instance
-        $logger = new \Zend\Log\Logger();
-        $writers = new \Zend\Stdlib\SplPriorityQueue();
-        $writers->insert(new \Zend\Log\Writer\Stream(STDOUT), 0);
-        $logger->setWriters($writers);
-        $rpcServer->setLogger($logger);
+        if (isset($spec['logger'])) {
+            if (!$serviceLocator->has($spec['logger'])) {
+                throw new Exception\InvalidArgumentException(
+                    'The logger ' . $spec['logger'] . ' is not configured'
+                );
+            }
+            $rpcServer->setLogger($serviceLocator->get($spec['logger']));
+        } else {
+            $rpcServer->setLogger($this->getDefaultNullLogger());
+        }
 
         $callbackManager = $this->getCallbackManager($serviceLocator);
         $callback        = $callbackManager->get($spec['callback']);
@@ -113,5 +117,17 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
                 . 'match the rpc client connection for rpc client ' . $requestedName . ' (' . $connection . ')'
             );
         }
+    }
+
+    /**
+     * @return \Zend\Log\Logger
+     */
+    protected function getDefaultNullLogger()
+    {
+        $logger = new \Zend\Log\Logger();
+        $writers = new \Zend\Stdlib\SplPriorityQueue();
+        $writers->insert(new \Zend\Log\Writer\Null(), 1000);
+        $logger->setWriters($writers);
+        return $logger;
     }
 }
