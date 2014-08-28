@@ -110,7 +110,7 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
                 );
             }
             $errorCallback = $callbackManager->get($spec['error_callback']);
-            $consumer->setFlushCallback($errorCallback);
+            $consumer->setErrorCallback($errorCallback);
         }
 
         return $consumer;
