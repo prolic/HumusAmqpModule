@@ -39,7 +39,7 @@ class ExchangeSpecification extends AbstractOptions
     protected $name = '';
 
     /**
-     * @var ExchangeType
+     * @var string
      */
     protected $type;
 
@@ -50,7 +50,7 @@ class ExchangeSpecification extends AbstractOptions
      */
     public function __construct($options = null)
     {
-        $this->type = ExchangeType::get('direct');
+        $this->type = AMQP_EX_TYPE_DIRECT;
         parent::__construct($options);
     }
 
@@ -84,22 +84,15 @@ class ExchangeSpecification extends AbstractOptions
     }
 
     /**
-     * @param ExchangeType|string $type
-     * @throws Exception\InvalidArgumentException
+     * @param string $type
      */
     public function setType($type)
     {
-        if (is_string($type)) {
-            $type = ExchangeType::get($type);
-        }
-        if (!$type instanceof ExchangeType) {
-            throw new Exception\InvalidArgumentException('Invalid type given');
-        }
         $this->type = $type;
     }
 
     /**
-     * @return ExchangeType
+     * @return string
      */
     public function getType()
     {

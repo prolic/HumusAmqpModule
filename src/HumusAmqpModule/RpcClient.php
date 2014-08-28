@@ -60,7 +60,7 @@ class RpcClient
 
         $messageAttributes = new MessageAttributes();
         $messageAttributes->setReplyTo($this->queue->getName());
-        $messageAttributes->setDeliveryMode(1);
+        $messageAttributes->setDeliveryMode(MessageAttributes::DELIVERY_MODE_NON_PERSISTENT);
         $messageAttributes->setCorrelationId($requestId);
         if (0 != $expiration) {
             $messageAttributes->setExpiration($expiration * 1000);
