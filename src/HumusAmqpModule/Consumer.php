@@ -307,7 +307,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
         if (null === $callback) {
             $this->getLogger()->err('Exception during handleDelivery: ' . $e->getMessage());
         } else {
-            call_user_func($callback);
+            call_user_func_array($callback, array($e));
         }
     }
 
@@ -370,6 +370,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
             if ($message->isRedelivery()) {
                 $this->redeliverySeen = true;
             }
+
         }
     }
 
