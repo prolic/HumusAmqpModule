@@ -49,9 +49,7 @@ class ConnectionAbstractServiceFactory extends AbstractAmqpAbstractServiceFactor
         $connection = new AMQPConnection($options->toArray());
 
         if ($options->getPersistent()) {
-            $connection->pconnect();
-        } else {
-            $connection->connect();
+            $connection->persistent = true;
         }
 
         return $connection;

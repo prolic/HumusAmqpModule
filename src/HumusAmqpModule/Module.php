@@ -62,6 +62,17 @@ class Module implements
             $factory = function () use ($serviceName, $config, $ns, $configKey, $serviceManager) {
                 $serviceConfig = $config['humus_amqp_module']['plugin_managers'][$configKey];
                 $service = new $serviceName(new \Zend\ServiceManager\Config($serviceConfig));
+                /* @var $service \Zend\ServiceManager\ServiceManager */
+                if ('Connection' == $ns) {
+                    $service->addInitializer(function($connection) {
+                        if (isset($connection->persistent) && true === $connection->persistent) {
+                            $connection->pconnect();
+                            unset($connection->persistent);
+                        } else {
+                            $connection->connect();
+                        }
+                    });
+                }
                 return $service;
             };
             $serviceManager->setFactory($serviceName, $factory);
@@ -115,13 +126,13 @@ class Module implements
 
         // Describe expected parameters
         $usage['humus amqp list <type>'] = 'List all available types, possible types are: ' . "\n"
-            . 'consumers, multiple_consumers, anon_consumers, producers, rpc_clients, rpc_servers, connections';
+            . 'consumers, producers, rpc_clients, rpc_servers, connections';
 
         $usage['humus amqp setup-fabric'] = 'Setting up the Rabbit MQ fabric';
 
         $usage['humus amqp list-exchanges'] = 'List all available exchanges';
 
-        $usage['humus amqp [consumer|anon-consumer|multiple-consumer] <name> [<amount>] [arguments]'] =
+        $usage['humus amqp consumer <name> [<amount>] [--without-signals|-w]'] =
             'Start a consumer by name, msg limits the messages of available';
 
         $usage[] = array(
@@ -152,11 +163,7 @@ class Module implements
         );
         $usage['humus amqp purge-consumer <consumer-name>'] = 'Purge a consumer queue';
 
-        $usage['humus amqp purge-anon-consumer <consumer-name>'] = 'Purge an anon consumer queue';
-
-        $usage['humus amqp purge-multiple-consumer <consumer-name>'] = 'Purge a multiple consumer queue';
-
-        $usage['humus amqp rpc-server <name> [<amount>] [--debug|-d]'] = 'Start an rpc server by name';
+        $usage['humus amqp rpc-server <name> [<amount>] [--without-signals|-w]'] = 'Start an rpc server by name';
 
         return $usage;
     }
