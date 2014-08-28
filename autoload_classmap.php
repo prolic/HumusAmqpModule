@@ -44,7 +44,6 @@ return array(
   'HumusAmqpModule\Service\ConsumerAbstractServiceFactory'                    => __DIR__ . '/src/HumusAmqpModule/Service/ConsumerAbstractServiceFactory.php',
   'HumusAmqpModule\Service\ExchangeAbstractServiceFactory'                    => __DIR__ . '/src/HumusAmqpModule/Service/ExchangeAbstractServiceFactory.php',
   'HumusAmqpModule\QosOptions'                                                => __DIR__ . '/src/HumusAmqpModule/QosOptions.php',
-  'HumusAmqpModule\ExchangeType'                                              => __DIR__ . '/src/HumusAmqpModule/ExchangeType.php',
   'HumusAmqp\Builder\Queue'                                                   => __DIR__ . '/src/HumusAmqpModule/Queue.php',
   'HumusAmqpModule\RpcClient'                                                 => __DIR__ . '/src/HumusAmqpModule/RpcClient.php',
   'HumusAmqpModule\ExchangeFactory'                                           => __DIR__ . '/src/HumusAmqpModule/ExchangeFactory.php',
@@ -63,6 +62,5 @@ return array(
   'HumusAmqpModule\PluginManager\Connection'                                  => __DIR__ . '/src/HumusAmqpModule/PluginManager/Connection.php',
   'HumusAmqpModule\PluginManager\Consumer'                                    => __DIR__ . '/src/HumusAmqpModule/PluginManager/Consumer.php',
   'HumusAmqpModule\PluginManager\Producer'                                    => __DIR__ . '/src/HumusAmqpModule/PluginManager/Producer.php',
-  'HumusAmqpModule\DeliveryMode'                                              => __DIR__ . '/src/HumusAmqpModule/DeliveryMode.php',
   'HumusAmqpModule\Producer'                                                  => __DIR__ . '/src/HumusAmqpModule/Producer.php',
 );
