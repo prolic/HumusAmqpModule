@@ -107,6 +107,11 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
     protected $flushCallback;
 
     /**
+     * @var callable
+     */
+    protected $errorCallback;
+
+    /**
      * Constructor
      *
      * @param array|\Traversable $queues
@@ -185,6 +190,25 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
     public function getFlushCallback()
     {
         return $this->flushCallback;
+    }
+
+    /**
+     * @param callable $callback
+     */
+    public function setErrorCallback($callback)
+    {
+        if (!is_callable($callback)) {
+            throw new Exception\InvalidArgumentException('Invalid callback given');
+        }
+        $this->errorCallback = $callback;
+    }
+
+    /**
+     * @return callable
+     */
+    public function getErrorCallback()
+    {
+        return $this->errorCallback;
     }
 
     /**
@@ -278,7 +302,13 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      */
     public function handleDeliveryException(\Exception $e)
     {
-        $this->getLogger()->err('Exception during handleDelivery: ' . $e->getMessage());
+        $callback = $this->getErrorCallback();
+
+        if (null === $callback) {
+            $this->getLogger()->err('Exception during handleDelivery: ' . $e->getMessage());
+        } else {
+            call_user_func($callback);
+        }
     }
 
     /**
