@@ -19,7 +19,7 @@ class ExchangeFactory
         $exchange->setArguments($specification->getArguments());
         $exchange->setName($specification->getName());
         $exchange->setFlags($specification->getFlags());
-        $exchange->setType($specification->getType()->getValue());
+        $exchange->setType($specification->getType());
 
         if ($autoDeclare) {
             $exchange->declareExchange();
