@@ -45,24 +45,12 @@ class RpcServerController extends AbstractConsoleController
     {
         parent::dispatch($request, $response);
 
-        if (!extension_loaded('pcntl')) {
-            throw new Exception\ExtensionNotLoadedException(
-                'pnctl extension missing'
-            );
-        }
-
-        if (!function_exists('pcntl_signal')) {
-            throw new Exception\BadFunctionCallException(
-                "Function 'pcntl_signal' is referenced in the php.ini 'disable_functions' and can't be called."
-            );
-        }
-
-        pcntl_signal(SIGTERM, array($this, 'stopRpcServer'));
-        pcntl_signal(SIGINT, array($this, 'stopRpcServer'));
-        pcntl_signal(SIGHUP, array($this, 'stopRpcServer'));
-
         /* @var $request \Zend\Console\Request */
         /* @var $response \Zend\Console\Response */
+
+        if (!$request->getParam('without-signals') && !$request->getParam('w')) {
+            $this->registerSignalHandler();
+        }
 
         $rpcServerName = $request->getParam('name');
 
@@ -112,5 +100,28 @@ class RpcServerController extends AbstractConsoleController
     public function getRpcServerManager()
     {
         return $this->rpcServerManager;
+    }
+
+    /**
+     * @throws Exception\BadFunctionCallException
+     * @throws Exception\ExtensionNotLoadedException
+     */
+    protected function registerSignalHandler()
+    {
+        if (!extension_loaded('pcntl')) {
+            throw new Exception\ExtensionNotLoadedException(
+                'pnctl extension missing'
+            );
+        }
+
+        if (!function_exists('pcntl_signal')) {
+            throw new Exception\BadFunctionCallException(
+                "Function 'pcntl_signal' is referenced in the php.ini 'disable_functions' and can't be called."
+            );
+        }
+
+        pcntl_signal(SIGTERM, array($this, 'stopConsumer'));
+        pcntl_signal(SIGINT, array($this, 'stopConsumer'));
+        pcntl_signal(SIGHUP, array($this, 'stopConsumer'));
     }
 }

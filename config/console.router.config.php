@@ -14,7 +14,7 @@ return array(
         ),
         'humus_amqp_module-consumer' => array(
             'options' => array(
-                'route'    => 'humus amqp consumer <name> [<amount>]',
+                'route'    => 'humus amqp consumer <name> [<amount>] [--without-signals|-w]',
                 'defaults' => array(
                     'controller' => __NAMESPACE__ . '\\Controller\\Consumer',
                 )
@@ -52,25 +52,9 @@ return array(
                 )
             )
         ),
-        'humus_amqp_module-purge-anon-consumer-queue' => array(
-            'options' => array(
-                'route' => 'humus amqp purge-anon-consumer <consumer-name> [--no-confirmation]',
-                'defaults' => array(
-                    'controller' => __NAMESPACE__ . '\\Controller\\PurgeAnonConsumer',
-                )
-            )
-        ),
-        'humus_amqp_module-purge-multiple-consumer-queue' => array(
-            'options' => array(
-                'route' => 'humus amqp purge-multiple-consumer <consumer-name> [--no-confirmation]',
-                'defaults' => array(
-                    'controller' => __NAMESPACE__ . '\\Controller\\PurgeMultipleConsumer',
-                )
-            )
-        ),
         'humus_amqp_module-rpc-server' => array(
             'options' => array(
-                'route' => 'humus amqp rpc-server <name> [<amount>]',
+                'route' => 'humus amqp rpc-server <name> [<amount>] [--without-signals|-w]',
                 'defaults' => array(
                     'controller' => __NAMESPACE__ . '\\Controller\\RpcServer',
                 )

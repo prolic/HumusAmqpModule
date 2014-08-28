@@ -48,21 +48,9 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
         /* @var $request \Zend\Console\Request */
         /* @var $response \Zend\Console\Response */
 
-        if (!extension_loaded('pcntl')) {
-            throw new Exception\ExtensionNotLoadedException(
-                'pnctl extension missing'
-            );
+        if (!$request->getParam('without-signals') && !$request->getParam('w')) {
+            $this->registerSignalHandler();
         }
-
-        if (!function_exists('pcntl_signal')) {
-            throw new Exception\BadFunctionCallException(
-                "Function 'pcntl_signal' is referenced in the php.ini 'disable_functions' and can't be called."
-            );
-        }
-
-        pcntl_signal(SIGTERM, array($this, 'stopConsumer'));
-        pcntl_signal(SIGINT, array($this, 'stopConsumer'));
-        pcntl_signal(SIGHUP, array($this, 'stopConsumer'));
 
         $cm = $this->getConsumerManager();
 
@@ -120,5 +108,28 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
     public function getConsumerManager()
     {
         return $this->consumerManager;
+    }
+
+    /**
+     * @throws Exception\BadFunctionCallException
+     * @throws Exception\ExtensionNotLoadedException
+     */
+    protected function registerSignalHandler()
+    {
+        if (!extension_loaded('pcntl')) {
+            throw new Exception\ExtensionNotLoadedException(
+                'pnctl extension missing'
+            );
+        }
+
+        if (!function_exists('pcntl_signal')) {
+            throw new Exception\BadFunctionCallException(
+                "Function 'pcntl_signal' is referenced in the php.ini 'disable_functions' and can't be called."
+            );
+        }
+
+        pcntl_signal(SIGTERM, array($this, 'stopConsumer'));
+        pcntl_signal(SIGINT, array($this, 'stopConsumer'));
+        pcntl_signal(SIGHUP, array($this, 'stopConsumer'));
     }
 }
