@@ -134,7 +134,7 @@ class SetupFabricController extends AbstractConsoleController
     /**
      * @return ExchangeFactory
      */
-    protected function getExchangeFactory()
+    public function getExchangeFactory()
     {
         if (null === $this->exchangeFactory) {
             $this->exchangeFactory = new ExchangeFactory();
@@ -143,14 +143,30 @@ class SetupFabricController extends AbstractConsoleController
     }
 
     /**
+     * @param ExchangeFactory $exchangeFactory
+     */
+    public function setExchangeFactory(ExchangeFactory $exchangeFactory)
+    {
+        $this->exchangeFactory = $exchangeFactory;
+    }
+
+    /**
      * @return QueueFactory
      */
-    protected function getQueueFactory()
+    public function getQueueFactory()
     {
         if (null === $this->queueFactory) {
             $this->queueFactory = new QueueFactory();
         }
         return $this->queueFactory;
+    }
+
+    /**
+     * @param QueueFactory $queueFactory
+     */
+    public function setQueueFactory(QueueFactory $queueFactory)
+    {
+        $this->queueFactory = $queueFactory;
     }
 
     /**
