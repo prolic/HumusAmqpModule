@@ -30,11 +30,7 @@ $config = array(
         ),
         'factories' => array(
             __NAMESPACE__ . '\\Controller\\Consumer' => __NAMESPACE__ . '\\Service\\Controller\\ConsumerFactory',
-            __NAMESPACE__ . '\\Controller\\AnonConsumer' => __NAMESPACE__ . '\\Service\\Controller\\AnonConsumerFactory',
-            __NAMESPACE__ . '\\Controller\\MultipleConsumer' => __NAMESPACE__ . '\\Service\\Controller\\MultipleConsumerFactory',
             __NAMESPACE__ . '\\Controller\\PurgeConsumer' => __NAMESPACE__ . '\\Service\\Controller\\PurgeConsumerFactory',
-            __NAMESPACE__ . '\\Controller\\PurgeAnonConsumer' => __NAMESPACE__ . '\\Service\\Controller\\PurgeAnonConsumerFactory',
-            __NAMESPACE__ . '\\Controller\\PurgeMultipleConsumer' => __NAMESPACE__ . '\\Service\\Controller\\PurgeMultipleConsumerFactory',
             __NAMESPACE__ . '\\Controller\\RpcServer' => __NAMESPACE__ . '\\Service\\Controller\\RpcServerFactory',
             __NAMESPACE__ . '\\Controller\\SetupFabric' => __NAMESPACE__ . '\\Service\\Controller\\SetupFabricFactory',
             __NAMESPACE__ . '\\Controller\\StdInProducer' => __NAMESPACE__ . '\\Service\\Controller\\StdInProducerFactory',
