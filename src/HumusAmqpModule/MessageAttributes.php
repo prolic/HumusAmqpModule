@@ -369,8 +369,6 @@ class MessageAttributes extends AbstractOptions
         return $this->mandatory;
     }
 
-
-
     /**
      * @return int
      */

@@ -275,6 +275,30 @@ class QueueSpecification extends AbstractOptions
     }
 
     /**
+     * Set HA policy (see: https://www.rabbitmq.com/ha.html)
+     *
+     * @param string|null $policy
+     */
+    public function setHaPolicy($policy = null)
+    {
+        if (null === $policy) {
+            unset($this->arguments['x-ha-policy']);
+        } else {
+            $this->arguments['x-ha-policy'] = $policy;
+        }
+    }
+
+    /**
+     * Get HA policy (see: https://www.rabbitmq.com/ha.html)
+     *
+     * @return string|false
+     */
+    public function getHaPolicy()
+    {
+        return isset($this->arguments['x-ha-policy']) ? $this->arguments['x-ha-policy'] : false;
+    }
+
+    /**
      * Set expires (RabbitMQ Extension)
      *
      * @param int|null $expires
