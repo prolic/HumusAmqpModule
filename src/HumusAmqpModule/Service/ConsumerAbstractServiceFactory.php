@@ -34,10 +34,10 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
      * Create service with name
      *
      * @param ServiceLocatorInterface $serviceLocator
-     * @param $name
-     * @param $requestedName
-     * @return mixed
-     * @throws Exception\RuntimeException
+     * @param string $name
+     * @param string $requestedName
+     * @return Consumer
+     * @throws Exception\InvalidArgumentException
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {

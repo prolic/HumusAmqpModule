@@ -34,9 +34,9 @@ class ProducerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
      * Create service with name
      *
      * @param ServiceLocatorInterface $serviceLocator
-     * @param $name
-     * @param $requestedName
-     * @return mixed
+     * @param string $name
+     * @param string $requestedName
+     * @return Producer
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
