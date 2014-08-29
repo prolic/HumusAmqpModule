@@ -471,10 +471,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
         if (true === $deferredFlushResult) {
             $this->ack();
         } else {
-            $this->nackAll(
-                $this->lastDeliveryTag,
-                ! $this->redeliverySeen
-            );
+            $this->nackAll(!$this->redeliverySeen);
             $this->lastDeliveryTag = null;
         }
         $this->redeliverySeen = false;
