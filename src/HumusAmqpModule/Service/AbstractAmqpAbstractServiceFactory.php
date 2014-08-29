@@ -212,12 +212,20 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
     /**
      * @return ExchangeFactory
      */
-    protected function getExchangeFactory()
+    public function getExchangeFactory()
     {
         if (null === $this->exchangeFactory) {
             $this->exchangeFactory = new ExchangeFactory();
         }
         return $this->exchangeFactory;
+    }
+
+    /**
+     * @param ExchangeFactory $exchangeFactory
+     */
+    public function setExchangeFactory(ExchangeFactory $exchangeFactory)
+    {
+        $this->exchangeFactory = $exchangeFactory;
     }
 
     /**
