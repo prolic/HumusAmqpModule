@@ -281,7 +281,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
     {
         $callback = $this->getDeliveryCallback();
 
-        return call_user_func_array($callback, array($message, $queue));
+        return call_user_func_array($callback, array($message, $queue, $this));
     }
 
     /**
@@ -307,7 +307,24 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
         if (null === $callback) {
             $this->getLogger()->err('Exception during handleDelivery: ' . $e->getMessage());
         } else {
-            call_user_func_array($callback, array($e));
+            call_user_func_array($callback, array($e, $this));
+        }
+    }
+
+    /**
+     * Handle flush deferred exception
+     *
+     * @param \Exception $e
+     * @return void
+     */
+    public function handleFlushDeferredException(\Exception $e)
+    {
+        $callback = $this->getErrorCallback();
+
+        if (null === $callback) {
+            $this->getLogger()->err('Exception during flushDeferred: ' . $e->getMessage());
+        } else {
+            call_user_func_array($callback, array($e, $this));
         }
     }
 
@@ -327,7 +344,14 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
             return true;
         }
 
-        return call_user_func($callback);
+        try {
+            $result = call_user_func_array($callback, array($this));
+        } catch (\Exception $e) {
+            $result = false;
+            $this->handleFlushDeferredException($e);
+        }
+
+        return $result;
     }
 
     /**
