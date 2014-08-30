@@ -40,8 +40,7 @@ class ExchangesController extends AbstractConsoleController
         $exchanges = array();
         foreach ($moduleConfig['exchanges'] as $name => $options) {
             $spec = new ExchangeSpecification($options);
-            $type = $spec->getType();
-            $exchanges[$type->getValue()][] = $name;
+            $exchanges[$spec->getType()][] = $name;
         }
 
         if (empty($exchanges)) {
