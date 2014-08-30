@@ -49,7 +49,7 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                     'default' => array(
                         'host' => 'localhost',
                         'port' => 5672,
-                        'user' => 'guest',
+                        'login' => 'guest',
                         'password' => 'guest',
                         'vhost' => '/',
                         'lazy' => true
