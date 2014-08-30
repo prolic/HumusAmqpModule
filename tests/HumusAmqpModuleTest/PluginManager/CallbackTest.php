@@ -28,9 +28,7 @@ class CallbackTest extends \PHPUnit_Framework_TestCase
         $manager->validatePlugin('str_replace');
     }
 
-    /**
-     * @expectedException HumusAmqpModule\Exception\RuntimeException
-     */
+    // everything is allowed !!!
     public function testInvalidPlugin()
     {
         $manager = new CallbackPluginManager();
