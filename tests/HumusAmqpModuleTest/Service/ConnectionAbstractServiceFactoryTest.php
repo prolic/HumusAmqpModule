@@ -60,52 +60,6 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $cm->setServiceLocator($services);
     }
 
-    /**
-     * This test requires a running amqp broker to test, see setUp() method for default config
-     */
-    public function testGetNonPersistentConnection()
-    {
-        $this->markTestSkipped('This test requires a running amqp broker to test');
-        $conn = $this->services->get('HumusAmqpModule\PluginManager\Connection')->get('default');
-        $this->assertInstanceOf('AMQPConnection', $conn);
-        $this->assertTrue($conn->isConnected());
-    }
-
-    /**
-     * This test requires a running amqp broker to test, see setUp() method for default config
-     */
-    public function testGetPersistentConnection()
-    {
-        $this->markTestSkipped('This test requires a running amqp broker to test');
-        $config = array(
-            'humus_amqp_module' => array(
-                'connections' => array(
-                    'default' => array(
-                        'host' => 'localhost',
-                        'port' => 5672,
-                        'user' => 'guest',
-                        'password' => 'guest',
-                        'vhost' => '/',
-                        'persistent' => true
-                    )
-                )
-            )
-        );
-
-        $services = $this->services = new ServiceManager();
-        $services->setAllowOverride(true);
-        $services->setService('Config', $config);
-
-        $components = $this->components = new ConnectionAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
-        $cm->addAbstractFactory($components);
-        $cm->setServiceLocator($services);
-
-        $conn = $this->services->get('HumusAmqpModule\PluginManager\Connection')->get('default');
-        $this->assertInstanceOf('AMQPConnection', $conn);
-        $this->assertTrue($conn->isConnected());
-    }
-
     public function testMissingGlobalConfigIndicatesCannotCreateInstance()
     {
         $services = $this->services = new ServiceManager();
