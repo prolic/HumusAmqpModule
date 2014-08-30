@@ -19,12 +19,9 @@
 namespace HumusAmqpModuleTest\Service;
 
 use HumusAmqpModule\PluginManager\Callback as CallbackPluginManager;
-use HumusAmqpModule\PluginManager\Connection as ConnectionPluginManager;
 use HumusAmqpModule\PluginManager\Consumer as ConsumerPluginManager;
-use HumusAmqpModule\Service\ConnectionAbstractServiceFactory;
-use HumusAmqpModule\Service\ConsumerAbstractServiceFactory;
+use HumusAmqpModuleTest\Service\TestAsset\ConsumerAbstractServiceFactory;
 use HumusAmqpModule\Service\ProducerAbstractServiceFactory;
-use Zend\Mvc\Service\ServiceManagerConfig;
 use Zend\ServiceManager\ServiceManager;
 
 class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
@@ -43,63 +40,72 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $config = array(
             'humus_amqp_module' => array(
-                'classes' => array(
-                    'connection' => 'PhpAmqpLib\Connection\AMQPConnection',
-                    'lazy_connection' => 'PhpAmqpLib\Connection\AMQPLazyConnection',
-                    'consumer' => 'HumusAmqpModule\Amqp\Consumer',
+                'default_connection' => 'default',
+                'exchanges' => array(
+                    'demo-exchange' => array(
+                        'name' => 'demo-exchange',
+                        'type' => 'direct'
+                    )
+                ),
+                'queues' => array(
+                    'demo-queue' => array(
+                        'name' => 'demo-queue',
+                        'exchange' => 'demo-exchange'
+                    )
                 ),
                 'consumers' => array(
                     'test-consumer' => array(
                         'connection' => 'default',
-                        /* 'class' => 'MyCustomConsumerClass' */
-                        'exchange_options' => array(
-                            'name' => 'demo-exchange',
-                            'type' => 'direct',
-                        ),
-                        'queue_options' => array(
-                            'name' => 'myconsumer-queue',
-                        ),
-                        'qos_options' => array(
-                            'prefetchSize' => 0,
-                            'prefetchCount' => 0
-                        ),
-                        'idle_timeout' => 20,
+                        'queues' => ['demo-queue'],
                         'auto_setup_fabric' => false,
-                        'callback' => 'test-callback'
+                        'callback' => 'test-callback',
+                        'qos' => array(
+                            'prefetchCount' => 10
+                        )
                     ),
                 ),
             )
         );
 
-        $channel = $this->getMock('PhpAmqpLib\Channel\AmqpChannel', array(), array(), '', false);
-
-        $connectionMock = $this->getMock('PhpAmqpLib\Connection\AMQPLazyConnection', array(), array(), '', false);
-        $connectionMock
+        $connection = $this->getMock('AMQPConnection', array(), array(), '', false);
+        $channel    = $this->getMock('AMQPChannel', array(), array(), '', false);
+        $channel
             ->expects($this->any())
-            ->method('channel')
-            ->willReturn($channel);
+            ->method('getPrefetchCount')
+            ->will($this->returnValue(10));
+        $queue      = $this->getMock('AMQPQueue', array(), array(), '', false);
+        $queue
+            ->expects($this->any())
+            ->method('getChannel')
+            ->will($this->returnValue($channel));
+        $queueFactory = $this->getMock('HumusAmqpModule\QueueFactory');
+        $queueFactory
+            ->expects($this->any())
+            ->method('create')
+            ->will($this->returnValue($queue));
 
         $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection');
         $connectionManager
             ->expects($this->any())
             ->method('get')
             ->with('default')
-            ->willReturn($connectionMock);
+            ->willReturn($connection);
 
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
         $services->setService('Config', $config);
 
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager);
-
         $callbackManager = new CallbackPluginManager();
         $callbackManager->setInvokableClass('test-callback', __NAMESPACE__ . '\TestAsset\TestCallback');
-        $services->setService('HumusAmqpModule\PluginManager\Callback', $callbackManager);
-
-
         $callbackManager->setServiceLocator($services);
 
+        $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager);
+        $services->setService('HumusAmqpModule\PluginManager\Callback', $callbackManager);
+
         $components = $this->components = new ConsumerAbstractServiceFactory();
+        $components->setChannelMock($channel);
+        $components->setQueueFactory($queueFactory);
+
         $services->setService('HumusAmqpModule\PluginManager\Consumer', $consumerManager = new ConsumerPluginManager());
         $consumerManager->addAbstractFactory($components);
         $consumerManager->setServiceLocator($services);
@@ -110,35 +116,6 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $consumer = $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
         $consumer2 = $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
         $this->assertNotSame($consumer, $consumer2);
-        $this->assertInstanceOf('HumusAmqpModule\Amqp\Consumer', $consumer);
-        /* @var $producer \HumusAmqpModule\Amqp\Producer */
-        $this->assertEquals('demo-exchange', $consumer->getExchangeOptions()->getName());
-        $this->assertEquals('direct', $consumer->getExchangeOptions()->getType());
-        $this->assertEquals('myconsumer-queue', $consumer->getQueueOptions()->getName());
-    }
-
-    public function testCreateConsumerWithCustomClassAndWithoutConnectionName()
-    {
-        $config = $this->services->get('Config');
-        $config['humus_amqp_module']['consumers']['test-consumer']['class'] = __NAMESPACE__
-            . '\TestAsset\CustomConsumer';
-        unset($config['humus_amqp_module']['consumers']['test-consumer']['connection']);
-        $this->services->setService('Config', $config);
-
-        $consumer = $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
-        $this->assertInstanceOf('HumusAmqpModuleTest\Service\TestAsset\CustomConsumer', $consumer);
-    }
-
-    /**
-     * @expectedException HumusAmqpModule\Exception\RuntimeException
-     * @expectedExceptionMessage Plugin of type stdClass is invalid; must be a callable
-     */
-    public function testCreateConsumerWithInvalidCallback()
-    {
-        $config = $this->services->get('Config');
-        $config['humus_amqp_module']['consumers']['test-consumer']['callback'] = 'stdClass';
-        $this->services->setService('Config', $config);
-
-        $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
+        $this->assertInstanceOf('HumusAmqpModule\Consumer', $consumer);
     }
 }

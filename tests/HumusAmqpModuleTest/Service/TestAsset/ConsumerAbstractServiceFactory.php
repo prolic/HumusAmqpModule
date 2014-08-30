@@ -27,6 +27,11 @@ class ConsumerAbstractServiceFactory extends \HumusAmqpModule\Service\ConsumerAb
         $this->mock = $mock;
     }
 
+    public function setQueueFactory($factory)
+    {
+        $this->queueFactory = $factory;
+    }
+
     /**
      * @param \AMQPConnection $connection
      * @param array $spec
