@@ -64,7 +64,7 @@ class Module implements
                 $service = new $serviceName(new \Zend\ServiceManager\Config($serviceConfig));
                 /* @var $service \Zend\ServiceManager\ServiceManager */
                 if ('Connection' == $ns) {
-                    $service->addInitializer(function($connection) {
+                    $service->addInitializer(function ($connection) {
                         if (isset($connection->persistent) && true === $connection->persistent) {
                             $connection->pconnect();
                             unset($connection->persistent);
