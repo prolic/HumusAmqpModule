@@ -21,7 +21,6 @@ namespace HumusAmqpModuleTest\Service;
 use HumusAmqpModule\PluginManager\Connection as ConnectionPluginManager;
 use HumusAmqpModule\PluginManager\Producer as ProducerPluginManager;
 use HumusAmqpModule\Service\ConnectionAbstractServiceFactory;
-use HumusAmqpModule\Service\ProducerAbstractServiceFactory;
 use Zend\ServiceManager\ServiceManager;
 
 class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
@@ -32,7 +31,7 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     protected $services;
 
     /**
-     * @var ProducerAbstractServiceFactory
+     * @var TestAsset\ProducerAbstractServiceFactory
      */
     protected $components;
 
@@ -79,6 +78,26 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             )
         );
 
+        $connection = $this->getMock('AMQPConnection', array(), array(), '', false);
+        $channel    = $this->getMock('AMQPChannel', array(), array(), '', false);
+        $channel
+            ->expects($this->any())
+            ->method('getPrefetchCount')
+            ->will($this->returnValue(10));
+        $exchange      = $this->getMock('AMQPExchange', array(), array(), '', false);
+        $exchangeFactory = $this->getMock('HumusAmqpModule\ExchangeFactory');
+        $exchangeFactory
+            ->expects($this->any())
+            ->method('create')
+            ->will($this->returnValue($exchange));
+
+        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection');
+        $connectionManager
+            ->expects($this->any())
+            ->method('get')
+            ->with('default')
+            ->willReturn($connection);
+
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
         $services->setService('Config', $config);
@@ -88,7 +107,9 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $cm->addAbstractFactory($dependentComponent);
         $cm->setServiceLocator($services);
 
-        $components = $this->components = new ProducerAbstractServiceFactory();
+        $components = $this->components = new TestAsset\ProducerAbstractServiceFactory();
+        $components->setChannelMock($channel);
+        $components->setExchangeFactory($exchangeFactory);
         $services->setService('HumusAmqpModule\PluginManager\Producer', $producerManager = new ProducerPluginManager());
         $producerManager->addAbstractFactory($components);
         $producerManager->setServiceLocator($services);
@@ -153,7 +174,7 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $services->setAllowOverride(true);
         $services->setService('Config', $config);
 
-        $components = $this->components = new ProducerAbstractServiceFactory();
+        $components = $this->components = new TestAsset\ProducerAbstractServiceFactory();
         $services->setService('HumusAmqpModule\PluginManager\Producer', $producerManager = new ProducerPluginManager());
         $producerManager->addAbstractFactory($components);
         $producerManager->setServiceLocator($services);
