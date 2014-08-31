@@ -105,6 +105,8 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                         'queues' => ['demo-queue'],
                         'auto_setup_fabric' => false,
                         'callback' => 'test-callback',
+                        'flush_callback' => 'test-callback',
+                        'error_callback' => 'test-callback',
                         'qos' => array(
                             'prefetchCount' => 10
                         )
