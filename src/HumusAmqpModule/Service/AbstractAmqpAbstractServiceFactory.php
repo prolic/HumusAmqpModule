@@ -23,6 +23,7 @@ use AMQPConnection;
 use AMQPExchange;
 use HumusAmqpModule\Exception;
 use HumusAmqpModule\ExchangeFactory;
+use HumusAmqpModule\ExchangeFactoryInterface;
 use HumusAmqpModule\ExchangeSpecification;
 use HumusAmqpModule\PluginManager\Connection as ConnectionManager;
 use HumusAmqpModule\QosOptions;
@@ -64,7 +65,7 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
     protected $specs = array();
 
     /**
-     * @var ExchangeFactory
+     * @var ExchangeFactoryInterface
      */
     protected $exchangeFactory;
 
@@ -210,20 +211,20 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
     }
 
     /**
-     * @return ExchangeFactory
+     * @return ExchangeFactoryInterface
      */
     public function getExchangeFactory()
     {
         if (null === $this->exchangeFactory) {
-            $this->exchangeFactory = new ExchangeFactory();
+            $this->setExchangeFactory(new ExchangeFactory());
         }
         return $this->exchangeFactory;
     }
 
     /**
-     * @param ExchangeFactory $exchangeFactory
+     * @param ExchangeFactoryInterface $exchangeFactory
      */
-    public function setExchangeFactory(ExchangeFactory $exchangeFactory)
+    public function setExchangeFactory(ExchangeFactoryInterface $exchangeFactory)
     {
         $this->exchangeFactory = $exchangeFactory;
     }

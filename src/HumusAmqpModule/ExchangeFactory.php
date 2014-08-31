@@ -21,7 +21,7 @@ namespace HumusAmqpModule;
 use AMQPChannel;
 use AMQPExchange;
 
-class ExchangeFactory
+class ExchangeFactory implements ExchangeFactoryInterface
 {
     /**
      * @param ExchangeSpecification $specification

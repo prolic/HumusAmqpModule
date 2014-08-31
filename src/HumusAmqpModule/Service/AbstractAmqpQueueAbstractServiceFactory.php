@@ -24,6 +24,7 @@ use AMQPExchange;
 use AMQPQueue;
 use HumusAmqpModule\Exception;
 use HumusAmqpModule\QueueFactory;
+use HumusAmqpModule\QueueFactoryInterface;
 use HumusAmqpModule\QueueSpecification;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -35,7 +36,7 @@ abstract class AbstractAmqpQueueAbstractServiceFactory extends AbstractAmqpAbstr
     protected $callbackManager;
 
     /**
-     * @var QueueFactory
+     * @var QueueFactoryInterface
      */
     protected $queueFactory;
 
@@ -73,14 +74,22 @@ abstract class AbstractAmqpQueueAbstractServiceFactory extends AbstractAmqpAbstr
     }
 
     /**
-     * @return QueueFactory
+     * @return QueueFactoryInterface
      */
-    protected function getQueueFactory()
+    public function getQueueFactory()
     {
         if (null === $this->queueFactory) {
-            $this->queueFactory = new QueueFactory();
+            $this->setQueueFactory(new QueueFactory());
         }
         return $this->queueFactory;
+    }
+
+    /**
+     * @param QueueFactoryInterface $queueFactory
+     */
+    public function setQueueFactory(QueueFactoryInterface $queueFactory)
+    {
+        $this->queueFactory = $queueFactory;
     }
 
     /**

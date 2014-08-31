@@ -22,7 +22,7 @@ use AMQPChannel;
 use AMQPExchange;
 use AMQPQueue;
 
-class QueueFactory
+interface QueueFactoryInterface
 {
     /**
      * @param QueueSpecification $specification
@@ -30,28 +30,5 @@ class QueueFactory
      * @param bool $autoDeclare
      * @return AMQPQueue
      */
-    public function create(QueueSpecification $specification, AMQPChannel $channel, $autoDeclare = true)
-    {
-        $queue = new AMQPQueue($channel);
-        if ($specification->getName() != '') {
-            $queue->setName($specification->getName());
-        }
-        $queue->setFlags($specification->getFlags());
-        $queue->setArguments($specification->getArguments());
-
-        if ($autoDeclare) {
-            $queue->declareQueue();
-
-            $routingKeys = $specification->getRoutingKeys();
-            if (empty($routingKeys)) {
-                $queue->bind($specification->getExchange(), null, $specification->getBindArguments());
-            } else {
-                foreach ($routingKeys as $routingKey) {
-                    $queue->bind($specification->getExchange(), $routingKey, $specification->getBindArguments());
-                }
-            }
-        }
-
-        return $queue;
-    }
+    public function create(QueueSpecification $specification, AMQPChannel $channel, $autoDeclare = true);
 }

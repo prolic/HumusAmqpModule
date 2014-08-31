@@ -22,7 +22,7 @@ use AMQPChannel;
 use AMQPExchange;
 use AMQPQueue;
 
-class QueueFactory
+class QueueFactory implements QueueFactoryInterface
 {
     /**
      * @param QueueSpecification $specification
