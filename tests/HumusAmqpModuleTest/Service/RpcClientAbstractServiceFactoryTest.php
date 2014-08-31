@@ -35,7 +35,50 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     protected $components;
 
-    public function setUp()
+    protected function prepare($config)
+    {
+        $services    = $this->services = new ServiceManager();
+        $services->setAllowOverride(true);
+        $services->setService('Config', $config);
+
+        $connection = $this->getMock('AMQPConnection', array(), array(), '', false);
+        $channel    = $this->getMock('AMQPChannel', array(), array(), '', false);
+        $channel
+            ->expects($this->any())
+            ->method('getPrefetchCount')
+            ->will($this->returnValue(10));
+        $queue      = $this->getMock('AMQPQueue', array(), array(), '', false);
+        $queue
+            ->expects($this->any())
+            ->method('getChannel')
+            ->will($this->returnValue($channel));
+        $queueFactory = $this->getMock('HumusAmqpModule\QueueFactory');
+        $queueFactory
+            ->expects($this->any())
+            ->method('create')
+            ->will($this->returnValue($queue));
+
+        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection');
+        $connectionManager
+            ->expects($this->any())
+            ->method('get')
+            ->with('default')
+            ->willReturn($connection);
+
+        $dependentComponent = new ConnectionAbstractServiceFactory();
+        $this->services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
+        $cm->addAbstractFactory($dependentComponent);
+        $cm->setServiceLocator($this->services);
+
+        $components = $this->components = new TestAsset\RpcClientAbstractServiceFactory();
+        $components->setChannelMock($channel);
+        $components->setQueueFactory($queueFactory);
+        $this->services->setService('HumusAmqpModule\PluginManager\RpcClient', $rpccm = new RpcClientPluginManager());
+        $rpccm->addAbstractFactory($components);
+        $rpccm->setServiceLocator($this->services);
+    }
+
+    public function testCreateRpcClient()
     {
         $config = array(
             'humus_amqp_module' => array(
@@ -69,50 +112,161 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $connection = $this->getMock('AMQPConnection', array(), array(), '', false);
-        $channel    = $this->getMock('AMQPChannel', array(), array(), '', false);
-        $channel
-            ->expects($this->any())
-            ->method('getPrefetchCount')
-            ->will($this->returnValue(10));
-        $queue      = $this->getMock('AMQPQueue', array(), array(), '', false);
-        $queue
-            ->expects($this->any())
-            ->method('getChannel')
-            ->will($this->returnValue($channel));
-        $queueFactory = $this->getMock('HumusAmqpModule\QueueFactory');
-        $queueFactory
-            ->expects($this->any())
-            ->method('create')
-            ->will($this->returnValue($queue));
+        $this->prepare($config);
 
-        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection');
-        $connectionManager
-            ->expects($this->any())
-            ->method('get')
-            ->with('default')
-            ->willReturn($connection);
-
-        $services    = $this->services = new ServiceManager();
-        $services->setAllowOverride(true);
-        $services->setService('Config', $config);
-
-        $dependentComponent = new ConnectionAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
-        $cm->addAbstractFactory($dependentComponent);
-        $cm->setServiceLocator($services);
-
-        $components = $this->components = new TestAsset\RpcClientAbstractServiceFactory();
-        $components->setChannelMock($channel);
-        $components->setQueueFactory($queueFactory);
-        $services->setService('HumusAmqpModule\PluginManager\RpcClient', $rpccm = new RpcClientPluginManager());
-        $rpccm->addAbstractFactory($components);
-        $rpccm->setServiceLocator($services);
-    }
-
-    public function testCreateRpcClient()
-    {
         $rpcClient = $this->components->createServiceWithName($this->services, 'test-rpc-client', 'test-rpc-client');
         $this->assertInstanceOf('HumusAmqpModule\RpcClient', $rpcClient);
+    }
+
+    public function testCreateRpcClientWithDefinedConnection()
+    {
+        $config = array(
+            'humus_amqp_module' => array(
+                'default_connection' => 'default',
+                'connections' => array(
+                    'default' => array(
+                        'host' => 'localhost',
+                        'port' => 5672,
+                        'login' => 'guest',
+                        'password' => 'guest',
+                        'vhost' => '/',
+                    )
+                ),
+                'exchanges' => array(
+                    'test-rpc-client' => array(
+                        'name' => 'test-rpc-client',
+                        'type' => 'direct'
+                    ),
+                ),
+                'queues' => array(
+                    'test-rpc-client' => array(
+                        'name' => '',
+                        'exchange' => 'test-rpc-client'
+                    ),
+                ),
+                'rpc_clients' => array(
+                    'test-rpc-client' => array(
+                        'queue' => 'test-rpc-client',
+                        'connection' => 'default'
+                    )
+                )
+            )
+        );
+
+        $this->prepare($config);
+
+        $rpcClient = $this->components->createServiceWithName($this->services, 'test-rpc-client', 'test-rpc-client');
+        $this->assertInstanceOf('HumusAmqpModule\RpcClient', $rpcClient);
+    }
+
+    /**
+     * @expectedException HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The rpc client queue false-rpc-client-queue-name is missing in the queues configuration
+     */
+    public function testCreateRpcClientThrowsExceptionOnInvalidQueueName()
+    {
+        $config = array(
+            'humus_amqp_module' => array(
+                'default_connection' => 'default',
+                'connections' => array(
+                    'default' => array(
+                        'host' => 'localhost',
+                        'port' => 5672,
+                        'login' => 'guest',
+                        'password' => 'guest',
+                        'vhost' => '/',
+                    )
+                ),
+                'exchanges' => array(
+                    'test-rpc-client' => array(
+                        'name' => 'test-rpc-client',
+                        'type' => 'direct'
+                    ),
+                ),
+                'queues' => array(
+                    'test-rpc-client' => array(
+                        'name' => '',
+                        'exchange' => 'test-rpc-client'
+                    ),
+                ),
+                'rpc_clients' => array(
+                    'test-rpc-client' => array(
+                        'queue' => 'false-rpc-client-queue-name'
+                    )
+                )
+            )
+        );
+
+        $this->prepare($config);
+
+        $this->components->createServiceWithName($this->services, 'test-rpc-client', 'test-rpc-client');
+    }
+
+    /**
+     * @expectedException HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedExceptionMessage Queue is missing for rpc client test-rpc-client
+     */
+    public function testCreateRpcClientThrowsExceptionOnMissingQueue()
+    {
+        $config = array(
+            'humus_amqp_module' => array(
+                'default_connection' => 'default',
+                'rpc_clients' => array(
+                    'test-rpc-client' => array(
+                    )
+                )
+            )
+        );
+
+        $this->prepare($config);
+
+        $this->components->createServiceWithName($this->services, 'test-rpc-client', 'test-rpc-client');
+    }
+
+    public function testCreateRpcClientThrowsExceptionOnConnectionMismatch()
+    {
+        $config = array(
+            'humus_amqp_module' => array(
+                'default_connection' => 'default',
+                'connections' => array(
+                    'default' => array(
+                        'host' => 'localhost',
+                        'port' => 5672,
+                        'login' => 'guest',
+                        'password' => 'guest',
+                        'vhost' => '/',
+                    )
+                ),
+                'exchanges' => array(
+                    'test-rpc-client' => array(
+                        'name' => 'test-rpc-client',
+                        'type' => 'direct'
+                    ),
+                ),
+                'queues' => array(
+                    'test-rpc-client' => array(
+                        'name' => '',
+                        'exchange' => 'test-rpc-client',
+                        'connection' => 'someother'
+                    ),
+                ),
+                'rpc_clients' => array(
+                    'test-rpc-client' => array(
+                        'queue' => 'test-rpc-client',
+                        'connection' => 'default'
+                    )
+                )
+            )
+        );
+
+        $this->prepare($config);
+
+        $this->setExpectedException(
+            'HumusAmqpModule\Exception\InvalidArgumentException',
+            'The rpc client connection for queue test-rpc-client (someother) does not match the rpc client '
+            . 'connection for rpc client test-rpc-client (default)'
+        );
+
+        $this->components->createServiceWithName($this->services, 'test-rpc-client', 'test-rpc-client');
     }
 }
