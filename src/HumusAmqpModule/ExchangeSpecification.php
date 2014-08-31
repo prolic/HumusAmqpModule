@@ -30,6 +30,11 @@ class ExchangeSpecification extends AbstractOptions
     );
 
     /**
+     * @var string
+     */
+    protected $connection;
+
+    /**
      * @var bool
      */
     protected $autoDelete = false; // RabbitMQ Extension
@@ -81,6 +86,22 @@ class ExchangeSpecification extends AbstractOptions
         $flags |= $this->getAutoDelete() ? AMQP_AUTODELETE : 0; // RabbitMQ Extension
 
         return $flags;
+    }
+
+    /**
+     * @param string $connection
+     */
+    public function setConnection($connection)
+    {
+        $this->connection = $connection;
+    }
+
+    /**
+     * @return string
+     */
+    public function getConnection()
+    {
+        return $this->connection;
     }
 
     /**

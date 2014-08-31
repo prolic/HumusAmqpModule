@@ -30,6 +30,11 @@ class QueueSpecification extends AbstractOptions
     /**
      * @var string
      */
+    protected $connection;
+
+    /**
+     * @var string
+     */
     protected $exchange = '';
 
     /**
@@ -79,6 +84,22 @@ class QueueSpecification extends AbstractOptions
         $flags |= $this->getAutoDelete() ? AMQP_AUTODELETE : 0;
 
         return $flags;
+    }
+
+    /**
+     * @param string $connection
+     */
+    public function setConnection($connection)
+    {
+        $this->connection = $connection;
+    }
+
+    /**
+     * @return string
+     */
+    public function getConnection()
+    {
+        return $this->connection;
     }
 
     /**

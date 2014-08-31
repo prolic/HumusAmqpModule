@@ -170,7 +170,8 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
             // exchange binding is required
             if (!isset($config['exchanges'][$config['queues'][$queue]['exchange']])) {
                 throw new Exception\InvalidArgumentException(
-                    'The queues exchange ' . $queue['exchange'] . ' is missing in the exchanges configuration'
+                    'The queues exchange ' . $config['queues'][$queue]['exchange']
+                    . ' is missing in the exchanges configuration'
                 );
             }
 
@@ -179,8 +180,9 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
             $testConnection = isset($exchange['connection']) ? $exchange['connection'] : $defaultConnection;
             if ($testConnection != $connection) {
                 throw new Exception\InvalidArgumentException(
-                    'The exchange connection for exchange ' . $exchange . ' (' . $testConnection . ') does not '
-                    . 'match the consumer connection for consumer ' . $requestedName . ' (' . $connection . ')'
+                    'The exchange connection for exchange ' . $config['queues'][$queue]['exchange']
+                    . ' (' . $testConnection . ') does not match the consumer connection for consumer '
+                    . $requestedName . ' (' . $connection . ')'
                 );
             }
         }
