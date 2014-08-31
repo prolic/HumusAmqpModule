@@ -1,7 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: sasa
- * Date: 31.08.14
- * Time: 19:18
- */ 
+
+namespace HumusAmqpModuleTest\Service\TestAsset;
+
+class RpcClientAbstractServiceFactory extends \HumusAmqpModule\Service\RpcClientAbstractServiceFactory
+{
+    use CreateChannelMockTrait;
+}

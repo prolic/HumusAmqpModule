@@ -21,7 +21,6 @@ namespace HumusAmqpModuleTest\Service;
 use HumusAmqpModule\PluginManager\Connection as ConnectionPluginManager;
 use HumusAmqpModule\PluginManager\RpcClient as RpcClientPluginManager;
 use HumusAmqpModule\Service\ConnectionAbstractServiceFactory;
-use HumusAmqpModule\Service\RpcClientAbstractServiceFactory;
 use Zend\ServiceManager\ServiceManager;
 
 class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
@@ -32,7 +31,7 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     protected $services;
 
     /**
-     * @var RpcClientAbstractServiceFactory
+     * @var TestAsset\RpcClientAbstractServiceFactory
      */
     protected $components;
 
@@ -40,11 +39,7 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $config = array(
             'humus_amqp_module' => array(
-                'classes' => array(
-                    'connection' => 'PhpAmqpLib\Connection\AMQPConnection',
-                    'lazy_connection' => 'PhpAmqpLib\Connection\AMQPLazyConnection',
-                    'rpc_client' => 'HumusAmqpModule\Amqp\RpcClient',
-                ),
+                'default_connection' => 'default',
                 'connections' => array(
                     'default' => array(
                         'host' => 'localhost',
@@ -52,16 +47,51 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                         'login' => 'guest',
                         'password' => 'guest',
                         'vhost' => '/',
-                        'lazy' => true
                     )
+                ),
+                'exchanges' => array(
+                    'test-rpc-client' => array(
+                        'name' => 'test-rpc-client',
+                        'type' => 'direct'
+                    ),
+                ),
+                'queues' => array(
+                    'test-rpc-client' => array(
+                        'name' => '',
+                        'exchange' => 'test-rpc-client'
+                    ),
                 ),
                 'rpc_clients' => array(
                     'test-rpc-client' => array(
-                        'expect_serialized_response' => true
+                        'queue' => 'test-rpc-client'
                     )
                 )
             )
         );
+
+        $connection = $this->getMock('AMQPConnection', array(), array(), '', false);
+        $channel    = $this->getMock('AMQPChannel', array(), array(), '', false);
+        $channel
+            ->expects($this->any())
+            ->method('getPrefetchCount')
+            ->will($this->returnValue(10));
+        $queue      = $this->getMock('AMQPQueue', array(), array(), '', false);
+        $queue
+            ->expects($this->any())
+            ->method('getChannel')
+            ->will($this->returnValue($channel));
+        $queueFactory = $this->getMock('HumusAmqpModule\QueueFactory');
+        $queueFactory
+            ->expects($this->any())
+            ->method('create')
+            ->will($this->returnValue($queue));
+
+        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection');
+        $connectionManager
+            ->expects($this->any())
+            ->method('get')
+            ->with('default')
+            ->willReturn($connection);
 
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
@@ -72,7 +102,9 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $cm->addAbstractFactory($dependentComponent);
         $cm->setServiceLocator($services);
 
-        $components = $this->components = new RpcClientAbstractServiceFactory();
+        $components = $this->components = new TestAsset\RpcClientAbstractServiceFactory();
+        $components->setChannelMock($channel);
+        $components->setQueueFactory($queueFactory);
         $services->setService('HumusAmqpModule\PluginManager\RpcClient', $rpccm = new RpcClientPluginManager());
         $rpccm->addAbstractFactory($components);
         $rpccm->setServiceLocator($services);
@@ -81,21 +113,6 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     public function testCreateRpcClient()
     {
         $rpcClient = $this->components->createServiceWithName($this->services, 'test-rpc-client', 'test-rpc-client');
-        $this->assertInstanceOf('HumusAmqpModule\Amqp\RpcClient', $rpcClient);
-        /* @var $rpcClient \HumusAmqpModule\Amqp\RpcClient */
-        $this->assertEquals('direct', $rpcClient->getExchangeOptions()->getType());
-    }
-
-    public function testCreateRpcClientWithCustomClass()
-    {
-        $config = $this->services->get('Config');
-        $config['humus_amqp_module']['rpc_clients']['test-rpc-client']['class'] = __NAMESPACE__
-            . '\TestAsset\CustomRpcClient';
-        $this->services->setService('Config', $config);
-
-        $rpcClient = $this->components->createServiceWithName($this->services, 'test-rpc-client', 'test-rpc-client');
-        $this->assertInstanceOf(__NAMESPACE__ . '\TestAsset\CustomRpcClient', $rpcClient);
-        /* @var $rpcClient \HumusAmqpModule\Amqp\RpcClient */
-        $this->assertEquals('direct', $rpcClient->getExchangeOptions()->getType());
+        $this->assertInstanceOf('HumusAmqpModule\RpcClient', $rpcClient);
     }
 }
