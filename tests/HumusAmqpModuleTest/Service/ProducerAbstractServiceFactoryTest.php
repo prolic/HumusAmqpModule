@@ -74,6 +74,11 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                         'exchange' => 'demo-exchange',
                         'auto_setup_fabric' => true
                     ),
+                    'test-producer-3' => array(
+                    ),
+                    'test-producer-4' => array(
+                        'exchange' => 'missing-exchange'
+                    )
                 )
             )
         );
@@ -125,6 +130,24 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $producer = $this->components->createServiceWithName($this->services, 'test-producer-2', 'test-producer-2');
         $this->assertInstanceOf('HumusAmqpModule\ProducerInterface', $producer);
+    }
+
+    public function testCreateProducerWithoutExchangeThrowsException()
+    {
+        $this->setExpectedException(
+            'HumusAmqpModule\Exception\InvalidArgumentException',
+            'Exchange is missing for producer test-producer-3'
+        );
+        $this->components->createServiceWithName($this->services, 'test-producer-3', 'test-producer-3');
+    }
+
+    public function testCreateProducerWithoutExchangeConfigThrowsException()
+    {
+        $this->setExpectedException(
+            'HumusAmqpModule\Exception\InvalidArgumentException',
+            'The producer exchange missing-exchange is missing in the exchanges configuration'
+        );
+        $this->components->createServiceWithName($this->services, 'test-producer-4', 'test-producer-4');
     }
 
     public function testCannotCreateProducerWhenConnectionPluginManagerIsMissing()
