@@ -101,6 +101,10 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
             throw new Exception\InvalidArgumentException('Queue is missing for rpc client ' . $requestedName);
         }
 
+        if (!isset($spec['callback'])) {
+            throw new Exception\InvalidArgumentException('Callback is missing for rpc server ' . $requestedName);
+        }
+
         $defaultConnection = $this->getDefaultConnectionName($serviceLocator);
 
         if (isset($spec['connection'])) {
