@@ -41,8 +41,23 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $config = array(
             'humus_amqp_module' => array(
+                'default_connection' => 'default',
+                'exchanges' => array(
+                    'test-rpc-server' => array(
+                        'name' => 'test-rpc-server',
+                        'type' => 'direct'
+                    ),
+                ),
+                'queues' => array(
+                    'test-rpc-server' => array(
+                        'name' => 'test-rpc-server',
+                        'exchange' => 'test-rpc-server'
+                    ),
+                ),
                 'rpc_servers' => array(
                     'test-rpc-server' => array(
+                        'connection' => 'default',
+                        'queue' => 'test-rpc-server',
                         'callback' => 'test-callback',
                         'qos' => array(
                             'prefetchSize' => 0,
@@ -53,28 +68,45 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             )
         );
 
-        $channel = $this->getMock('AmqpChannel', array(), array(), '', false);
-
-        $connectionMock = $this->getMock('AMQPConnection', array(), array(), '', false);
-        $connectionMock
+        $connection = $this->getMock('AMQPConnection', array(), array(), '', false);
+        $channel    = $this->getMock('AMQPChannel', array(), array(), '', false);
+        $channel
             ->expects($this->any())
-            ->method('channel')
-            ->willReturn($channel);
+            ->method('getPrefetchCount')
+            ->will($this->returnValue(10));
+        $queue      = $this->getMock('AMQPQueue', array(), array(), '', false);
+        $queue
+            ->expects($this->any())
+            ->method('getChannel')
+            ->will($this->returnValue($channel));
+        $queueFactory = $this->getMock('HumusAmqpModule\QueueFactory');
+        $queueFactory
+            ->expects($this->any())
+            ->method('create')
+            ->will($this->returnValue($queue));
 
         $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection');
         $connectionManager
-            ->expects($this->once())
+            ->expects($this->any())
             ->method('get')
             ->with('default')
-            ->willReturn($connectionMock);
+            ->willReturn($connection);
 
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
         $services->setService('Config', $config);
 
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager);
+        $callbackManager = new CallbackPluginManager();
+        $callbackManager->setInvokableClass('test-callback', __NAMESPACE__ . '\TestAsset\TestCallback');
+        $callbackManager->setServiceLocator($services);
 
-        $components = $this->components = new RpcServerAbstractServiceFactory();
+        $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager);
+        $services->setService('HumusAmqpModule\PluginManager\Callback', $callbackManager);
+
+        $components = $this->components = new TestAsset\RpcServerAbstractServiceFactory();
+        $components->setChannelMock($channel);
+        $components->setQueueFactory($queueFactory);
+
         $services->setService('HumusAmqpModule\PluginManager\RpcClient', $rpcsm = new RpcServerPluginManager());
         $rpcsm->addAbstractFactory($components);
         $rpcsm->setServiceLocator($services);
@@ -87,14 +119,12 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     public function testCreateRpcServer()
     {
         $rpcServer = $this->components->createServiceWithName($this->services, 'test-rpc-server', 'test-rpc-server');
-        $this->assertInstanceOf('HumusAmqpModule\Amqp\RpcServer', $rpcServer);
-        /* @var $rpcServer \HumusAmqpModule\RpcServer */
-        $this->assertEquals('direct', $rpcServer->getExchangeOptions()->getType());
+        $this->assertInstanceOf('HumusAmqpModule\RpcServer', $rpcServer);
     }
 
     /**
      * @expectedException HumusAmqpModule\Exception\InvalidArgumentException
-     * @expectedExceptionMessage callback is missing for rpc server
+     * @expectedExceptionMessage Callback is missing for rpc server test-rpc-server
      */
     public function testCreateRpcServerWithoutCallback()
     {

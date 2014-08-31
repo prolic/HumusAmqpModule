@@ -18,15 +18,19 @@
 
 namespace HumusAmqpModuleTest\Service\TestAsset;
 
-use PhpAmqpLib\Message\AMQPMessage;
+use AMQPEnvelope;
+use AMQPQueue;
+use HumusAmqpModule\ConsumerInterface;
 
 class TestCallback
 {
     /**
-     * @param AMQPMessage $message
+     * @param AMQPEnvelope $message
+     * @param AMQPQueue $queue
+     * @param ConsumerInterface $consumer
      */
-    public function __invoke(AMQPMessage $message)
+    public function __invoke(AMQPEnvelope $message, AMQPQueue $queue, ConsumerInterface $consumer)
     {
-        echo $message->body . "\n";
+        echo $message->getBody() . "\n";
     }
 }
