@@ -15,7 +15,7 @@ About
 
 The Humus AMQP Module incorporates messaging in your zf2 application via [RabbitMQ](http://www.rabbitmq.com/) using the [PHP AMQP Extension](https://github.com/pdezwart/php-amqp).
 
-This module implements several messaging patterns as seen on the [Thumper](https://github.com/videlalvaro/Thumper) library.
+This module implements several messaging patterns comparable to the [Thumper](https://github.com/videlalvaro/Thumper) library.
 
 A lot of ideas and even implementation details came from the [RabbitMQ Java Client](https://github.com/rabbitmq/rabbitmq-java-client) and the [RabbitMqBundle](https://github.com/videlalvaro/RabbitMqBundle), special thanks to [Alvaro Videla](https://github.com/videlalvaro) and the contributors of this project.
 
