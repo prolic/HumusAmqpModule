@@ -68,7 +68,7 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
         }
 
         $idleTimeout = isset($spec['idle_timeout']) ? $spec['idle_timeout'] : 5.0;
-        $waitTimeout = isset($spec['wait_timeout']) ? $spec['wait_timeout'] : 1000;
+        $waitTimeout = isset($spec['wait_timeout']) ? $spec['wait_timeout'] : 1000000;
 
         $consumer = new Consumer($queues, $idleTimeout, $waitTimeout);
 
