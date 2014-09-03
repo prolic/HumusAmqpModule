@@ -135,7 +135,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      * @param int $waitTimeout in microseconds
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct($queues, $idleTimeout = 5.00, $waitTimeout = 1000)
+    public function __construct($queues, $idleTimeout = 5.00, $waitTimeout = 1000000)
     {
         if (!is_array($queues) && !$queues instanceof \Traversable) {
             throw new Exception\InvalidArgumentException(
