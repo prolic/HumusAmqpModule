@@ -56,7 +56,7 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
         $queue     = $this->getQueue($queueSpec, $channel, $this->useAutoSetupFabric($spec));
 
         $idleTimeout = isset($spec['idle_timeout']) ? $spec['idle_timeout'] : 5.0;
-        $waitTimeout = isset($spec['wait_timeout']) ? $spec['wait_timeout'] : 100;
+        $waitTimeout = isset($spec['wait_timeout']) ? $spec['wait_timeout'] : 100000;
 
         $rpcServer = new RpcServer($queue, $idleTimeout, $waitTimeout);
 

@@ -36,7 +36,7 @@ class RpcServer extends Consumer
      * @param float $idleTimeout in seconds
      * @param int $waitTimeout in microseconds
      */
-    public function __construct(AMQPQueue $queue, $idleTimeout = 5.00, $waitTimeout = 1000)
+    public function __construct(AMQPQueue $queue, $idleTimeout, $waitTimeout)
     {
         $queues = array($queue);
         parent::__construct($queues, $idleTimeout, $waitTimeout);
