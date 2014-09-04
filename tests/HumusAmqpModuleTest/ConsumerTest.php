@@ -43,7 +43,7 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
         $amqpQueue->expects($this->any())->method('get')->willReturn($message);
 
-        $consumer = new Consumer(array($amqpQueue));
+        $consumer = new Consumer(array($amqpQueue), 1, 1 * 1000 * 500);
 
 
         $logger = new \Zend\Log\Logger();
@@ -106,7 +106,7 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
         $amqpQueue->expects($this->any())->method('get')->willReturn($message);
 
-        $consumer = new Consumer(array($amqpQueue));
+        $consumer = new Consumer(array($amqpQueue), 1, 1 * 1000 * 500);
 
 
         $logger = new \Zend\Log\Logger();
