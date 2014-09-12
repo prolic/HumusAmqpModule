@@ -35,3 +35,9 @@ Dependencies
  - PHP 5.4.0
  - [ext-amqp](https://github.com/pdezwart/php-amqp)
  - [HumusSupervisorModule](https://github.com/prolic/HumusSupervisorModule) (optional)
+ - [Zend Console 2.3.0](https://github.com/zendframework/zf2)
+ - [Zend EventManager 2.3.0](https://github.com/zendframework/zf2)
+ - [Zend MVC 2.3.0](https://github.com/zendframework/zf2)
+ - [Zend ModuleManager 2.3.0](https://github.com/zendframework/zf2)
+ - [Zend ServiceManager 2.3.0](https://github.com/zendframework/zf2)
+ - [Zend Text 2.3.0](https://github.com/zendframework/zf2)
