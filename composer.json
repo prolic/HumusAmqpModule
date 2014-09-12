@@ -1,7 +1,7 @@
 {
     "name": "prolic/humus-amqp-module",
     "type": "library",
-    "description": "AMQP Module for Zend Framework 2 based on php-amqplib",
+    "description": "AMQP module for Zend Framework 2 to integrate RabbitMQ",
     "keywords": ["zf2", "rabbit", "rabbitmq", "queue", "amqp", "humus"],
     "homepage": "https://github.com/prolic/HumusAmqpModule",
     "license": "MIT",
