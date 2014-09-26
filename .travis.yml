@@ -11,7 +11,7 @@ matrix:
     - php: hhvm
 
 env:
-- LIBRABBITMQ_VERSION=v0.5.1 PHP_AMQP_VERSION=v1.4.0
+- LIBRABBITMQ_VERSION=v0.5.2 PHP_AMQP_VERSION=v1.4.0
 
 before_script:
   # install librabbitmq C library (required by php-amqp)
@@ -25,15 +25,14 @@ before_script:
   - sh -c "cd php-amqp && phpize && ./configure && make && sudo make install"
   # add amqp extension to php.ini
   - echo "extension = amqp.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - sh -c "php -i"
   # update composer and fetch dependencies
   - composer self-update
-  - composer install --dev
+  - composer install --prefer-source --dev
 
 script:
   - ./vendor/bin/phpunit --coverage-clover ./build/clover.xml
   - sh -c "if [ '$TRAVIS_PHP_VERSION' != 'hhvm' ]; then php build/coverage-checker.php build/clover.xml 70; fi"
-  - sh -c "if [ '$TRAVIS_PHP_VERSION' != '5.3' ]; then ./vendor/bin/phpcs --standard=PSR2 ./src/ ./tests/; fi"
+  - sh -c "./vendor/bin/phpcs --standard=PSR2 ./src/ ./tests/"
 
 after_script:
  - wget https://scrutinizer-ci.com/ocular.phar
