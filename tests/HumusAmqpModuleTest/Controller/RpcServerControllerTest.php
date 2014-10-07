@@ -47,23 +47,28 @@ class RpcServerControllerTest extends AbstractConsoleControllerTestCase
         $manager->setService('test-rpc-server', $rpcServer);
 
         $this->dispatch('humus amqp rpc-server test-rpc-server 100');
+
         $this->assertResponseStatusCode(0);
     }
 
     public function testDispatchWithInvalidAmount()
     {
-        $rpcServer = $this->getMock('HumusAmqpModule\RpcServer', array('start'), array(), '', false);
+        $rpcServer = $this->getMock('HumusAmqpModule\RpcServer', array('consume'), array(), '', false);
+        $rpcServer
+            ->expects($this->never())
+            ->method('consume');
 
         $serviceManager = $this->getApplicationServiceLocator();
-        $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('test-rpc-server', $rpcServer);
+        $manager = $serviceManager->get('HumusAmqpModule\PluginManager\RpcServer');
+        $manager->setAllowOverride(true);
+        $manager->setService('test-rpc-server', $rpcServer);
 
         ob_start();
         $this->dispatch('humus amqp rpc-server test-rpc-server invalidamount');
         $res = ob_get_clean();
         $this->assertResponseStatusCode(1);
 
-        $this->assertNotFalse($res, 'Error: amount should be null or greater than 0');
+        $this->assertNotFalse($res, 'Error: Expected integer for amount');
     }
 
     public function testDispatchWithInvalidRpcServer()
