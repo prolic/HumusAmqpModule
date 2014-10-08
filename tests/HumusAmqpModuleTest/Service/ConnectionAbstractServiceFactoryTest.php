@@ -154,4 +154,21 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             )
         );
     }
+
+    public function testPersistentConnectionSettings()
+    {
+        $this->services->setService('Config', array(
+            'humus_amqp_module' => array(
+                'connections' => array(
+                    'test-connection' => array(
+                        'persistent' => true
+                    )
+                ),
+            ),
+        ));
+        $conn = $this->components->createServiceWithName($this->services, 'testconnection' , 'test-connection');
+        $this->assertInstanceOf('AMQPConnection', $conn);
+        $this->assertTrue(isset($conn->persistent));
+        $this->assertTrue($conn->persistent);
+    }
 }
