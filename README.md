@@ -8,7 +8,7 @@ Humus AMQP Module
 [![Latest Stable Version](https://poser.pugx.org/prolic/humus-amqp-module/v/stable.svg)](https://packagist.org/packages/prolic/humus-amqp-module)
 [![Latest Unstable Version](https://poser.pugx.org/prolic/humus-amqp-module/v/unstable.svg)](https://packagist.org/packages/prolic/humus-amqp-module)
 [![Total Downloads](https://poser.pugx.org/prolic/humus-amqp-module/downloads.svg)](https://packagist.org/packages/prolic/humus-amqp-module)
-[![Dependency Status](http://www.versioneye.com/user/projects/53c69599a54f97bc3c00000a/badge.svg?style=flat)](http://www.versioneye.com/user/projects/53c69599a54f97bc3c00000a)
+[![Dependency Status](http://www.versioneye.com/php/prolic:humus-amqp-module/dev-master/badge.svg)](http://www.versioneye.com/php/prolic:humus-amqp-module)
 
 About
 -----
