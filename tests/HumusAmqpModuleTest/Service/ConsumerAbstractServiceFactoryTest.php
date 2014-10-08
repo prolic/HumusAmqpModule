@@ -528,4 +528,55 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
     }
+
+    public function testCreateConsumerWithCustomLogger()
+    {
+        $config = array(
+            'log' => array(
+                'consumer-logger' => array(
+                    'writers' => array(
+                        array(
+                            'name' => 'stream',
+                            'priority' => 1000,
+                            'options' => array(
+                                'stream' => sys_get_temp_dir() . '/consumers.log'
+                            )
+                        )
+                    )
+                )
+            ),
+            'humus_amqp_module' => array(
+                'default_connection' => 'default',
+                'exchanges' => array(
+                    'demo-exchange' => array(
+                        'name' => 'demo-exchange',
+                        'type' => 'direct'
+                    )
+                ),
+                'queues' => array(
+                    'demo-queue' => array(
+                        'name' => 'demo-queue',
+                        'exchange' => 'demo-exchange'
+                    )
+                ),
+                'consumers' => array(
+                    'test-consumer' => array(
+                        'connection' => 'default',
+                        'queues' => ['demo-queue'],
+                        'auto_setup_fabric' => false,
+                        'logger' => 'consumer-logger',
+                        'callback' => 'test-callback',
+                        'qos' => array(
+                            'prefetchCount' => 10
+                        )
+                    ),
+                ),
+            ),
+        );
+
+        $this->prepare($config);
+        $this->services->addAbstractFactory(new \Zend\Log\LoggerAbstractServiceFactory());
+
+        $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
+    }
 }
