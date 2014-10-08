@@ -55,6 +55,9 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                         'type' => 'direct',
                         'durable' => false,
                         'autoDelete' => true
+                    ),
+                    'invalid-exchange' => array(
+                        'connection' => 'invalid-second'
                     )
                 ),
                 'queues' => array(
@@ -78,6 +81,10 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                     ),
                     'test-producer-4' => array(
                         'exchange' => 'missing-exchange'
+                    ),
+                    'test-producer-5' => array(
+                        'connection' => 'invalid-connection',
+                        'exchange' => 'invalid-exchange'
                     )
                 )
             )
@@ -130,6 +137,14 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $producer = $this->components->createServiceWithName($this->services, 'test-producer-2', 'test-producer-2');
         $this->assertInstanceOf('HumusAmqpModule\ProducerInterface', $producer);
+    }
+
+    /**
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
+     */
+    public function testCreateProducerWithInvalidConnectionName()
+    {
+        $this->components->createServiceWithName($this->services, 'test-producer-5', 'test-producer-5');
     }
 
     public function testCreateProducerWithoutExchangeThrowsException()
