@@ -166,7 +166,7 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         ));
-        $conn = $this->components->createServiceWithName($this->services, 'testconnection' , 'test-connection');
+        $conn = $this->components->createServiceWithName($this->services, 'testconnection', 'test-connection');
         $this->assertInstanceOf('AMQPConnection', $conn);
         $this->assertTrue(isset($conn->persistent));
         $this->assertTrue($conn->persistent);
