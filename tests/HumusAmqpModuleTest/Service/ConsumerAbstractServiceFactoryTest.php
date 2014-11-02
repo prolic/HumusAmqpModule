@@ -339,46 +339,6 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
-     * @expectedExceptionMessage No delivery callback specified for consumer test-consumer
-     */
-    public function testCreateConsumerThrowsExceptionOnMissingCallback()
-    {
-        $config = array(
-            'humus_amqp_module' => array(
-                'default_connection' => 'default',
-                'exchanges' => array(
-                    'demo-exchange' => array(
-                        'name' => 'demo-exchange',
-                        'type' => 'direct'
-                    )
-                ),
-                'queues' => array(
-                    'demo-queue' => array(
-                        'name' => 'demo-queue',
-                        'exchange' => 'demo-exchange'
-                    )
-                ),
-                'consumers' => array(
-                    'test-consumer' => array(
-                        'connection' => 'default',
-                        'queues' => ['demo-queue'],
-                        'auto_setup_fabric' => false,
-                        'error_callback' => 'invalid-callback',
-                        'qos' => array(
-                            'prefetchCount' => 10
-                        )
-                    ),
-                ),
-            )
-        );
-
-        $this->prepare($config);
-
-        $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
-    }
-
-    /**
-     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
      * @expectedExceptionMessage Queue invalid-queue is missing in the queue configuration
      */
     public function testCreateConsumerThrowsExceptionOnMissingQueue()
