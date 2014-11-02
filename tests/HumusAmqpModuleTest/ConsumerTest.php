@@ -20,7 +20,7 @@ namespace HumusAmqpModuleTest\Amqp;
 
 use HumusAmqpModule\Consumer;
 use HumusAmqpModule\ConsumerInterface;
-use PhpAmqpLib\Message\AMQPMessage;
+use Mockery as m;
 
 class ConsumerTest extends \PHPUnit_Framework_TestCase
 {
@@ -40,17 +40,16 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $eventResponse = $this->getMock('Zend\EventManager\ResponseCollection');
+
+        $eventManager = m::mock('Zend\EventManager\EventManager');
+        $eventManager->shouldReceive('setIdentifiers');
+
         $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
         $amqpQueue->expects($this->any())->method('get')->willReturn($message);
 
         $consumer = new Consumer(array($amqpQueue), 1, 1 * 1000 * 500);
-
-
-        $logger = new \Zend\Log\Logger();
-        $writers = new \Zend\Stdlib\SplPriorityQueue();
-        $writers->insert(new \Zend\Log\Writer\Null(), 0);
-        $logger->setWriters($writers);
-        $consumer->setLogger($logger);
+        $consumer->setEventManager($eventManager);
 
         // Create a callback function with a return value set by the data provider.
         $callbackFunction = function () {
@@ -74,8 +73,17 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
                 case 8:
                     return true;
             }
+            return null;
         };
-        $consumer->setDeliveryCallback($callbackFunction);
+        $eventResponse->expects($this->atLeast(1))->method('last')->willReturnCallback($callbackFunction);
+        $eventManager->shouldReceive('trigger')
+            ->atLeast(1)
+            ->with('delivery', $consumer, ['message' => $message, 'queue' => $amqpQueue])
+            ->andReturn($eventResponse);
+
+        $eventManager->shouldReceive('trigger')
+            ->times(2)
+            ->with('ack', $consumer, m::any());
 
         $amqpQueue->expects($this->exactly(2))->method('ack');
         $amqpQueue->expects($this->exactly(3))->method('reject');
@@ -103,17 +111,14 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $eventManager = m::mock('Zend\EventManager\EventManager');
+        $eventManager->shouldReceive('setIdentifiers');
+
         $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
         $amqpQueue->expects($this->any())->method('get')->willReturn($message);
 
         $consumer = new Consumer(array($amqpQueue), 1, 1 * 1000 * 500);
-
-
-        $logger = new \Zend\Log\Logger();
-        $writers = new \Zend\Stdlib\SplPriorityQueue();
-        $writers->insert(new \Zend\Log\Writer\Null(), 0);
-        $logger->setWriters($writers);
-        $consumer->setLogger($logger);
+        $consumer->setEventManager($eventManager);
 
         // Create a callback function with a return value set by the data provider.
         $callbackFunction = function () {
@@ -137,20 +142,46 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
                 case 8:
                     return true;
             }
+            return null;
         };
-        $consumer->setDeliveryCallback($callbackFunction);
-        $consumer->setFlushCallback(function () {
+
+        $flushCallbackFunction = function () {
             static $i = 0;
             $i++;
             if ($i == 1) {
                 return true;
             }
             return false;
-        });
+        };
+
+        $eventFlushResponse = $this->getMock('Zend\EventManager\ResponseCollection');
+        $eventFlushResponse->expects($this->atLeastOnce())->method('last')->willReturnCallback($flushCallbackFunction);
+
+        $eventResponse = $this->getMock('Zend\EventManager\ResponseCollection');
+        $eventResponse->expects($this->atLeastOnce())->method('last')->willReturnCallback($callbackFunction);
+
+        $eventManager->shouldReceive('trigger')
+            ->atLeast(1)
+            ->with('delivery', $consumer, ['message' => $message, 'queue' => $amqpQueue])
+            ->andReturn($eventResponse);
+        $eventManager->shouldReceive('trigger')
+            ->atLeast(1)
+            ->with('flushDeferred', $consumer)
+            ->andReturn($eventFlushResponse);
+        $eventManager->shouldReceive('trigger')
+            ->times(3)
+            ->with('ack', $consumer, m::any());
 
         $amqpQueue->expects($this->exactly(3))->method('ack');
         $amqpQueue->expects($this->exactly(3))->method('reject');
 
         $consumer->consume(5);
     }
+
+    protected function tearDown()
+    {
+        m::close();
+    }
+
+
 }

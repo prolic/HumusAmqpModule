@@ -19,9 +19,7 @@
 namespace HumusAmqpModuleTest\Service;
 
 use HumusAmqpModule\PluginManager\Callback as CallbackPluginManager;
-use HumusAmqpModule\PluginManager\Connection as ConnectionPluginManager;
 use HumusAmqpModule\PluginManager\RpcServer as RpcServerPluginManager;
-use HumusAmqpModule\Service\ConnectionAbstractServiceFactory;
 use HumusAmqpModule\Service\RpcServerAbstractServiceFactory;
 use Zend\ServiceManager\ServiceManager;
 
@@ -59,6 +57,8 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                         'connection' => 'default',
                         'queue' => 'test-rpc-server',
                         'callback' => 'test-callback',
+                        'listeners' => ['My\\Listener'],
+                        'logger' => 'custom-log',
                         'qos' => array(
                             'prefetchSize' => 0,
                             'prefetchCount' => 1,
@@ -92,6 +92,9 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             ->with('default')
             ->willReturn($connection);
 
+        $myListener = $this->getMock('Zend\EventManager\ListenerAggregateInterface');
+        $customLog = $this->getMock('Zend\Log\LoggerInterface');
+
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
         $services->setService('Config', $config);
@@ -102,6 +105,8 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
         $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager);
         $services->setService('HumusAmqpModule\PluginManager\Callback', $callbackManager);
+        $services->setService('My\Listener', $myListener);
+        $services->setService('custom-log', $customLog);
 
         $components = $this->components = new TestAsset\RpcServerAbstractServiceFactory();
         $components->setChannelMock($channel);
@@ -123,13 +128,26 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
      * @expectedExceptionMessage Callback is missing for rpc server test-rpc-server
      */
     public function testCreateRpcServerWithoutCallback()
     {
         $config = $this->services->get('Config');
         unset($config['humus_amqp_module']['rpc_servers']['test-rpc-server']['callback']);
+        $this->services->setService('Config', $config);
+
+        $this->components->createServiceWithName($this->services, 'test-rpc-server', 'test-rpc-server');
+    }
+
+    /**
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The logger invalid stuff is not configured
+     */
+    public function testCreateConsumerThrowsExceptionOnInvalidLogger()
+    {
+        $config = $this->services->get('Config');
+        $config['humus_amqp_module']['rpc_servers']['test-rpc-server']['logger'] = 'invalid stuff';
         $this->services->setService('Config', $config);
 
         $this->components->createServiceWithName($this->services, 'test-rpc-server', 'test-rpc-server');

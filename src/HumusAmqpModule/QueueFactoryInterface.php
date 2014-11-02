@@ -19,7 +19,6 @@
 namespace HumusAmqpModule;
 
 use AMQPChannel;
-use AMQPExchange;
 use AMQPQueue;
 
 interface QueueFactoryInterface

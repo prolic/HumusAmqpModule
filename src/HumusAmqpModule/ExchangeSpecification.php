@@ -188,6 +188,7 @@ class ExchangeSpecification extends AbstractOptions
      * Set alternate exchange (RabbitMQ Extension)
      *
      * @param string|null $alternateExchange
+     * @return $this
      */
     public function setAlternateExchange($alternateExchange = null)
     {

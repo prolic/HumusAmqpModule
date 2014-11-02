@@ -181,6 +181,7 @@ class SetupFabricController extends AbstractConsoleController
         } else {
             $connectionName = $defaultConnectionName;
         }
+        /** @var \AMQPConnection $connection */
         $connection = $this->getConnectionManager()->get($connectionName);
         $channel = new AMQPChannel($connection);
 

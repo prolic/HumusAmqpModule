@@ -57,6 +57,7 @@ abstract class AbstractConsumerFactory implements FactoryInterface
         ConsumerManagerAwareInterface $controller,
         ServiceLocatorInterface $serviceLocator
     ) {
+        /** @var ServiceLocatorInterface $manager */
         $manager = $serviceLocator->get($this->getConsumerType());
         $controller->setConsumerManager($manager);
         return $controller;

@@ -42,8 +42,6 @@ class RpcServer extends Consumer
         parent::__construct($queues, $idleTimeout, $waitTimeout);
     }
 
-
-
     /**
      * @param AMQPEnvelope $message
      * @param AMQPQueue $queue
@@ -58,8 +56,9 @@ class RpcServer extends Consumer
             $this->timestampLastMessage = microtime(1);
             $this->ack();
 
-            $callback = $this->getDeliveryCallback();
-            $result = call_user_func_array($callback, array($message, $queue));
+            $params = compact('message', 'queue');
+            $results = $this->getEventManager()->trigger('delivery', $this, $params);
+            $result = $results->last();
 
             $reponse = json_encode(array('success' => true, 'result' => $result));
             $this->sendReply($reponse, $message->getReplyTo(), $message->getCorrelationId());
@@ -99,7 +98,7 @@ class RpcServer extends Consumer
     /**
      * @return AMQPExchange
      */
-    protected function getExchange()
+    public function getExchange()
     {
         if (null !== $this->exchange) {
             return $this->exchange;
@@ -109,5 +108,15 @@ class RpcServer extends Consumer
         $exchange->setType(AMQP_EX_TYPE_DIRECT);
         $this->exchange = $exchange;
         return $exchange;
+    }
+
+    /**
+     * @param AMQPExchange $exchange
+     * @return $this
+     */
+    public function setExchange(AMQPExchange $exchange)
+    {
+        $this->exchange = $exchange;
+        return $this;
     }
 }
