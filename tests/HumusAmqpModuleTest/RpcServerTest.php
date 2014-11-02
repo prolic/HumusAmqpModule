@@ -5,7 +5,7 @@ namespace HumusAmqpModuleTest;
 use HumusAmqpModule\RpcServer;
 use Mockery as m;
 
-class RpcServerTestTest extends \PHPUnit_Framework_TestCase
+class RpcServerTest extends \PHPUnit_Framework_TestCase
 {
 
     protected function tearDown()
@@ -52,7 +52,11 @@ class RpcServerTestTest extends \PHPUnit_Framework_TestCase
                 $this->equalTo($reponse),
                 $this->equalTo('reply-to'),
                 $this->equalTo(AMQP_NOPARAM),
-                $this->callback(function ($param) { return is_array($param); })
+                $this->callback(
+                    function ($param) {
+                        return is_array($param);
+                    }
+                )
             );
 
         $rpcServer = new RpcServer($amqpQueue, 1, 1 * 1000 * 500);
@@ -73,6 +77,4 @@ class RpcServerTestTest extends \PHPUnit_Framework_TestCase
 
         $rpcServer->consume(1);
     }
-
-
 }
