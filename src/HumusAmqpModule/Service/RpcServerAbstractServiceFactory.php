@@ -74,11 +74,18 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
         }
 
         $callbackManager = $this->getCallbackManager($serviceLocator);
-        /** @var callable $callback */
-        $callback        = $callbackManager->get($spec['callback']);
 
-        if ($callback) {
-            $rpcServer->getEventManager()->attach('delivery', $callback);
+        if (isset($spec['callback'])) {
+            if (!$callbackManager->has($spec['callback'])) {
+                throw new Exception\InvalidArgumentException(
+                    'The required callback ' . $spec['callback'] . ' can not be found'
+                );
+            }
+            /** @var callable $callback */
+            $callback = $callbackManager->get($spec['callback']);
+            if ($callback) {
+                $rpcServer->getEventManager()->attach('delivery', $callback);
+            }
         }
 
         if (isset($spec['listeners']) and is_array($spec['listeners'])) {
@@ -104,10 +111,6 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
     {
         if (!isset($spec['queue'])) {
             throw new Exception\InvalidArgumentException('Queue is missing for rpc client ' . $requestedName);
-        }
-
-        if (!isset($spec['callback'])) {
-            throw new Exception\InvalidArgumentException('Callback is missing for rpc server ' . $requestedName);
         }
 
         $defaultConnection = $this->getDefaultConnectionName($serviceLocator);

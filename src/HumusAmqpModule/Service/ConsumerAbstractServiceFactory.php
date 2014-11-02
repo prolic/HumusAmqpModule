@@ -87,15 +87,17 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
 
         $callbackManager = $this->getCallbackManager($serviceLocator);
 
-        if (!$callbackManager->has($spec['callback'])) {
-            throw new Exception\InvalidArgumentException(
-                'The required callback ' . $spec['callback'] . ' can not be found'
-            );
-        }
-        /** @var callable $callback */
-        $callback        = $callbackManager->get($spec['callback']);
-        if ($callback) {
-            $consumer->getEventManager()->attach('delivery', $callback);
+        if (isset($spec['callback'])) {
+            if (!$callbackManager->has($spec['callback'])) {
+                throw new Exception\InvalidArgumentException(
+                    'The required callback ' . $spec['callback'] . ' can not be found'
+                );
+            }
+            /** @var callable $callback */
+            $callback = $callbackManager->get($spec['callback']);
+            if ($callback) {
+                $consumer->getEventManager()->attach('delivery', $callback);
+            }
         }
 
         if (isset($spec['flush_callback'])) {
@@ -150,13 +152,6 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
         if (!isset($spec['queues'])) {
             throw new Exception\InvalidArgumentException(
                 'Queues are missing for consumer ' . $requestedName
-            );
-        }
-
-        // callback is required
-        if (!isset($spec['callback'])) {
-            throw new Exception\InvalidArgumentException(
-                'No delivery callback specified for consumer ' . $requestedName
             );
         }
 

@@ -129,19 +129,6 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
-     * @expectedExceptionMessage Callback is missing for rpc server test-rpc-server
-     */
-    public function testCreateRpcServerWithoutCallback()
-    {
-        $config = $this->services->get('Config');
-        unset($config['humus_amqp_module']['rpc_servers']['test-rpc-server']['callback']);
-        $this->services->setService('Config', $config);
-
-        $this->components->createServiceWithName($this->services, 'test-rpc-server', 'test-rpc-server');
-    }
-
-    /**
-     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
      * @expectedExceptionMessage The logger invalid stuff is not configured
      */
     public function testCreateConsumerThrowsExceptionOnInvalidLogger()
