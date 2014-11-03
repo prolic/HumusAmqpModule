@@ -192,9 +192,9 @@ class ExchangeSpecification extends AbstractOptions
     public function setAlternateExchange($alternateExchange = null)
     {
         if (null === $alternateExchange) {
-            unset($this->attributes['alternate-exchange']);
+            unset($this->arguments['alternate-exchange']);
         } else {
-            $this->attributes['alternate-exchange'] = $alternateExchange;
+            $this->arguments['alternate-exchange'] = $alternateExchange;
         }
     }
 
@@ -205,7 +205,7 @@ class ExchangeSpecification extends AbstractOptions
      */
     public function getAlternateExchange()
     {
-        return isset($this->attributes['alternate-exchange']) ? $this->attributes['alternate-exchange'] : false;
+        return isset($this->arguments['alternate-exchange']) ? $this->arguments['alternate-exchange'] : false;
     }
 
     /**
