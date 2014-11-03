@@ -19,14 +19,14 @@
         "zendframework/zend-mvc": ">=2.3.0",
         "zendframework/zend-modulemanager": ">=2.3.0",
         "zendframework/zend-servicemanager": ">=2.3.0",
-        "zendframework/zend-text": ">=2.3.0",
-        "prolic/humus-supervisor-module": "dev-master"
+        "zendframework/zend-text": ">=2.3.0"
     },
     "require-dev": {
         "phpunit/PHPUnit": ">=4.0",
         "squizlabs/php_codesniffer":   "1.5.*",
         "zendframework/zendframework": ">=2.3.0",
         "mockery/mockery": "@stable",
+        "prolic/humus-supervisor-module": "dev-master",
         "empi89/php-amqp-stubs": "dev-master"
     },
     "suggest": {
