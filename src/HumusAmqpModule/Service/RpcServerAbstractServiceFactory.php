@@ -18,6 +18,7 @@
 
 namespace HumusAmqpModule\Service;
 
+use HumusAmqpModule\Listener\LoggerListener;
 use HumusAmqpModule\RpcServer;
 use HumusAmqpModule\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
@@ -66,24 +67,35 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
                     'The logger ' . $spec['logger'] . ' is not configured'
                 );
             }
-            $rpcServer->setLogger($serviceLocator->get($spec['logger']));
-        } else {
-            $rpcServer->setLogger($this->getDefaultNullLogger());
+            /** @var \Zend\Log\LoggerInterface $logger */
+            $logger = $serviceLocator->get($spec['logger']);
+            $loggerListener = new LoggerListener($logger);
+            $rpcServer->getEventManager()->attachAggregate($loggerListener);
         }
 
         $callbackManager = $this->getCallbackManager($serviceLocator);
-        $callback        = $callbackManager->get($spec['callback']);
 
-        $rpcServer->setDeliveryCallback($callback);
-
-        if (isset($spec['error_callback'])) {
-            if (!$callbackManager->has($spec['error_callback'])) {
+        if (isset($spec['callback'])) {
+            if (!$callbackManager->has($spec['callback'])) {
                 throw new Exception\InvalidArgumentException(
-                    'The required callback ' . $spec['error_callback'] . ' can not be found'
+                    'The required callback ' . $spec['callback'] . ' can not be found'
                 );
             }
-            $errorCallback = $callbackManager->get($spec['error_callback']);
-            $rpcServer->setFlushCallback($errorCallback);
+            /** @var callable $callback */
+            $callback = $callbackManager->get($spec['callback']);
+            if ($callback) {
+                $rpcServer->getEventManager()->attach('delivery', $callback);
+            }
+        }
+
+        if (isset($spec['listeners']) and is_array($spec['listeners'])) {
+            foreach ($spec['listeners'] as $listener) {
+                if (is_string($listener)) {
+                    /** @var \Zend\EventManager\ListenerAggregateInterface $listener */
+                    $listener = $serviceLocator->get($listener);
+                }
+                $rpcServer->getEventManager()->attachAggregate($listener);
+            }
         }
 
         return $rpcServer;
@@ -101,16 +113,11 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
             throw new Exception\InvalidArgumentException('Queue is missing for rpc client ' . $requestedName);
         }
 
-        if (!isset($spec['callback'])) {
-            throw new Exception\InvalidArgumentException('Callback is missing for rpc server ' . $requestedName);
-        }
-
         $defaultConnection = $this->getDefaultConnectionName($serviceLocator);
+        $connection = $defaultConnection;
 
         if (isset($spec['connection'])) {
             $connection = $spec['connection'];
-        } else {
-            $connection = $defaultConnection;
         }
 
         $config  = $this->getConfig($serviceLocator);
@@ -131,17 +138,5 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
                 . 'match the rpc client connection for rpc client ' . $requestedName . ' (' . $connection . ')'
             );
         }
-    }
-
-    /**
-     * @return \Zend\Log\Logger
-     */
-    protected function getDefaultNullLogger()
-    {
-        $logger = new \Zend\Log\Logger();
-        $writers = new \Zend\Stdlib\SplPriorityQueue();
-        $writers->insert(new \Zend\Log\Writer\Null(), 1000);
-        $logger->setWriters($writers);
-        return $logger;
     }
 }

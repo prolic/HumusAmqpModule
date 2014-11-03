@@ -19,8 +19,6 @@
 namespace HumusAmqpModule\Service;
 
 use AMQPChannel;
-use AMQPConnection;
-use AMQPExchange;
 use AMQPQueue;
 use HumusAmqpModule\Exception;
 use HumusAmqpModule\QueueFactory;

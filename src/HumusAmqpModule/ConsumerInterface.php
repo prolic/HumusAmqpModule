@@ -18,7 +18,6 @@
 
 namespace HumusAmqpModule;
 
-use AMQPChannel;
 use AMQPEnvelope;
 use AMQPQueue;
 

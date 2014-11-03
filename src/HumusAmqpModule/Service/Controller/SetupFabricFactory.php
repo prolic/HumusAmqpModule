@@ -18,10 +18,7 @@
 
 namespace HumusAmqpModule\Service\Controller;
 
-use AMQPChannel;
 use HumusAmqpModule\Controller\SetupFabricController;
-use HumusAmqpModule\ExchangeFactory;
-use HumusAmqpModule\QueueFactory;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 

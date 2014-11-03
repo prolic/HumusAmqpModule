@@ -23,6 +23,7 @@ use HumusAmqpModule\PluginManager\Consumer as ConsumerPluginManager;
 use HumusAmqpModuleTest\Service\TestAsset\ConsumerAbstractServiceFactory;
 use HumusAmqpModule\Service\ProducerAbstractServiceFactory;
 use Zend\ServiceManager\ServiceManager;
+use Mockery as m;
 
 class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -35,6 +36,12 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      * @var ProducerAbstractServiceFactory
      */
     protected $components;
+
+    protected function tearDown()
+    {
+        m::close();
+    }
+
 
     public function prepare($config)
     {
@@ -62,6 +69,8 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             ->with('default')
             ->willReturn($connection);
 
+        $myListener = $this->getMock('Zend\EventManager\ListenerAggregateInterface');
+
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
         $services->setService('Config', $config);
@@ -72,6 +81,7 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
         $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager);
         $services->setService('HumusAmqpModule\PluginManager\Callback', $callbackManager);
+        $services->setService('My\Listener', $myListener);
 
         $components = $this->components = new ConsumerAbstractServiceFactory();
         $components->setChannelMock($channel);
@@ -107,6 +117,7 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                         'callback' => 'test-callback',
                         'flush_callback' => 'test-callback',
                         'error_callback' => 'test-callback',
+                        'listeners' => ['My\\Listener'],
                         'qos' => array(
                             'prefetchCount' => 10
                         )
@@ -124,7 +135,7 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
      * @expectedExceptionMessage The logger invalid stuff is not configured
      */
     public function testCreateConsumerThrowsExceptionOnInvalidLogger()
@@ -165,7 +176,7 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
      * @expectedExceptionMessage The required callback invalid-callback can not be found
      */
     public function testCreateConsumerThrowsExceptionOnInvalidCallback()
@@ -205,7 +216,7 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
      * @expectedExceptionMessage The required callback invalid-callback can not be found
      */
     public function testCreateConsumerThrowsExceptionOnInvalidFlushCallback()
@@ -246,7 +257,7 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
      * @expectedExceptionMessage The required callback invalid-callback can not be found
      */
     public function testCreateConsumerThrowsExceptionOnInvalidErrorCallback()
@@ -287,7 +298,7 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
      * @expectedExceptionMessage Queues are missing for consumer test-consumer
      */
     public function testCreateConsumerThrowsExceptionOnMissingQueues()
@@ -327,47 +338,7 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\InvalidArgumentException
-     * @expectedExceptionMessage No delivery callback specified for consumer test-consumer
-     */
-    public function testCreateConsumerThrowsExceptionOnMissingCallback()
-    {
-        $config = array(
-            'humus_amqp_module' => array(
-                'default_connection' => 'default',
-                'exchanges' => array(
-                    'demo-exchange' => array(
-                        'name' => 'demo-exchange',
-                        'type' => 'direct'
-                    )
-                ),
-                'queues' => array(
-                    'demo-queue' => array(
-                        'name' => 'demo-queue',
-                        'exchange' => 'demo-exchange'
-                    )
-                ),
-                'consumers' => array(
-                    'test-consumer' => array(
-                        'connection' => 'default',
-                        'queues' => ['demo-queue'],
-                        'auto_setup_fabric' => false,
-                        'error_callback' => 'invalid-callback',
-                        'qos' => array(
-                            'prefetchCount' => 10
-                        )
-                    ),
-                ),
-            )
-        );
-
-        $this->prepare($config);
-
-        $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
-    }
-
-    /**
-     * @expectedException HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
      * @expectedExceptionMessage Queue invalid-queue is missing in the queue configuration
      */
     public function testCreateConsumerThrowsExceptionOnMissingQueue()
@@ -407,7 +378,7 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
      * @expectedExceptionMessage The queues exchange demo-exchange is missing in the exchanges configuration
      */
     public function testCreateConsumerThrowsExceptionOnQueuesExchangeMissing()
