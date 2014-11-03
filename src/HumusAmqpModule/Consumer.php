@@ -285,8 +285,10 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
                 $this->ackOrNackBlock();
             }
 
-            // Check for signals
-            pcntl_signal_dispatch();
+            if (function_exists('pcntl_signal_dispatch')) {
+                // Check for signals
+                pcntl_signal_dispatch();
+            }
 
         } while ($this->keepAlive && ($this->countMessagesConsumed < $this->target || 0 == $this->target));
     }
