@@ -20,7 +20,6 @@ namespace HumusAmqpModuleTest\Amqp;
 
 use HumusAmqpModule\Consumer;
 use HumusAmqpModule\ConsumerInterface;
-use PhpAmqpLib\Message\AMQPMessage;
 
 class ConsumerTest extends \PHPUnit_Framework_TestCase
 {

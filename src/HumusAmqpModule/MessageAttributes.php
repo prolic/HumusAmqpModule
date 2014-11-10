@@ -18,7 +18,6 @@
 
 namespace HumusAmqpModule;
 
-use PhpAmqpLib\Message\AMQPMessage;
 use Zend\Stdlib\AbstractOptions;
 
 class MessageAttributes extends AbstractOptions

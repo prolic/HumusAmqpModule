@@ -18,8 +18,6 @@
 
 namespace HumusAmqpModuleTest\Controller;
 
-use PhpAmqpLib\Channel\AMQPChannel;
-use PhpAmqpLib\Connection\AMQPLazyConnection;
 use Zend\Test\PHPUnit\Controller\AbstractConsoleControllerTestCase;
 
 class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
