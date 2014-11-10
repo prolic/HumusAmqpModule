@@ -46,6 +46,7 @@ class RpcServer extends Consumer
      * @param AMQPEnvelope $message
      * @param AMQPQueue $queue
      * @return bool|null
+     * @triggers delivery
      */
     public function handleDelivery(AMQPEnvelope $message, AMQPQueue $queue)
     {
