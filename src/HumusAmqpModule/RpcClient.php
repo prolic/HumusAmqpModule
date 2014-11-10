@@ -137,6 +137,7 @@ class RpcClient
         if (isset($this->exchanges[$name])) {
             return $this->exchanges[$name];
         }
+
         $channel = $this->queue->getChannel();
         $exchange = new AMQPExchange($channel);
         $exchange->setType(AMQP_EX_TYPE_DIRECT);

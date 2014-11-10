@@ -61,11 +61,11 @@ class RpcServer extends Consumer
             $results = $this->getEventManager()->trigger('delivery', $this, $params);
             $result = $results->last();
 
-            $reponse = json_encode(array('success' => true, 'result' => $result));
-            $this->sendReply($reponse, $message->getReplyTo(), $message->getCorrelationId());
+            $response = json_encode(array('success' => true, 'result' => $result));
+            $this->sendReply($response, $message->getReplyTo(), $message->getCorrelationId());
         } catch (\Exception $e) {
-            $reponse = json_encode(array('success' => false, 'error' => $e->getMessage()));
-            $this->sendReply($reponse, $message->getReplyTo(), $message->getCorrelationId());
+            $response = json_encode(array('success' => false, 'error' => $e->getMessage()));
+            $this->sendReply($response, $message->getReplyTo(), $message->getCorrelationId());
         }
     }
 
@@ -104,6 +104,7 @@ class RpcServer extends Consumer
         if (null !== $this->exchange) {
             return $this->exchange;
         }
+
         $channel = $this->getQueue()->getChannel();
         $exchange = new AMQPExchange($channel);
         $exchange->setType(AMQP_EX_TYPE_DIRECT);
@@ -113,11 +114,10 @@ class RpcServer extends Consumer
 
     /**
      * @param AMQPExchange $exchange
-     * @return $this
+     * @return void
      */
     public function setExchange(AMQPExchange $exchange)
     {
         $this->exchange = $exchange;
-        return $this;
     }
 }
