@@ -128,6 +128,11 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
     protected $errorCallback;
 
     /**
+     * @var bool
+     */
+    protected $usePcntlSignalDispatch = false;
+
+    /**
      * Constructor
      *
      * @param array|\Traversable $queues
@@ -137,6 +142,10 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      */
     public function __construct($queues, $idleTimeout, $waitTimeout)
     {
+        if (function_exists('pcntl_signal_dispatch')) {
+            $this->usePcntlSignalDispatch = true;
+        }
+
         if (!is_array($queues) && !$queues instanceof \Traversable) {
             throw new Exception\InvalidArgumentException(
                 'Expected an array or Traversable of queues'
@@ -282,6 +291,11 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
                     || ($now - $this->timestampLastAck) > $this->idleTimeout
                 )) {
                 $this->ackOrNackBlock();
+            }
+
+            if ($this->usePcntlSignalDispatch) {
+                // Check for signals
+                pcntl_signal_dispatch();
             }
 
             if (!$this->keepAlive || (0 != $this->target && $this->countMessagesConsumed >= $this->target)) {
