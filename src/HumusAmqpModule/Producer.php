@@ -19,9 +19,13 @@
 namespace HumusAmqpModule;
 
 use AMQPExchange;
+use Zend\EventManager\EventManagerAwareInterface;
+use Zend\EventManager\EventManagerAwareTrait;
 
-class Producer implements ProducerInterface
+class Producer implements ProducerInterface, EventManagerAwareInterface
 {
+    use EventManagerAwareTrait;
+
     /**
      * @var AMQPExchange
      */
@@ -41,9 +45,21 @@ class Producer implements ProducerInterface
      * @param string $body
      * @param string $routingKey
      * @param array|\Traversable|MessageAttributes|null $attributes
+     * @triggers publish
      */
     public function publish($body, $routingKey = '', $attributes = null)
     {
+        $params = compact('body', 'routingKey', 'attributes');
+
+        $results = $this->getEventManager()->trigger(__FUNCTION__, $this, $params);
+
+        if (!$results->isEmpty()) {
+            $result = $results->last();
+            $body       = $result['body'];
+            $routingKey = $result['routingKey'];
+            $attributes = $result['attributes'];
+        }
+
         if (!$attributes instanceof MessageAttributes) {
             $attributes = new MessageAttributes($attributes);
         }
@@ -55,9 +71,21 @@ class Producer implements ProducerInterface
      * @param array $bodies
      * @param string $routingKey
      * @param array|\Traversable|MessageAttributes|null $attributes
+     * @triggers publishBatch
      */
     public function publishBatch(array $bodies, $routingKey = '', $attributes = null)
     {
+        $params = compact('bodies', 'routingKey', 'attributes');
+
+        $results = $this->getEventManager()->trigger(__FUNCTION__, $this, $params);
+
+        if (!$results->isEmpty()) {
+            $result = $results->last();
+            $bodies     = $result['bodies'];
+            $routingKey = $result['routingKey'];
+            $attributes = $result['attributes'];
+        }
+
         if (!$attributes instanceof MessageAttributes) {
             $attributes = new MessageAttributes($attributes);
         }

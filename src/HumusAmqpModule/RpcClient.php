@@ -20,9 +20,13 @@ namespace HumusAmqpModule;
 
 use AMQPExchange;
 use AMQPQueue;
+use Zend\EventManager\EventManagerAwareInterface;
+use Zend\EventManager\EventManagerAwareTrait;
 
-class RpcClient
+class RpcClient implements EventManagerAwareInterface
 {
+    use EventManagerAwareTrait;
+
     /**
      * @var AMQPQueue
      */
@@ -74,6 +78,18 @@ class RpcClient
             throw new Exception\InvalidArgumentException('You must provide a request Id');
         }
 
+        $params = compact('msgBody', 'server', 'requestId', 'routingKey', 'expiration');
+        $results = $this->getEventManager()->trigger(__FUNCTION__, $this, $params);
+
+        if (!$results->isEmpty()) {
+            $result     = $results->last();
+            $msgBody    = $result['msgBody'];
+            $server     = $result['server'];
+            $requestId  = $result['requestId'];
+            $routingKey = $result['routingKey'];
+            $expiration = $result['expiration'];
+        }
+
         $messageAttributes = new MessageAttributes();
         $messageAttributes->setReplyTo($this->queue->getName());
         $messageAttributes->setDeliveryMode(MessageAttributes::DELIVERY_MODE_NON_PERSISTENT);
@@ -106,7 +122,7 @@ class RpcClient
     public function getReplies()
     {
         $now = microtime(1);
-        $this->replies = array();
+        $this->replies = [];
         do {
             $message = $this->queue->get(AMQP_AUTOACK);
 
@@ -124,6 +140,13 @@ class RpcClient
 
         $this->requests = 0;
         $this->timeout = 0;
+
+        $results = $this->getEventManager()->trigger(__FUNCTION__, $this, ['replies' => $this->replies]);
+
+        if (!$results->isEmpty()) {
+            $result = $results->last();
+            return $result['replies'];
+        }
 
         return $this->replies;
     }
