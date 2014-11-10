@@ -233,6 +233,7 @@ class Consumer implements ConsumerInterface, EventManagerAwareInterface
      * @param AMQPEnvelope $message
      * @param AMQPQueue $queue
      * @return bool|null
+     * @triggers delivery
      */
     public function handleDelivery(AMQPEnvelope $message, AMQPQueue $queue)
     {
@@ -256,6 +257,7 @@ class Consumer implements ConsumerInterface, EventManagerAwareInterface
      *
      * @param \Exception $e
      * @return void
+     * @triggers deliveryException
      */
     public function handleDeliveryException(\Exception $e)
     {
@@ -268,6 +270,7 @@ class Consumer implements ConsumerInterface, EventManagerAwareInterface
      *
      * @param \Exception $e
      * @return void
+     * @triggers flushDeferredException
      */
     public function handleFlushDeferredException(\Exception $e)
     {
@@ -282,6 +285,7 @@ class Consumer implements ConsumerInterface, EventManagerAwareInterface
      * The unacked messages will also be flushed immediately when the handleDelivery method returns true
      *
      * @return bool
+     * @triggers flushDeferred
      */
     public function flushDeferred()
     {
@@ -346,6 +350,7 @@ class Consumer implements ConsumerInterface, EventManagerAwareInterface
      * This will be called every time the block size (see prefetch_count) or timeout is reached
      *
      * @return void
+     * @triggers ack
      */
     protected function ack()
     {
