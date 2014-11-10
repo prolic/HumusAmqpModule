@@ -24,7 +24,8 @@ use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\BootstrapListenerInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
-use Zend\ServiceManager\AbstractPluginManager;
+use Zend\ServiceManager\Config;
+use AMQPConnection;
 
 class Module implements
     AutoloaderProviderInterface,
@@ -61,10 +62,10 @@ class Module implements
             $serviceName = __NAMESPACE__ . '\\PluginManager\\' . $ns;
             $factory = function () use ($serviceName, $config, $ns, $configKey, $serviceManager) {
                 $serviceConfig = $config['humus_amqp_module']['plugin_managers'][$configKey];
-                $service = new $serviceName(new \Zend\ServiceManager\Config($serviceConfig));
+                $service = new $serviceName(new Config($serviceConfig));
                 /* @var $service \Zend\ServiceManager\ServiceManager */
                 if ('Connection' == $ns) {
-                    $service->addInitializer(function ($connection) {
+                    $service->addInitializer(function (AMQPConnection $connection) {
                         if (isset($connection->persistent) && true === $connection->persistent) {
                             $connection->pconnect();
                             unset($connection->persistent);

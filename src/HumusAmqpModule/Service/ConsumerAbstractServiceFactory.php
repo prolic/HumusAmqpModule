@@ -20,6 +20,7 @@ namespace HumusAmqpModule\Service;
 
 use HumusAmqpModule\Consumer;
 use HumusAmqpModule\Exception;
+use HumusAmqpModule\Listener\LoggerListener;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -78,9 +79,10 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
                     'The logger ' . $spec['logger'] . ' is not configured'
                 );
             }
-            $consumer->setLogger($serviceLocator->get($spec['logger']));
-        } else {
-            $consumer->setLogger($this->getDefaultNullLogger());
+            /** @var \Zend\Log\LoggerInterface $logger */
+            $logger = $serviceLocator->get($spec['logger']);
+            $loggerListener = new LoggerListener($logger);
+            $consumer->getEventManager()->attachAggregate($loggerListener);
         }
 
         $callbackManager = $this->getCallbackManager($serviceLocator);
@@ -90,8 +92,11 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
                 'The required callback ' . $spec['callback'] . ' can not be found'
             );
         }
+        /** @var callable $callback */
         $callback        = $callbackManager->get($spec['callback']);
-        $consumer->setDeliveryCallback($callback);
+        if ($callback) {
+            $consumer->getEventManager()->attach('delivery', $callback);
+        }
 
         if (isset($spec['flush_callback'])) {
             if (!$callbackManager->has($spec['flush_callback'])) {
@@ -99,8 +104,11 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
                     'The required callback ' . $spec['flush_callback'] . ' can not be found'
                 );
             }
+            /** @var callable $callback */
             $flushCallback = $callbackManager->get($spec['flush_callback']);
-            $consumer->setFlushCallback($flushCallback);
+            if ($flushCallback) {
+                $consumer->getEventManager()->attach('flush', $flushCallback);
+            }
         }
 
         if (isset($spec['error_callback'])) {
@@ -109,8 +117,22 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
                     'The required callback ' . $spec['error_callback'] . ' can not be found'
                 );
             }
+            /** @var callable $callback */
             $errorCallback = $callbackManager->get($spec['error_callback']);
-            $consumer->setErrorCallback($errorCallback);
+            if ($errorCallback) {
+                $consumer->getEventManager()->attach('deliveryException', $errorCallback);
+                $consumer->getEventManager()->attach('flushDeferredException', $errorCallback);
+            }
+        }
+
+        if (isset($spec['listeners']) and is_array($spec['listeners'])) {
+            foreach ($spec['listeners'] as $listener) {
+                if (is_string($listener)) {
+                    /** @var \Zend\EventManager\ListenerAggregateInterface $listener */
+                    $listener = $serviceLocator->get($listener);
+                }
+                $consumer->getEventManager()->attachAggregate($listener);
+            }
         }
 
         return $consumer;
@@ -139,11 +161,10 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
         }
 
         $defaultConnection = $this->getDefaultConnectionName($serviceLocator);
+        $connection = $defaultConnection;
 
         if (isset($spec['connection'])) {
             $connection = $spec['connection'];
-        } else {
-            $connection = $defaultConnection;
         }
 
         $config  = $this->getConfig($serviceLocator);
@@ -186,17 +207,5 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
                 );
             }
         }
-    }
-
-    /**
-     * @return \Zend\Log\Logger
-     */
-    protected function getDefaultNullLogger()
-    {
-        $logger = new \Zend\Log\Logger();
-        $writers = new \Zend\Stdlib\SplPriorityQueue();
-        $writers->insert(new \Zend\Log\Writer\Null(), 1000);
-        $logger->setWriters($writers);
-        return $logger;
     }
 }

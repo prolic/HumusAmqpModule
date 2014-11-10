@@ -18,10 +18,8 @@
 
 namespace HumusAmqpModule\Service;
 
-use AMQPChannel;
 use HumusAmqpModule\Exception;
 use HumusAmqpModule\RpcClient;
-use Zend\Json\Server\Smd\Service;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 

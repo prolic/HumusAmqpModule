@@ -22,18 +22,17 @@ use AMQPEnvelope;
 use AMQPQueue;
 use ArrayIterator;
 use InfiniteIterator;
-use Zend\Log\LoggerAwareInterface;
-use Zend\Log\LoggerAwareTrait;
-use Zend\Log\LoggerInterface;
+use Zend\EventManager\EventManagerAwareInterface;
+use Zend\EventManager\EventManagerAwareTrait;
 
 /**
  * The consumer attaches to a single queue
  *
  * The used block size is the configured prefetch size of the queue's channel
  */
-class Consumer implements ConsumerInterface, LoggerAwareInterface
+class Consumer implements ConsumerInterface, EventManagerAwareInterface
 {
-    use LoggerAwareTrait;
+    use EventManagerAwareTrait;
 
     /**
      * @var InfiniteIterator
@@ -113,21 +112,6 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
     protected $target;
 
     /**
-     * @var callable
-     */
-    protected $deliveryCallback;
-
-    /**
-     * @var callable
-     */
-    protected $flushCallback;
-
-    /**
-     * @var callable
-     */
-    protected $errorCallback;
-
-    /**
      * @var bool
      */
     protected $usePcntlSignalDispatch = false;
@@ -175,65 +159,6 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
         $this->waitTimeout = (int) $waitTimeout;
         $this->queues = new InfiniteIterator(new ArrayIterator($q));
 
-    }
-
-    /**
-     * @param callable $callback
-     * @throws Exception\InvalidArgumentException
-     */
-    public function setDeliveryCallback($callback)
-    {
-        if (!is_callable($callback)) {
-            throw new Exception\InvalidArgumentException('Invalid callback given');
-        }
-        $this->deliveryCallback = $callback;
-    }
-
-    /**
-     * @return callable
-     */
-    public function getDeliveryCallback()
-    {
-        return $this->deliveryCallback;
-    }
-
-    /**
-     * @param callable $callback
-     * @throws Exception\InvalidArgumentException
-     */
-    public function setFlushCallback($callback)
-    {
-        if (!is_callable($callback)) {
-            throw new Exception\InvalidArgumentException('Invalid callback given');
-        }
-        $this->flushCallback = $callback;
-    }
-
-    /**
-     * @return callable|null
-     */
-    public function getFlushCallback()
-    {
-        return $this->flushCallback;
-    }
-
-    /**
-     * @param callable $callback
-     */
-    public function setErrorCallback($callback)
-    {
-        if (!is_callable($callback)) {
-            throw new Exception\InvalidArgumentException('Invalid callback given');
-        }
-        $this->errorCallback = $callback;
-    }
-
-    /**
-     * @return callable
-     */
-    public function getErrorCallback()
-    {
-        return $this->errorCallback;
     }
 
     /**
@@ -311,9 +236,9 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      */
     public function handleDelivery(AMQPEnvelope $message, AMQPQueue $queue)
     {
-        $callback = $this->getDeliveryCallback();
-
-        return call_user_func_array($callback, array($message, $queue, $this));
+        $params = compact('message', 'queue');
+        $results = $this->getEventManager()->trigger('delivery', $this, $params);
+        return $results->last();
     }
 
     /**
@@ -334,13 +259,8 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      */
     public function handleDeliveryException(\Exception $e)
     {
-        $callback = $this->getErrorCallback();
-
-        if (null === $callback) {
-            $this->getLogger()->err('Exception during handleDelivery: ' . $e->getMessage());
-        } else {
-            call_user_func_array($callback, array($e, $this));
-        }
+        $params = ['exception' => $e];
+        $this->getEventManager()->trigger('deliveryException', $this, $params);
     }
 
     /**
@@ -351,13 +271,8 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      */
     public function handleFlushDeferredException(\Exception $e)
     {
-        $callback = $this->getErrorCallback();
-
-        if (null === $callback) {
-            $this->getLogger()->err('Exception during flushDeferred: ' . $e->getMessage());
-        } else {
-            call_user_func_array($callback, array($e, $this));
-        }
+        $params = ['exception' => $e];
+        $this->getEventManager()->trigger('flushDeferredException', $this, $params);
     }
 
     /**
@@ -370,14 +285,9 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      */
     public function flushDeferred()
     {
-        $callback = $this->getFlushCallback();
-
-        if (null === $callback) {
-            return true;
-        }
-
         try {
-            $result = call_user_func_array($callback, array($this));
+            $results = $this->getEventManager()->trigger('flushDeferred', $this);
+            $result = $results->last();
         } catch (\Exception $e) {
             $result = false;
             $this->handleFlushDeferredException($e);
@@ -441,12 +351,14 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
     {
         $this->getQueue()->ack($this->lastDeliveryTag, AMQP_MULTIPLE);
         $this->lastDeliveryTag = null;
-        $delta = $this->timestampLastMessage - $this->timestampLastAck;
-        $this->logger->debug(sprintf(
-            'Acknowledged %d messages at %.0f msg/s',
-            $this->countMessagesUnacked,
-            $delta ? $this->countMessagesUnacked / $delta : 0
-        ));
+
+        $params = [
+            'timestampLastMessage' => $this->timestampLastMessage,
+            'timestampLastAck' => $this->timestampLastAck,
+            'countMessagesUnacked' => $this->countMessagesUnacked
+        ];
+        $this->getEventManager()->trigger(__FUNCTION__, $this, $params);
+
         $this->timestampLastAck = microtime(1);
         $this->countMessagesUnacked = 0;
     }
@@ -480,7 +392,6 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
         try {
             $deferredFlushResult = $this->flushDeferred();
         } catch (\Exception $e) {
-            $this->getLogger()->err('Exception during flushDeferred: ' . $e->getMessage());
             $deferredFlushResult = false;
         }
 
