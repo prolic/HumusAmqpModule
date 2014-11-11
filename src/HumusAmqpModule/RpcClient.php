@@ -38,11 +38,6 @@ class RpcClient implements EventManagerAwareInterface
     protected $requests;
 
     /**
-     * @var array
-     */
-    protected $replies = array();
-
-    /**
      * @var int
      */
     protected $timeout = 0;
@@ -78,28 +73,23 @@ class RpcClient implements EventManagerAwareInterface
             throw new Exception\InvalidArgumentException('You must provide a request Id');
         }
 
-        $params = compact('msgBody', 'server', 'requestId', 'routingKey', 'expiration');
-        $results = $this->getEventManager()->trigger(__FUNCTION__, $this, $params);
-        $result = $results->last();
-
-        if (is_array($result)) {
-            $msgBody    = $result['msgBody'];
-            $server     = $result['server'];
-            $requestId  = $result['requestId'];
-            $routingKey = $result['routingKey'];
-            $expiration = $result['expiration'];
-        }
+        $argv = compact('msgBody', 'server', 'requestId', 'routingKey', 'expiration');
+        $argv = $this->getEventManager()->prepareArgs($argv);
+        $this->getEventManager()->trigger(__FUNCTION__, $this, $argv);
 
         $messageAttributes = new MessageAttributes();
         $messageAttributes->setReplyTo($this->queue->getName());
         $messageAttributes->setDeliveryMode(MessageAttributes::DELIVERY_MODE_NON_PERSISTENT);
-        $messageAttributes->setCorrelationId($requestId);
+        $messageAttributes->setCorrelationId($argv['requestId']);
+
+        $expiration = $argv['expiration'];
+
         if (0 != $expiration) {
             $messageAttributes->setExpiration($expiration * 1000);
         }
 
-        $exchange = $this->getExchange($server);
-        $exchange->publish($msgBody, $routingKey, $messageAttributes->getFlags(), $messageAttributes->toArray());
+        $exchange = $this->getExchange($argv['server']);
+        $exchange->publish($argv['msgBody'], $argv['routingKey'], $messageAttributes->getFlags(), $messageAttributes->toArray());
         $this->requests++;
 
         if ($expiration > $this->timeout) {
@@ -122,33 +112,29 @@ class RpcClient implements EventManagerAwareInterface
     public function getReplies()
     {
         $now = microtime(1);
-        $this->replies = [];
+        $replies = [];
         do {
             $message = $this->queue->get(AMQP_AUTOACK);
 
             if ($message) {
-                $this->replies[$message->getCorrelationId()] = $message->getBody();
+                $replies[$message->getCorrelationId()] = $message->getBody();
             } else {
                 usleep(1000); // 1/1000 sec
             }
 
             $time = microtime(1);
         } while (
-            (count($this->replies) < $this->requests)
+            (count($replies) < $this->requests)
             || (($time - $now) < $this->timeout)
         );
 
         $this->requests = 0;
         $this->timeout = 0;
 
-        $results = $this->getEventManager()->trigger(__FUNCTION__, $this, ['replies' => $this->replies]);
-        $result = $results->last();
+        $argv = $this->getEventManager()->prepareArgs(['replies' => $replies]);
+        $this->getEventManager()->trigger(__FUNCTION__, $this, $argv);
 
-        if (is_array($result)) {
-            return $result['replies'];
-        }
-
-        return $this->replies;
+        return $argv['replies'];
     }
 
     /**
