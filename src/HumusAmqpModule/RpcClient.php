@@ -80,9 +80,9 @@ class RpcClient implements EventManagerAwareInterface
 
         $params = compact('msgBody', 'server', 'requestId', 'routingKey', 'expiration');
         $results = $this->getEventManager()->trigger(__FUNCTION__, $this, $params);
+        $result = $results->last();
 
-        if (!$results->isEmpty()) {
-            $result     = $results->last();
+        if (is_array($result)) {
             $msgBody    = $result['msgBody'];
             $server     = $result['server'];
             $requestId  = $result['requestId'];
@@ -142,9 +142,9 @@ class RpcClient implements EventManagerAwareInterface
         $this->timeout = 0;
 
         $results = $this->getEventManager()->trigger(__FUNCTION__, $this, ['replies' => $this->replies]);
+        $result = $results->last();
 
-        if (!$results->isEmpty()) {
-            $result = $results->last();
+        if (is_array($result)) {
             return $result['replies'];
         }
 

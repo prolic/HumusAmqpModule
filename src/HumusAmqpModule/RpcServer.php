@@ -60,7 +60,7 @@ class RpcServer extends Consumer
             $params = compact('message', 'queue');
             $results = $this->getEventManager()->trigger('delivery', $this, $params);
 
-            if (!$results->isEmpty()) {
+            if (is_array($results->last())) {
                 $result = $results->last();
             }
 

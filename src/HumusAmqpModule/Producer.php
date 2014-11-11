@@ -52,9 +52,9 @@ class Producer implements ProducerInterface, EventManagerAwareInterface
         $params = compact('body', 'routingKey', 'attributes');
 
         $results = $this->getEventManager()->trigger(__FUNCTION__, $this, $params);
+        $result = $results->last();
 
-        if (!$results->isEmpty()) {
-            $result = $results->last();
+        if (is_array($result)) {
             $body       = $result['body'];
             $routingKey = $result['routingKey'];
             $attributes = $result['attributes'];
@@ -78,9 +78,9 @@ class Producer implements ProducerInterface, EventManagerAwareInterface
         $params = compact('bodies', 'routingKey', 'attributes');
 
         $results = $this->getEventManager()->trigger(__FUNCTION__, $this, $params);
+        $result = $results->last();
 
-        if (!$results->isEmpty()) {
-            $result = $results->last();
+        if (is_array($result)) {
             $bodies     = $result['bodies'];
             $routingKey = $result['routingKey'];
             $attributes = $result['attributes'];
