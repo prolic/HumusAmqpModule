@@ -89,7 +89,7 @@ class RpcClient implements EventManagerAwareInterface
             $routingKey = $result['routingKey'];
             $expiration = $result['expiration'];
         }
-
+        
         $messageAttributes = new MessageAttributes();
         $messageAttributes->setReplyTo($this->queue->getName());
         $messageAttributes->setDeliveryMode(MessageAttributes::DELIVERY_MODE_NON_PERSISTENT);
