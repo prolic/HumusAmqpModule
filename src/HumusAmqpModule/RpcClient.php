@@ -89,7 +89,12 @@ class RpcClient implements EventManagerAwareInterface
         }
 
         $exchange = $this->getExchange($argv['server']);
-        $exchange->publish($argv['msgBody'], $argv['routingKey'], $messageAttributes->getFlags(), $messageAttributes->toArray());
+        $exchange->publish(
+            $argv['msgBody'], 
+            $argv['routingKey'], 
+            $messageAttributes->getFlags(), 
+            $messageAttributes->toArray()
+        );
         $this->requests++;
 
         if ($expiration > $this->timeout) {
