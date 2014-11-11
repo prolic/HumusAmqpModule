@@ -90,9 +90,9 @@ class RpcClient implements EventManagerAwareInterface
 
         $exchange = $this->getExchange($argv['server']);
         $exchange->publish(
-            $argv['msgBody'], 
-            $argv['routingKey'], 
-            $messageAttributes->getFlags(), 
+            $argv['msgBody'],
+            $argv['routingKey'],
+            $messageAttributes->getFlags(),
             $messageAttributes->toArray()
         );
         $this->requests++;
