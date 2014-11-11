@@ -59,10 +59,7 @@ class RpcServer extends Consumer
 
             $params = compact('message', 'queue');
             $results = $this->getEventManager()->trigger('delivery', $this, $params);
-
-            if (is_array($results->last())) {
-                $result = $results->last();
-            }
+            $result = $results->last();
 
             $response = json_encode(array('success' => true, 'result' => $result));
             $this->sendReply($response, $message->getReplyTo(), $message->getCorrelationId());
