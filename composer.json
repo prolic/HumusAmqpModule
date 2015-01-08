@@ -30,7 +30,8 @@
         "empi89/php-amqp-stubs": "dev-master"
     },
     "suggest": {
-        "prolic/humus-supervisor-module": "For supervisor usage"
+        "prolic/humus-supervisor-module": "For supervisor usage",
+        "ext-pcntl": "For process control management"
     },
     "autoload": {
         "psr-0": {
