@@ -110,7 +110,7 @@ class RpcServerController extends AbstractConsoleController
     {
         if (!extension_loaded('pcntl')) {
             throw new Exception\ExtensionNotLoadedException(
-                'pnctl extension missing'
+                'pcntl extension missing'
             );
         }
 
