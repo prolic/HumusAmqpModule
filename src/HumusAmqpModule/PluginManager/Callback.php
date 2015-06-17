@@ -15,21 +15,23 @@
  * This software consists of voluntary contributions made by many individuals
  * and is licensed under the MIT license.
  */
-
 namespace HumusAmqpModule\PluginManager;
 
 use HumusAmqpModule\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
+use Zend\ServiceManager\ServiceManagerAwareInterface;
+use Zend\ServiceManager\ServiceLocatorAwareInterface;
 
 class Callback extends AbstractPluginManager
 {
+
     /**
      * Validate the plugin
      *
      * Checks that the filter loaded is either a valid callback or an instance
      * of FilterInterface.
      *
-     * @param  mixed $plugin
+     * @param mixed $plugin            
      * @return void
      * @throws Exception\RuntimeException if invalid
      */
@@ -37,12 +39,15 @@ class Callback extends AbstractPluginManager
     {
         if (is_callable($plugin)) {
             // we're okay
+            if ($plugin instanceof ServiceManagerAwareInterface) {
+                $plugin->setServiceManager($this->getServiceLocator());
+            }
+            if ($plugin instanceof ServiceLocatorAwareInterface) {
+                $plugin->setServiceLocator($this->getServiceLocator());
+            }
             return;
         }
-
-        throw new Exception\RuntimeException(sprintf(
-            'Plugin of type %s is invalid; must be a callable',
-            (is_object($plugin) ? get_class($plugin) : gettype($plugin))
-        ));
+        
+        throw new Exception\RuntimeException(sprintf('Plugin of type %s is invalid; must be a callable', (is_object($plugin) ? get_class($plugin) : gettype($plugin))));
     }
 }
