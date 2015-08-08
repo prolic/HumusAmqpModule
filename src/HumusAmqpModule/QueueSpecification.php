@@ -20,6 +20,10 @@ namespace HumusAmqpModule;
 
 use Zend\Stdlib\AbstractOptions;
 
+/**
+ * Class QueueSpecification
+ * @package HumusAmqpModule
+ */
 class QueueSpecification extends AbstractOptions
 {
     /**

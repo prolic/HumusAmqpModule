@@ -10,6 +10,10 @@ use Zend\Log\LoggerAwareInterface;
 use Zend\Log\LoggerAwareTrait;
 use Zend\Log\LoggerInterface;
 
+/**
+ * Class LoggerListener
+ * @package HumusAmqpModule\Listener
+ */
 class LoggerListener implements LoggerAwareInterface, ListenerAggregateInterface
 {
     use ListenerAggregateTrait;

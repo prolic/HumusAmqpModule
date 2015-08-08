@@ -18,6 +18,10 @@
 
 namespace HumusAmqpModule\Exception;
 
+/**
+ * Class RuntimeException
+ * @package HumusAmqpModule\Exception
+ */
 class RuntimeException extends \RuntimeException implements ExceptionInterface
 {
 }

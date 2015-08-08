@@ -21,6 +21,10 @@ namespace HumusAmqpModule;
 use AMQPEnvelope;
 use AMQPQueue;
 
+/**
+ * Interface ConsumerInterface
+ * @package HumusAmqpModule
+ */
 interface ConsumerInterface
 {
     /**

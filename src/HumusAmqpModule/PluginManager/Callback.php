@@ -21,6 +21,10 @@ namespace HumusAmqpModule\PluginManager;
 use HumusAmqpModule\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
 
+/**
+ * Class Callback
+ * @package HumusAmqpModule\PluginManager
+ */
 class Callback extends AbstractPluginManager
 {
     /**

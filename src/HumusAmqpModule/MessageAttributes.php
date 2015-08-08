@@ -20,6 +20,10 @@ namespace HumusAmqpModule;
 
 use Zend\Stdlib\AbstractOptions;
 
+/**
+ * Class MessageAttributes
+ * @package HumusAmqpModule
+ */
 class MessageAttributes extends AbstractOptions
 {
     const DELIVERY_MODE_NON_PERSISTENT = 1;

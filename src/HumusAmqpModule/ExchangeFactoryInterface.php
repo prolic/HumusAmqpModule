@@ -21,6 +21,10 @@ namespace HumusAmqpModule;
 use AMQPChannel;
 use AMQPExchange;
 
+/**
+ * Interface ExchangeFactoryInterface
+ * @package HumusAmqpModule
+ */
 interface ExchangeFactoryInterface
 {
     /**

@@ -20,6 +20,10 @@ namespace HumusAmqpModule;
 
 use Zend\Stdlib\AbstractOptions;
 
+/**
+ * Class QosOptions
+ * @package HumusAmqpModule
+ */
 class QosOptions extends AbstractOptions
 {
     /**

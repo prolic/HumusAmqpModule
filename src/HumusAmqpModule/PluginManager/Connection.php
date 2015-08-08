@@ -22,6 +22,10 @@ use AMQPConnection;
 use HumusAmqpModule\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
 
+/**
+ * Class Connection
+ * @package HumusAmqpModule\PluginManager
+ */
 class Connection extends AbstractPluginManager
 {
     /**

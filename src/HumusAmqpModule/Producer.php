@@ -22,6 +22,10 @@ use AMQPExchange;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerAwareTrait;
 
+/**
+ * Class Producer
+ * @package HumusAmqpModule
+ */
 class Producer implements ProducerInterface, EventManagerAwareInterface
 {
     use EventManagerAwareTrait;

@@ -18,6 +18,10 @@
 
 namespace HumusAmqpModule;
 
+/**
+ * Interface ProducerInterface
+ * @package HumusAmqpModule
+ */
 interface ProducerInterface
 {
     /**

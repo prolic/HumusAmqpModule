@@ -18,6 +18,10 @@
 
 namespace HumusAmqpModule\Exception;
 
+/**
+ * Interface ExceptionInterface
+ * @package HumusAmqpModule\Exception
+ */
 interface ExceptionInterface
 {
 }

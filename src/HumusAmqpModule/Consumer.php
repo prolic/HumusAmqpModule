@@ -29,6 +29,9 @@ use Zend\EventManager\EventManagerAwareTrait;
  * The consumer attaches to a single queue
  *
  * The used block size is the configured prefetch size of the queue's channel
+ *
+ * Class Consumer
+ * @package HumusAmqpModule
  */
 class Consumer implements ConsumerInterface, EventManagerAwareInterface
 {

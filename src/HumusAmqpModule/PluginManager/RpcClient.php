@@ -22,6 +22,10 @@ use HumusAmqpModule\Exception;
 use HumusAmqpModule\RpcClient as AmqpRpcClient;
 use Zend\ServiceManager\AbstractPluginManager;
 
+/**
+ * Class RpcClient
+ * @package HumusAmqpModule\PluginManager
+ */
 class RpcClient extends AbstractPluginManager
 {
     /**

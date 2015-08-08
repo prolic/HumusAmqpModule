@@ -22,6 +22,10 @@ use HumusAmqpModule\Exception;
 use HumusAmqpModule\ProducerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
 
+/**
+ * Class Producer
+ * @package HumusAmqpModule\PluginManager
+ */
 class Producer extends AbstractPluginManager
 {
     /**

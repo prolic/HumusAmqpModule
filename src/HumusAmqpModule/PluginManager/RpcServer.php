@@ -22,6 +22,10 @@ use HumusAmqpModule\Exception;
 use HumusAmqpModule\RpcServer as AmqpRpcServer;
 use Zend\ServiceManager\AbstractPluginManager;
 
+/**
+ * Class RpcServer
+ * @package HumusAmqpModule\PluginManager
+ */
 class RpcServer extends AbstractPluginManager
 {
     /**

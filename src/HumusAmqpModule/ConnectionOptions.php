@@ -20,6 +20,10 @@ namespace HumusAmqpModule;
 
 use Zend\Stdlib\AbstractOptions;
 
+/**
+ * Class ConnectionOptions
+ * @package HumusAmqpModule
+ */
 class ConnectionOptions extends AbstractOptions
 {
     /**

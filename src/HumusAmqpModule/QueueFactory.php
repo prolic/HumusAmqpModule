@@ -21,6 +21,10 @@ namespace HumusAmqpModule;
 use AMQPChannel;
 use AMQPQueue;
 
+/**
+ * Class QueueFactory
+ * @package HumusAmqpModule
+ */
 class QueueFactory implements QueueFactoryInterface
 {
     /**

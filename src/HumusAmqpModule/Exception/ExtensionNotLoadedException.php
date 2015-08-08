@@ -18,6 +18,10 @@
 
 namespace HumusAmqpModule\Exception;
 
+/**
+ * Class ExtensionNotLoadedException
+ * @package HumusAmqpModule\Exception
+ */
 class ExtensionNotLoadedException extends RuntimeException
 {
 }

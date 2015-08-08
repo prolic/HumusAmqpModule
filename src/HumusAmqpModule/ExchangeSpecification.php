@@ -20,6 +20,10 @@ namespace HumusAmqpModule;
 
 use Zend\Stdlib\AbstractOptions;
 
+/**
+ * Class ExchangeSpecification
+ * @package HumusAmqpModule
+ */
 class ExchangeSpecification extends AbstractOptions
 {
     /**

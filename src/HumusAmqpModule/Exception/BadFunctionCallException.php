@@ -18,6 +18,10 @@
 
 namespace HumusAmqpModule\Exception;
 
+/**
+ * Class BadFunctionCallException
+ * @package HumusAmqpModule\Exception
+ */
 class BadFunctionCallException extends \BadFunctionCallException implements ExceptionInterface
 {
 }

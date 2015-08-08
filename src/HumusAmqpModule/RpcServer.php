@@ -22,6 +22,10 @@ use AMQPEnvelope;
 use AMQPExchange;
 use AMQPQueue;
 
+/**
+ * Class RpcServer
+ * @package HumusAmqpModule
+ */
 class RpcServer extends Consumer
 {
     /**

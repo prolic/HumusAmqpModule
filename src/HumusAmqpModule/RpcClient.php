@@ -23,6 +23,10 @@ use AMQPQueue;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerAwareTrait;
 
+/**
+ * Class RpcClient
+ * @package HumusAmqpModule
+ */
 class RpcClient implements EventManagerAwareInterface
 {
     use EventManagerAwareTrait;

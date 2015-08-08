@@ -27,6 +27,10 @@ use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
 use Zend\ServiceManager\Config;
 use AMQPConnection;
 
+/**
+ * Class Module
+ * @package HumusAmqpModule
+ */
 class Module implements
     AutoloaderProviderInterface,
     BootstrapListenerInterface,
