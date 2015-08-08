@@ -23,6 +23,10 @@ use HumusAmqpModule\Producer;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
+/**
+ * Class ProducerAbstractServiceFactory
+ * @package HumusAmqpModule\Service
+ */
 class ProducerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
 {
     /**

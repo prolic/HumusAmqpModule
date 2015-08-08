@@ -26,6 +26,10 @@ use HumusAmqpModule\QueueFactoryInterface;
 use HumusAmqpModule\QueueSpecification;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
+/**
+ * Class AbstractAmqpQueueAbstractServiceFactory
+ * @package HumusAmqpModule\Service
+ */
 abstract class AbstractAmqpQueueAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
 {
     /**

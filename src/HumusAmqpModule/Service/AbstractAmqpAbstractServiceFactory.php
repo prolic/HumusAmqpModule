@@ -32,6 +32,10 @@ use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
+/**
+ * Class AbstractAmqpAbstractServiceFactory
+ * @package HumusAmqpModule\Service
+ */
 abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInterface
 {
     /**

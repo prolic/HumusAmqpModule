@@ -24,6 +24,10 @@ use HumusAmqpModule\Listener\LoggerListener;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
+/**
+ * Class ConsumerAbstractServiceFactory
+ * @package HumusAmqpModule\Service
+ */
 class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFactory
 {
     /**

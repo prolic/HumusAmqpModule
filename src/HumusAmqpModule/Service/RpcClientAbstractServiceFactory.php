@@ -23,6 +23,10 @@ use HumusAmqpModule\RpcClient;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
+/**
+ * Class RpcClientAbstractServiceFactory
+ * @package HumusAmqpModule\Service
+ */
 class RpcClientAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFactory
 {
     /**

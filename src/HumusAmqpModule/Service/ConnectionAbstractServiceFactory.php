@@ -25,6 +25,9 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 /**
  * Instantiates an AMQPConnection and created the connection
  * (persistent or not-persistent) dependent on specification
+ *
+ * Class ConnectionAbstractServiceFactory
+ * @package HumusAmqpModule\Service
  */
 class ConnectionAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
 {

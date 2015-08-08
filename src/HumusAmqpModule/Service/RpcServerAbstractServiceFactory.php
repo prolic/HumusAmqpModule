@@ -24,6 +24,10 @@ use HumusAmqpModule\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
+/**
+ * Class RpcServerAbstractServiceFactory
+ * @package HumusAmqpModule\Service
+ */
 class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFactory
 {
     /**
