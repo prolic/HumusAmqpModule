@@ -24,6 +24,10 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
+/**
+ * Class StdInProducerController
+ * @package HumusAmqpModule\Controller
+ */
 class StdInProducerController extends AbstractConsoleController
 {
     /**

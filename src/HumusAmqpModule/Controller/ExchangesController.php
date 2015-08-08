@@ -24,6 +24,10 @@ use Zend\Mvc\Controller\AbstractConsoleController;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
+/**
+ * Class ExchangesController
+ * @package HumusAmqpModule\Controller
+ */
 class ExchangesController extends AbstractConsoleController
 {
     /**

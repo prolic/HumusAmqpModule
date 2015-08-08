@@ -26,6 +26,10 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
+/**
+ * Class RpcServerController
+ * @package HumusAmqpModule\Controller
+ */
 class RpcServerController extends AbstractConsoleController
 {
     /**

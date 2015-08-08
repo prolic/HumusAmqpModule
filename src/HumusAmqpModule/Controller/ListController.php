@@ -23,6 +23,10 @@ use Zend\Mvc\Controller\AbstractConsoleController;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
+/**
+ * Class ListController
+ * @package HumusAmqpModule\Controller
+ */
 class ListController extends AbstractConsoleController
 {
     /**

@@ -25,6 +25,10 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
+/**
+ * Class PurgeConsumerController
+ * @package HumusAmqpModule\Controller
+ */
 class PurgeConsumerController extends AbstractConsoleController implements ConsumerManagerAwareInterface
 {
     /**

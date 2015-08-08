@@ -29,6 +29,10 @@ use Zend\Console\ColorInterface;
 use Zend\Mvc\Controller\AbstractConsoleController;
 use Zend\Stdlib\ErrorHandler;
 
+/**
+ * Class GenSupervisordConfigController
+ * @package HumusAmqpModule\Controller
+ */
 class GenSupervisordConfigController extends AbstractConsoleController
 {
     public function indexAction()

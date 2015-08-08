@@ -29,6 +29,10 @@ use Zend\Mvc\Controller\AbstractConsoleController;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
+/**
+ * Class SetupFabricController
+ * @package HumusAmqpModule\Controller
+ */
 class SetupFabricController extends AbstractConsoleController
 {
     /**

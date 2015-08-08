@@ -20,6 +20,10 @@ namespace HumusAmqpModule\Controller;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 
+/**
+ * Interface ConsumerManagerAwareInterface
+ * @package HumusAmqpModule\Controller
+ */
 interface ConsumerManagerAwareInterface
 {
     /**
