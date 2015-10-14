@@ -195,7 +195,7 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
     {
         $logger = new \Zend\Log\Logger();
         $writers = new \Zend\Stdlib\SplPriorityQueue();
-        $writers->insert(new \Zend\Log\Writer\Null(), 1000);
+        $writers->insert(new \Zend\Log\Writer\Noop(), 1000);
         $logger->setWriters($writers);
         return $logger;
     }

@@ -48,7 +48,7 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
 
         $logger = new \Zend\Log\Logger();
         $writers = new \Zend\Stdlib\SplPriorityQueue();
-        $writers->insert(new \Zend\Log\Writer\Null(), 0);
+        $writers->insert(new \Zend\Log\Writer\Noop(), 0);
         $logger->setWriters($writers);
         $consumer->setLogger($logger);
 
@@ -111,7 +111,7 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
 
         $logger = new \Zend\Log\Logger();
         $writers = new \Zend\Stdlib\SplPriorityQueue();
-        $writers->insert(new \Zend\Log\Writer\Null(), 0);
+        $writers->insert(new \Zend\Log\Writer\Noop(), 0);
         $logger->setWriters($writers);
         $consumer->setLogger($logger);
 
