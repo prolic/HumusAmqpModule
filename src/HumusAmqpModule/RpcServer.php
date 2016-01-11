@@ -116,8 +116,8 @@ class RpcServer extends Consumer
      * @param AMQPExchange $exchange
      * @return void
      */
-     public function setExchange(AMQPExchange $exchange)
-     {
-         $this->exchange = $exchange;
-     }
+    public function setExchange(AMQPExchange $exchange)
+    {
+        $this->exchange = $exchange;
+    }
 }
