@@ -24,10 +24,14 @@
     "require-dev": {
         "phpunit/PHPUnit": ">=4.0",
         "squizlabs/php_codesniffer":   "1.5.*",
-        "zendframework/zendframework": ">=2.3.0"
+        "zendframework/zendframework": ">=2.3.0",
+        "mockery/mockery": "@stable",
+        "prolic/humus-supervisor-module": "dev-master",
+        "empi89/php-amqp-stubs": "dev-master"
     },
     "suggest": {
-        "prolic/humus-supervisor-module": "For supervisor usage"
+        "prolic/humus-supervisor-module": "For supervisor usage",
+        "ext-pcntl": "For process control management"
     },
     "autoload": {
         "psr-0": {

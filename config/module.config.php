@@ -85,7 +85,7 @@ $config = array(
                     'logfile' => getcwd() . '/data/supervisord/logs/supervisord.log',
                     'pidfile' => getcwd() . '/data/supervisord/supervisord.pid',
                     'childlogdir' => getcwd() . '/data/supervisord/logs',
-                    'user' => 'root',
+                    'user' => get_current_user(),
                 ),
                 'rpcinterface' => array(
                     'supervisor.rpcinterface_factory' => 'supervisor.rpcinterface:make_main_rpcinterface'

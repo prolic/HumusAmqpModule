@@ -99,15 +99,25 @@ class RpcServer extends Consumer
     /**
      * @return AMQPExchange
      */
-    protected function getExchange()
+    public function getExchange()
     {
         if (null !== $this->exchange) {
             return $this->exchange;
         }
+
         $channel = $this->getQueue()->getChannel();
         $exchange = new AMQPExchange($channel);
         $exchange->setType(AMQP_EX_TYPE_DIRECT);
         $this->exchange = $exchange;
         return $exchange;
     }
+
+    /**
+     * @param AMQPExchange $exchange
+     * @return void
+     */
+     public function setExchange(AMQPExchange $exchange)
+     {
+         $this->exchange = $exchange;
+     }
 }
