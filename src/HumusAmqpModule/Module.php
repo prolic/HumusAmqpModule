@@ -67,7 +67,8 @@ class Module implements
             $factory = function () use ($serviceName, $config, $ns, $configKey, $serviceManager) {
                 $serviceConfig = $config['humus_amqp_module']['plugin_managers'][$configKey];
                 $service = new $serviceName(new Config($serviceConfig));
-                /* @var $service \Zend\ServiceManager\ServiceManager */
+                /* @var $service \Zend\ServiceManager\AbstractPluginManager */
+                $service->setServiceLocator($serviceManager);
                 if ('Connection' == $ns) {
                     $service->addInitializer(function (AMQPConnection $connection) {
                         if (isset($connection->persistent) && true === $connection->persistent) {
