@@ -65,6 +65,8 @@ class ServiceManagerTestCase extends TestCase
             )
         );
 
+        $serviceManager->setAllowOverride(true);
+
         $serviceManager->setService('ApplicationConfig', $configuration);
         $serviceManager->setFactory('ServiceListener', 'Zend\Mvc\Service\ServiceListenerFactory');
 
