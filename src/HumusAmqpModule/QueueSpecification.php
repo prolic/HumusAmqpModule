@@ -64,17 +64,17 @@ class QueueSpecification extends AbstractOptions
     /**
      * @var array
      */
-    protected $arguments = array();
+    protected $arguments = [];
 
     /**
      * @var array
      */
-    protected $routingKeys = array();
+    protected $routingKeys = [];
 
     /**
      * @var array
      */
-    protected $bindArguments = array();
+    protected $bindArguments = [];
 
     /**
      * @return int
@@ -259,8 +259,7 @@ class QueueSpecification extends AbstractOptions
         if (null === $value) {
             unset($this->bindArguments['x-match']);
         } else {
-
-            if (!in_array($value, array('all', 'any'))) {
+            if (!in_array($value, ['all', 'any'])) {
                 throw new Exception\InvalidArgumentException(
                     'x-match attribute expected value "all" or "any", "' . $value . '" given'
                 );

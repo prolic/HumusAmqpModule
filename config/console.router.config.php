@@ -18,63 +18,63 @@
 
 namespace HumusAmqpModule;
 
-return array(
-    'routes' => array(
-        'humus_amqp_module-setup-fabric' => array(
-            'options' => array(
+return [
+    'routes' => [
+        'humus_amqp_module-setup-fabric' => [
+            'options' => [
                 'route'    => 'humus amqp setup-fabric',
-                'defaults' => array(
+                'defaults' => [
                     'controller' => __NAMESPACE__ . '\\Controller\\SetupFabric',
-                )
-            )
-        ),
-        'humus_amqp_module-consumer' => array(
-            'options' => array(
+                ]
+            ]
+        ],
+        'humus_amqp_module-consumer' => [
+            'options' => [
                 'route'    => 'humus amqp consumer <name> [<amount>] [--without-signals|-w]',
-                'defaults' => array(
+                'defaults' => [
                     'controller' => __NAMESPACE__ . '\\Controller\\Consumer',
-                )
-            )
-        ),
-        'humus_amqp_module-list' => array(
-            'options' => array(
+                ]
+            ]
+        ],
+        'humus_amqp_module-list' => [
+            'options' => [
                 'route'    => 'humus amqp list (consumers|producers|rpc-clients|rpc-servers|connections):type',
-                'defaults' => array(
+                'defaults' => [
                     'controller' => __NAMESPACE__ . '\\Controller\\List',
-                )
-            )
-        ),
-        'humus_amqp_module-exchanges' => array(
-            'options' => array(
+                ]
+            ]
+        ],
+        'humus_amqp_module-exchanges' => [
+            'options' => [
                 'route'    => 'humus amqp list-exchanges',
-                'defaults' => array(
+                'defaults' => [
                     'controller' => __NAMESPACE__ . '\\Controller\\Exchanges',
-                )
-            )
-        ),
-        'humus_amqp_module-stdin-producer' => array(
-            'options' => array(
+                ]
+            ]
+        ],
+        'humus_amqp_module-stdin-producer' => [
+            'options' => [
                 'route'    => 'humus amqp stdin-producer <name> [--route=] <msg>',
-                'defaults' => array(
+                'defaults' => [
                     'controller' => __NAMESPACE__ . '\\Controller\\StdInProducer',
-                )
-            )
-        ),
-        'humus_amqp_module-purge-consumer-queue' => array(
-            'options' => array(
+                ]
+            ]
+        ],
+        'humus_amqp_module-purge-consumer-queue' => [
+            'options' => [
                 'route' => 'humus amqp purge-consumer <consumer-name> [--no-confirmation]',
-                'defaults' => array(
+                'defaults' => [
                     'controller' => __NAMESPACE__ . '\\Controller\\PurgeConsumer',
-                )
-            )
-        ),
-        'humus_amqp_module-rpc-server' => array(
-            'options' => array(
+                ]
+            ]
+        ],
+        'humus_amqp_module-rpc-server' => [
+            'options' => [
                 'route' => 'humus amqp rpc-server <name> [<amount>] [--without-signals|-w]',
-                'defaults' => array(
+                'defaults' => [
                     'controller' => __NAMESPACE__ . '\\Controller\\RpcServer',
-                )
-            )
-        ),
-    )
-);
+                ]
+            ]
+        ],
+    ]
+];

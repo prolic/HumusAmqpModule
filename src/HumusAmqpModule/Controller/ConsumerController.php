@@ -132,8 +132,8 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
             );
         }
 
-        pcntl_signal(SIGTERM, array($this, 'stopConsumer'));
-        pcntl_signal(SIGINT, array($this, 'stopConsumer'));
-        pcntl_signal(SIGHUP, array($this, 'stopConsumer'));
+        pcntl_signal(SIGTERM, [$this, 'stopConsumer']);
+        pcntl_signal(SIGINT, [$this, 'stopConsumer']);
+        pcntl_signal(SIGHUP, [$this, 'stopConsumer']);
     }
 }

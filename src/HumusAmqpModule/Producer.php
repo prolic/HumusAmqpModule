@@ -19,17 +19,13 @@
 namespace HumusAmqpModule;
 
 use AMQPExchange;
-use Zend\EventManager\EventManagerAwareInterface;
-use Zend\EventManager\EventManagerAwareTrait;
 
 /**
  * Class Producer
  * @package HumusAmqpModule
  */
-class Producer implements ProducerInterface, EventManagerAwareInterface
+class Producer implements ProducerInterface
 {
-    use EventManagerAwareTrait;
-
     /**
      * @var AMQPExchange
      */
@@ -49,21 +45,9 @@ class Producer implements ProducerInterface, EventManagerAwareInterface
      * @param string $body
      * @param string $routingKey
      * @param array|\Traversable|MessageAttributes|null $attributes
-     * @triggers publish
      */
     public function publish($body, $routingKey = '', $attributes = null)
     {
-        $params = compact('body', 'routingKey', 'attributes');
-
-        $results = $this->getEventManager()->trigger(__FUNCTION__, $this, $params);
-        $result = $results->last();
-
-        if (is_array($result)) {
-            $body       = $result['body'];
-            $routingKey = $result['routingKey'];
-            $attributes = $result['attributes'];
-        }
-
         if (!$attributes instanceof MessageAttributes) {
             $attributes = new MessageAttributes($attributes);
         }
@@ -75,21 +59,9 @@ class Producer implements ProducerInterface, EventManagerAwareInterface
      * @param array $bodies
      * @param string $routingKey
      * @param array|\Traversable|MessageAttributes|null $attributes
-     * @triggers publishBatch
      */
     public function publishBatch(array $bodies, $routingKey = '', $attributes = null)
     {
-        $params = compact('bodies', 'routingKey', 'attributes');
-
-        $results = $this->getEventManager()->trigger(__FUNCTION__, $this, $params);
-        $result = $results->last();
-
-        if (is_array($result)) {
-            $bodies     = $result['bodies'];
-            $routingKey = $result['routingKey'];
-            $attributes = $result['attributes'];
-        }
-
         if (!$attributes instanceof MessageAttributes) {
             $attributes = new MessageAttributes($attributes);
         }

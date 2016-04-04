@@ -39,10 +39,10 @@ class ListControllerTest extends AbstractConsoleControllerTestCase
 
         $config = $serviceManager->get('Config');
 
-        $config['humus_amqp_module']['consumers'] = array(
-            'testconsumer-1' => array(),
-            'testconsumer-2' => array()
-        );
+        $config['humus_amqp_module']['consumers'] = [
+            'testconsumer-1' => [],
+            'testconsumer-2' => []
+        ];
         $serviceManager->setService('Config', $config);
 
 
@@ -65,7 +65,7 @@ class ListControllerTest extends AbstractConsoleControllerTestCase
 
         $config = $serviceManager->get('Config');
 
-        $config['humus_amqp_module'] = array();
+        $config['humus_amqp_module'] = [];
         $serviceManager->setService('Config', $config);
 
 
@@ -86,7 +86,7 @@ class ListControllerTest extends AbstractConsoleControllerTestCase
 
         $config = $serviceManager->get('Config');
 
-        $config['humus_amqp_module']['rpc_servers'] = array();
+        $config['humus_amqp_module']['rpc_servers'] = [];
         $serviceManager->setService('Config', $config);
 
 

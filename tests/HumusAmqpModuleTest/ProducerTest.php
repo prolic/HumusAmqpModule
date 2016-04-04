@@ -35,11 +35,11 @@ class ProducerTest extends \PHPUnit_Framework_TestCase
                 'foo',
                 'bar',
                 AMQP_NOPARAM,
-                array(
+                [
                     'content_type' => 'text/plain',
                     'delivery_mode' => 2,
-                    'headers' => array()
-                )
+                    'headers' => []
+                ]
             );
 
         $producer = new Producer($exchange);
@@ -60,15 +60,15 @@ class ProducerTest extends \PHPUnit_Framework_TestCase
                 $this->anything(),
                 '',
                 AMQP_NOPARAM,
-                array(
+                [
                     'content_type' => 'text/plain',
                     'delivery_mode' => 2,
-                    'headers' => array()
-                )
+                    'headers' => [],
+                ]
             );
 
         $producer = new Producer($exchange);
 
-        $producer->publishBatch(array('foo', 'bar'));
+        $producer->publishBatch(['foo', 'bar']);
     }
 }

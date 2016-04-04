@@ -41,13 +41,13 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $services->setAllowOverride(true);
         $services->setService('Config', $config);
 
-        $connection = $this->getMock('AMQPConnection', array(), array(), '', false);
-        $channel    = $this->getMock('AMQPChannel', array(), array(), '', false);
+        $connection = $this->getMock('AMQPConnection', [], [], '', false);
+        $channel    = $this->getMock('AMQPChannel', [], [], '', false);
         $channel
             ->expects($this->any())
             ->method('getPrefetchCount')
             ->will($this->returnValue(10));
-        $queue      = $this->getMock('AMQPQueue', array(), array(), '', false);
+        $queue      = $this->getMock('AMQPQueue', [], [], '', false);
         $queue
             ->expects($this->any())
             ->method('getChannel')
@@ -80,37 +80,37 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateRpcClient()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'connections' => array(
-                    'default' => array(
+                'connections' => [
+                    'default' => [
                         'host' => 'localhost',
                         'port' => 5672,
                         'login' => 'guest',
                         'password' => 'guest',
                         'vhost' => '/',
-                    )
-                ),
-                'exchanges' => array(
-                    'test-rpc-client' => array(
+                    ]
+                ],
+                'exchanges' => [
+                    'test-rpc-client' => [
                         'name' => 'test-rpc-client',
                         'type' => 'direct'
-                    ),
-                ),
-                'queues' => array(
-                    'test-rpc-client' => array(
+                    ],
+                ],
+                'queues' => [
+                    'test-rpc-client' => [
                         'name' => '',
                         'exchange' => 'test-rpc-client'
-                    ),
-                ),
-                'rpc_clients' => array(
-                    'test-rpc-client' => array(
+                    ],
+                ],
+                'rpc_clients' => [
+                    'test-rpc-client' => [
                         'queue' => 'test-rpc-client'
-                    )
-                )
-            )
-        );
+                    ]
+                ]
+            ]
+        ];
 
         $this->prepare($config);
 
@@ -120,38 +120,38 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateRpcClientWithDefinedConnection()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'connections' => array(
-                    'default' => array(
+                'connections' => [
+                    'default' => [
                         'host' => 'localhost',
                         'port' => 5672,
                         'login' => 'guest',
                         'password' => 'guest',
                         'vhost' => '/',
-                    )
-                ),
-                'exchanges' => array(
-                    'test-rpc-client' => array(
+                    ]
+                ],
+                'exchanges' => [
+                    'test-rpc-client' => [
                         'name' => 'test-rpc-client',
                         'type' => 'direct'
-                    ),
-                ),
-                'queues' => array(
-                    'test-rpc-client' => array(
+                    ],
+                ],
+                'queues' => [
+                    'test-rpc-client' => [
                         'name' => '',
                         'exchange' => 'test-rpc-client'
-                    ),
-                ),
-                'rpc_clients' => array(
-                    'test-rpc-client' => array(
+                    ],
+                ],
+                'rpc_clients' => [
+                    'test-rpc-client' => [
                         'queue' => 'test-rpc-client',
                         'connection' => 'default'
-                    )
-                )
-            )
-        );
+                    ]
+                ]
+            ]
+        ];
 
         $this->prepare($config);
 
@@ -165,37 +165,37 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateRpcClientThrowsExceptionOnInvalidQueueName()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'connections' => array(
-                    'default' => array(
+                'connections' => [
+                    'default' => [
                         'host' => 'localhost',
                         'port' => 5672,
                         'login' => 'guest',
                         'password' => 'guest',
                         'vhost' => '/',
-                    )
-                ),
-                'exchanges' => array(
-                    'test-rpc-client' => array(
+                    ]
+                ],
+                'exchanges' => [
+                    'test-rpc-client' => [
                         'name' => 'test-rpc-client',
                         'type' => 'direct'
-                    ),
-                ),
-                'queues' => array(
-                    'test-rpc-client' => array(
+                    ],
+                ],
+                'queues' => [
+                    'test-rpc-client' => [
                         'name' => '',
                         'exchange' => 'test-rpc-client'
-                    ),
-                ),
-                'rpc_clients' => array(
-                    'test-rpc-client' => array(
+                    ],
+                ],
+                'rpc_clients' => [
+                    'test-rpc-client' => [
                         'queue' => 'false-rpc-client-queue-name'
-                    )
-                )
-            )
-        );
+                    ]
+                ]
+            ]
+        ];
 
         $this->prepare($config);
 
@@ -208,15 +208,15 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateRpcClientThrowsExceptionOnMissingQueue()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'rpc_clients' => array(
-                    'test-rpc-client' => array(
-                    )
-                )
-            )
-        );
+                'rpc_clients' => [
+                    'test-rpc-client' => [
+                    ]
+                ]
+            ]
+        ];
 
         $this->prepare($config);
 
@@ -225,39 +225,39 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateRpcClientThrowsExceptionOnConnectionMismatch()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'connections' => array(
-                    'default' => array(
+                'connections' => [
+                    'default' => [
                         'host' => 'localhost',
                         'port' => 5672,
                         'login' => 'guest',
                         'password' => 'guest',
                         'vhost' => '/',
-                    )
-                ),
-                'exchanges' => array(
-                    'test-rpc-client' => array(
+                    ]
+                ],
+                'exchanges' => [
+                    'test-rpc-client' => [
                         'name' => 'test-rpc-client',
                         'type' => 'direct'
-                    ),
-                ),
-                'queues' => array(
-                    'test-rpc-client' => array(
+                    ],
+                ],
+                'queues' => [
+                    'test-rpc-client' => [
                         'name' => '',
                         'exchange' => 'test-rpc-client',
                         'connection' => 'someother'
-                    ),
-                ),
-                'rpc_clients' => array(
-                    'test-rpc-client' => array(
+                    ],
+                ],
+                'rpc_clients' => [
+                    'test-rpc-client' => [
                         'queue' => 'test-rpc-client',
                         'connection' => 'default'
-                    )
-                )
-            )
-        );
+                    ]
+                ]
+            ]
+        ];
 
         $this->prepare($config);
 

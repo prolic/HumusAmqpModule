@@ -20,7 +20,6 @@ namespace HumusAmqpModule\Service;
 
 use HumusAmqpModule\Consumer;
 use HumusAmqpModule\Exception;
-use HumusAmqpModule\Listener\LoggerListener;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
@@ -58,7 +57,7 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
         $channel    = $this->createChannel($connection, $spec);
 
         $config = $this->getConfig($serviceLocator);
-        $queues = array();
+        $queues = [];
 
         foreach ($spec['queues'] as $queue) {
             if ($this->useAutoSetupFabric($spec)) {
@@ -83,26 +82,20 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
                     'The logger ' . $spec['logger'] . ' is not configured'
                 );
             }
-            /** @var \Zend\Log\LoggerInterface $logger */
-            $logger = $serviceLocator->get($spec['logger']);
-            $loggerListener = new LoggerListener($logger);
-            $consumer->getEventManager()->attachAggregate($loggerListener);
+            $consumer->setLogger($serviceLocator->get($spec['logger']));
+        } else {
+            $consumer->setLogger($this->getDefaultNullLogger());
         }
 
         $callbackManager = $this->getCallbackManager($serviceLocator);
 
-        if (isset($spec['callback'])) {
-            if (!$callbackManager->has($spec['callback'])) {
-                throw new Exception\InvalidArgumentException(
-                    'The required callback ' . $spec['callback'] . ' can not be found'
-                );
-            }
-            /** @var callable $callback */
-            $callback = $callbackManager->get($spec['callback']);
-            if ($callback) {
-                $consumer->getEventManager()->attach('delivery', $callback);
-            }
+        if (!$callbackManager->has($spec['callback'])) {
+            throw new Exception\InvalidArgumentException(
+                'The required callback ' . $spec['callback'] . ' can not be found'
+            );
         }
+        $callback        = $callbackManager->get($spec['callback']);
+        $consumer->setDeliveryCallback($callback);
 
         if (isset($spec['flush_callback'])) {
             if (!$callbackManager->has($spec['flush_callback'])) {
@@ -110,11 +103,8 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
                     'The required callback ' . $spec['flush_callback'] . ' can not be found'
                 );
             }
-            /** @var callable $callback */
             $flushCallback = $callbackManager->get($spec['flush_callback']);
-            if ($flushCallback) {
-                $consumer->getEventManager()->attach('flush', $flushCallback);
-            }
+            $consumer->setFlushCallback($flushCallback);
         }
 
         if (isset($spec['error_callback'])) {
@@ -123,22 +113,8 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
                     'The required callback ' . $spec['error_callback'] . ' can not be found'
                 );
             }
-            /** @var callable $callback */
             $errorCallback = $callbackManager->get($spec['error_callback']);
-            if ($errorCallback) {
-                $consumer->getEventManager()->attach('deliveryException', $errorCallback);
-                $consumer->getEventManager()->attach('flushDeferredException', $errorCallback);
-            }
-        }
-
-        if (isset($spec['listeners']) and is_array($spec['listeners'])) {
-            foreach ($spec['listeners'] as $listener) {
-                if (is_string($listener)) {
-                    /** @var \Zend\EventManager\ListenerAggregateInterface $listener */
-                    $listener = $serviceLocator->get($listener);
-                }
-                $consumer->getEventManager()->attachAggregate($listener);
-            }
+            $consumer->setErrorCallback($errorCallback);
         }
 
         return $consumer;
@@ -159,11 +135,19 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
             );
         }
 
+        // callback is required
+        if (!isset($spec['callback'])) {
+            throw new Exception\InvalidArgumentException(
+                'No delivery callback specified for consumer ' . $requestedName
+            );
+        }
+
         $defaultConnection = $this->getDefaultConnectionName($serviceLocator);
-        $connection = $defaultConnection;
 
         if (isset($spec['connection'])) {
             $connection = $spec['connection'];
+        } else {
+            $connection = $defaultConnection;
         }
 
         $config  = $this->getConfig($serviceLocator);
@@ -206,5 +190,17 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
                 );
             }
         }
+    }
+
+    /**
+     * @return \Zend\Log\Logger
+     */
+    protected function getDefaultNullLogger()
+    {
+        $logger = new \Zend\Log\Logger();
+        $writers = new \Zend\Stdlib\SplPriorityQueue();
+        $writers->insert(new \Zend\Log\Writer\Noop(), 1000);
+        $logger->setWriters($writers);
+        return $logger;
     }
 }

@@ -66,7 +66,7 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
     /**
      * @var array
      */
-    protected $specs = array();
+    protected $specs = [];
 
     /**
      * @var ExchangeFactoryInterface
@@ -119,7 +119,7 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
         }
 
         if (!$services->has('Config')) {
-            $this->config = array();
+            $this->config = [];
             return $this->config;
         }
 
@@ -127,7 +127,7 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
         if (!isset($config[$this->configKey])
             || !is_array($config[$this->configKey])
         ) {
-            $this->config = array();
+            $this->config = [];
             return $this->config;
         }
 

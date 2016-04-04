@@ -18,14 +18,15 @@
 
 namespace HumusAmqpModule;
 
+use AMQPConnection;
 use Zend\Console\Adapter\AdapterInterface as ConsoleAdapter;
 use Zend\EventManager\EventInterface;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\BootstrapListenerInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
+use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\Config;
-use AMQPConnection;
 
 /**
  * Class Module
@@ -52,14 +53,14 @@ class Module implements
         $config = $serviceManager->get('Config');
 
         // Use naming conventions to set up a bunch of services based on namespace:
-        $namespaces = array(
+        $namespaces = [
             'Callback' => 'callback',
             'Connection' => 'connection',
             'Producer' => 'producer',
             'Consumer' => 'consumer',
             'RpcClient' => 'rpc_client',
             'RpcServer' => 'rpc_server'
-        );
+        ];
 
         // register plugin managers
         foreach ($namespaces as $ns => $configKey) {
@@ -67,7 +68,7 @@ class Module implements
             $factory = function () use ($serviceName, $config, $ns, $configKey, $serviceManager) {
                 $serviceConfig = $config['humus_amqp_module']['plugin_managers'][$configKey];
                 $service = new $serviceName(new Config($serviceConfig));
-                /* @var $service \Zend\ServiceManager\AbstractPluginManager */
+                /* @var $service AbstractPluginManager */
                 $service->setServiceLocator($serviceManager);
                 if ('Connection' == $ns) {
                     $service->addInitializer(function (AMQPConnection $connection) {
@@ -102,16 +103,16 @@ class Module implements
      */
     public function getAutoloaderConfig()
     {
-        return array(
-            'Zend\Loader\ClassMapAutoloader' => array(
+        return [
+            'Zend\Loader\ClassMapAutoloader' => [
                 __DIR__ . '/../../autoload_classmap.php'
-            ),
-            'Zend\Loader\StandardAutoloader' => array(
-                'namespaces' => array(
+            ],
+            'Zend\Loader\StandardAutoloader' => [
+                'namespaces' => [
                     __NAMESPACE__ => __DIR__,
-                ),
-            ),
-        );
+                ]
+            ]
+        ];
     }
 
     /**
@@ -122,7 +123,7 @@ class Module implements
      */
     public function getConsoleUsage(ConsoleAdapter $adapter)
     {
-        $usage = array();
+        $usage = [];
 
         if (class_exists('HumusSupervisorModule\\Module')) {
             $usage['humus amqp gen-supervisord-config [<path>]'] =
@@ -141,32 +142,32 @@ class Module implements
         $usage['humus amqp consumer <name> [<amount>] [--without-signals|-w]'] =
             'Start a consumer by name, msg limits the messages of available';
 
-        $usage[] = array(
+        $usage[] = [
             '    Available arguments:'
-        );
-        $usage[] = array(
+        ];
+        $usage[] = [
             '    --route|-r',
             '    Routing key to use',
-        );
-        $usage[] = array(
+        ];
+        $usage[] = [
             '    --memory_limit|-l',
             '    Memory limit',
-        );
-        $usage[] = array(
+        ];
+        $usage[] = [
             '    --debug|-d',
             '    Protocol level debug',
             ''
-        );
+        ];
         $usage['humus amqp stdin-producer <name> [--route] <msg>'] = 'Produce a with a consumer by bame';
 
-        $usage[] = array(
+        $usage[] = [
             '    Available arguments:'
-        );
-        $usage[] = array(
+        ];
+        $usage[] = [
             '    --route|-r',
             '    Routing key to use',
             ''
-        );
+        ];
         $usage['humus amqp purge-consumer <consumer-name>'] = 'Purge a consumer queue';
 
         $usage['humus amqp rpc-server <name> [<amount>] [--without-signals|-w]'] = 'Start an rpc server by name';

@@ -24,7 +24,7 @@ class QueueSpecificationTest extends \PHPUnit_Framework_TestCase
 {
     public function testGettersAndSetters()
     {
-        $spec = new QueueSpecification(array(
+        $spec = new QueueSpecification([
             'name' => 'name',
             'connection' => 'testconnection',
             'exchange' => 'exchange',
@@ -32,19 +32,19 @@ class QueueSpecificationTest extends \PHPUnit_Framework_TestCase
             'durable' => false,
             'exclusive' => true,
             'autoDelete' => true,
-            'arguments' => array(
+            'arguments' => [
                 'key1' => 'value1',
                 'key2' => 'value2'
-            ),
-            'routingKeys' => array(
+            ],
+            'routingKeys' => [
                 'r1',
                 'r2'
-            ),
-            'bindArguments' => array(
+            ],
+            'bindArguments' => [
                 'key3' => 'value3',
                 'key4' => 'value4'
-            ),
-        ));
+            ],
+        ]);
 
         $this->assertSame('name', $spec->getName());
         $this->assertSame('testconnection', $spec->getConnection());
@@ -54,51 +54,51 @@ class QueueSpecificationTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($spec->getExclusive());
         $this->assertTrue($spec->getAutoDelete());
         $this->assertEquals(
-            array(
+            [
                 'key1' => 'value1',
                 'key2' => 'value2'
-            ),
+            ],
             $spec->getArguments()
         );
         $this->assertEquals(
-            array(
+            [
                 'r1',
                 'r2'
-            ),
+            ],
             $spec->getRoutingKeys()
         );
         $this->assertEquals(
-            array(
+            [
                 'key3' => 'value3',
                 'key4' => 'value4'
-            ),
+            ],
             $spec->getBindArguments()
         );
     }
 
     public function testRabbitMqExtensions()
     {
-        $spec = new QueueSpecification(array(
+        $spec = new QueueSpecification([
             'match_headers_exchange' => 'all',
             'ha_policy' => 'all',
-            'ha_policy_params' => array(
+            'ha_policy_params' => [
                 'user@hostname',
                 'user2@hostname'
-            ),
+            ],
             'expires' => 20,
             'message_ttl' => 10,
             'dead_letter_exchange' => 'bar',
             'dead_letter_routing_key' => 'baz',
             'max_length' => 1024
-        ));
+        ]);
 
         $this->assertSame('all', $spec->getMatchHeadersExchange());
         $this->assertSame('all', $spec->getHaPolicy());
         $this->assertEquals(
-            array(
+            [
                 'user@hostname',
                 'user2@hostname'
-            ),
+            ],
             $spec->getHaPolicyParams()
         );
         $this->assertSame(20, $spec->getExpires());
@@ -107,24 +107,24 @@ class QueueSpecificationTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('baz', $spec->getDeadLetterRoutingKey());
         $this->assertSame(1024, $spec->getMaxLength());
         $this->assertEquals(
-            array(
+            [
                 'x-match' => 'all'
-            ),
+            ],
             $spec->getBindArguments()
         );
         $this->assertEquals(
-            array(
+            [
                 'x-ha-policy' => "all",
-                'x-ha-policy-params' => array(
+                'x-ha-policy-params' => [
                     "user@hostname",
                     "user2@hostname"
-                ),
+                ],
                 'x-expires' => 20,
                 'x-message-ttl' => 10,
                 'x-dead-letter-exchange' => "bar",
                 'x-dead-letter-routing-key' => "baz",
                 'x-max-length' => 1024
-            ),
+            ],
             $spec->getArguments()
         );
 

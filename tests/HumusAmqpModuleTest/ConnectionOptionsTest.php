@@ -24,7 +24,7 @@ class ConnectionOptionsTest extends \PHPUnit_Framework_TestCase
 {
     public function testGettersAndSetters()
     {
-        $options = new ConnectionOptions(array(
+        $options = new ConnectionOptions([
             'host' => 'localhost',
             'port' => 5672,
             'login' => 'guest',
@@ -33,7 +33,7 @@ class ConnectionOptionsTest extends \PHPUnit_Framework_TestCase
             'persistent' => false,
             'readTimeout' => 1.00,
             'writeTimeout' => 2.00,
-        ));
+        ]);
         $this->assertSame('localhost', $options->getHost());
         $this->assertSame(5672, $options->getPort());
         $this->assertSame('guest', $options->getLogin());

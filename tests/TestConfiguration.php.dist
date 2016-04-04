@@ -16,12 +16,12 @@
  * and is licensed under the MIT license.
  */
 
-return array(
-    'modules' => array(
+return [
+    'modules' => [
         'HumusAmqpModule',
-    ),
-    'module_listener_options' => array(
-        'config_glob_paths' => array(),
-        'module_paths' => array(),
-    ),
-);
+    ],
+    'module_listener_options' => [
+        'config_glob_paths' => [],
+        'module_paths' => [],
+    ],
+];

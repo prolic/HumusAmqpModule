@@ -36,7 +36,7 @@ class PurgeConsumerControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatchWithTestConsumer()
     {
-        $consumer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestConsumer', array('purge'));
+        $consumer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestConsumer', ['purge']);
         $consumer
             ->expects($this->once())
             ->method('purge');

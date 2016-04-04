@@ -29,9 +29,9 @@ class ExchangeSpecification extends AbstractOptions
     /**
      * @var array
      */
-    protected $arguments = array(
+    protected $arguments = [
         'internal' => false // RabbitMQ Extension
-    );
+    ];
 
     /**
      * @var string
@@ -46,7 +46,7 @@ class ExchangeSpecification extends AbstractOptions
     /**
      * @var array
      */
-    protected $exchangeBindings = array(); // RabbitMQ Extension
+    protected $exchangeBindings = []; // RabbitMQ Extension
 
     /**
      * @var bool
@@ -218,7 +218,7 @@ class ExchangeSpecification extends AbstractOptions
      *
      * @param array $exchangeBindings
      */
-    public function setExchangeBindings(array $exchangeBindings = array())
+    public function setExchangeBindings(array $exchangeBindings = [])
     {
         $this->exchangeBindings = $exchangeBindings;
     }

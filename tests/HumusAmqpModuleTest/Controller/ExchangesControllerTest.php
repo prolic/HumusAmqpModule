@@ -47,18 +47,18 @@ class ExchangesControllerTest extends AbstractConsoleControllerTestCase
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
         $config = $serviceManager->get('Config');
-        $config['humus_amqp_module']['exchanges']['foo'] = array(
+        $config['humus_amqp_module']['exchanges']['foo'] = [
             'name' => 'foo',
             'type' => 'topic'
-        );
-        $config['humus_amqp_module']['exchanges']['bar'] = array(
+        ];
+        $config['humus_amqp_module']['exchanges']['bar'] = [
             'name' => 'bar',
             'type' => 'topic'
-        );
-        $config['humus_amqp_module']['exchanges']['baz'] = array(
+        ];
+        $config['humus_amqp_module']['exchanges']['baz'] = [
             'name' => 'baz',
             'type' => 'direct'
-        );
+        ];
         $serviceManager->setService('Config', $config);
 
         ob_start();

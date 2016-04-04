@@ -43,7 +43,7 @@ class MessageAttributes extends AbstractOptions
     /**
      * @var array
      */
-    protected $headers = array();
+    protected $headers = [];
 
     /**
      * @var int
@@ -196,7 +196,7 @@ class MessageAttributes extends AbstractOptions
      */
     public function setDeliveryMode($deliveryMode)
     {
-        if (!in_array($deliveryMode, array(self::DELIVERY_MODE_NON_PERSISTENT, self::DELIVERY_MODE_PERSISTENT))) {
+        if (!in_array($deliveryMode, [self::DELIVERY_MODE_NON_PERSISTENT, self::DELIVERY_MODE_PERSISTENT])) {
             throw new Exception\InvalidArgumentException(
                 'delivery mode must be one of 1 or 2, ' . $deliveryMode . ' given'
             );
@@ -391,7 +391,7 @@ class MessageAttributes extends AbstractOptions
      */
     public function toArray()
     {
-        $array = array();
+        $array = [];
         $transform = function ($letters) {
             $letter = array_shift($letters);
             return '_' . strtolower($letter);

@@ -51,9 +51,9 @@ class GenSupervisordConfigController extends AbstractConsoleController
         $moduleConfig = $config['humus_amqp_module'];
         $supervisordConfig = $config['humus_supervisor_module']['humus-amqp-supervisor']['supervisord'];
 
-        $consumerTypes = array(
+        $consumerTypes = [
             'consumers', 'rpc_servers'
-        );
+        ];
 
         $config = new Configuration();
 
@@ -82,7 +82,7 @@ class GenSupervisordConfigController extends AbstractConsoleController
             }
 
             foreach ($partConfig as $name => $part) {
-                $section = new ProgramSection($name, array(
+                $section = new ProgramSection($name, [
                     'process_name' => '%(program_name)s_%(host_node_name)s_%(process_num)02d',
                     'directory' => getcwd(),
                     'autostart' => true,
@@ -90,7 +90,7 @@ class GenSupervisordConfigController extends AbstractConsoleController
                     'numprocs' => 1,
                     'command' => 'php public/index.php humus amqp '
                         . str_replace('_', '-', strtolower(substr($consumerType, 0, -1))) . ' ' . $name
-                ));
+                ]);
 
                 if (isset($part['supervisord']) && is_array($part['supervisord'])) {
                     $options = array_merge($section->getOptions(), $part['supervisord']);
@@ -106,10 +106,10 @@ class GenSupervisordConfigController extends AbstractConsoleController
         $error = ErrorHandler::stop();
         if (false === $rs || $error) {
             $this->getConsole()->writeLine('ERROR: Cannot write configuration to ' . $path, ColorInterface::RED);
-            return null;
+            return;
         }
 
         $this->getConsole()->writeLine('OK: configuration written to ' . $path, ColorInterface::GREEN);
-        return null;
+        return;
     }
 }

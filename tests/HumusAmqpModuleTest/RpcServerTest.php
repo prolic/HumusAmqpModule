@@ -3,16 +3,13 @@
 namespace HumusAmqpModuleTest;
 
 use HumusAmqpModule\RpcServer;
-use Mockery as m;
 
+/**
+ * Class RpcServerTest
+ * @package HumusAmqpModuleTest
+ */
 class RpcServerTest extends \PHPUnit_Framework_TestCase
 {
-
-    protected function tearDown()
-    {
-        m::close();
-    }
-
     public function testProcessMessage()
     {
         $amqpChannel = $this->getMockBuilder('AMQPChannel')
@@ -33,11 +30,6 @@ class RpcServerTest extends \PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $eventResponse = $this->getMock('Zend\EventManager\ResponseCollection');
-
-        $eventManager = m::mock('Zend\EventManager\EventManager');
-        $eventManager->shouldReceive('setIdentifiers');
-
         $message->expects($this->once())->method('getDeliveryTag')->willReturn('delivery-tag');
         $message->expects($this->once())->method('getCorrelationId')->willReturn('correlation-id');
         $message->expects($this->once())->method('getReplyTo')->willReturn('reply-to');
@@ -45,8 +37,7 @@ class RpcServerTest extends \PHPUnit_Framework_TestCase
         $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
         $amqpQueue->expects($this->any())->method('get')->willReturn($message);
 
-
-        $reponse = json_encode(array('success' => true, 'result' => 'response-result'));
+        $reponse = json_encode(['success' => true, 'result' => 'response-result']);
         $amqpExchange->expects($this->once())->method('publish')
             ->with(
                 $this->equalTo($reponse),
@@ -60,18 +51,16 @@ class RpcServerTest extends \PHPUnit_Framework_TestCase
             );
 
         $rpcServer = new RpcServer($amqpQueue, 1, 1 * 1000 * 500);
-        $rpcServer->setEventManager($eventManager);
         $rpcServer->setExchange($amqpExchange);
+        $rpcServer->setDeliveryCallback(function () {
+            return 'response-result';
+        });
 
-        $eventResponse->expects($this->atLeast(1))->method('last')->willReturn('response-result');
-        $eventManager->shouldReceive('trigger')
-            ->once()
-            ->with('delivery', $rpcServer, ['message' => $message, 'queue' => $amqpQueue])
-            ->andReturn($eventResponse);
-
-        $eventManager->shouldReceive('trigger')
-            ->once()
-            ->with('ack', $rpcServer, m::any());
+        $logger = new \Zend\Log\Logger();
+        $writers = new \Zend\Stdlib\SplPriorityQueue();
+        $writers->insert(new \Zend\Log\Writer\Noop(), 0);
+        $logger->setWriters($writers);
+        $rpcServer->setLogger($logger);
 
         $amqpQueue->expects($this->once())->method('ack');
 

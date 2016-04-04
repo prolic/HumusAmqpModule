@@ -25,7 +25,6 @@
         "phpunit/PHPUnit": ">=4.0",
         "squizlabs/php_codesniffer":   "1.5.*",
         "zendframework/zendframework": ">=2.3.0",
-        "mockery/mockery": "@stable",
         "prolic/humus-supervisor-module": "dev-master",
         "empi89/php-amqp-stubs": "dev-master"
     },

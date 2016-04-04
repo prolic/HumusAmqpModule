@@ -24,10 +24,10 @@ class QosOptionsTest extends \PHPUnit_Framework_TestCase
 {
     public function testGettersAndSetters()
     {
-        $options = new QosOptions(array(
+        $options = new QosOptions([
             'prefetchSize' => 5,
             'prefetchCount' => 10,
-        ));
+        ]);
         $this->assertSame(5, $options->getPrefetchSize());
         $this->assertSame(10, $options->getPrefetchCount());
     }

@@ -23,7 +23,6 @@ use HumusAmqpModule\PluginManager\Consumer as ConsumerPluginManager;
 use HumusAmqpModuleTest\Service\TestAsset\ConsumerAbstractServiceFactory;
 use HumusAmqpModule\Service\ProducerAbstractServiceFactory;
 use Zend\ServiceManager\ServiceManager;
-use Mockery as m;
 
 class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -37,21 +36,15 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     protected $components;
 
-    protected function tearDown()
-    {
-        m::close();
-    }
-
-
     public function prepare($config)
     {
-        $connection = $this->getMock('AMQPConnection', array(), array(), '', false);
-        $channel    = $this->getMock('AMQPChannel', array(), array(), '', false);
+        $connection = $this->getMock('AMQPConnection', [], [], '', false);
+        $channel    = $this->getMock('AMQPChannel', [], [], '', false);
         $channel
             ->expects($this->any())
             ->method('getPrefetchCount')
             ->will($this->returnValue(10));
-        $queue      = $this->getMock('AMQPQueue', array(), array(), '', false);
+        $queue      = $this->getMock('AMQPQueue', [], [], '', false);
         $queue
             ->expects($this->any())
             ->method('getChannel')
@@ -69,8 +62,6 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             ->with('default')
             ->willReturn($connection);
 
-        $myListener = $this->getMock('Zend\EventManager\ListenerAggregateInterface');
-
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
         $services->setService('Config', $config);
@@ -81,7 +72,6 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
         $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager);
         $services->setService('HumusAmqpModule\PluginManager\Callback', $callbackManager);
-        $services->setService('My\Listener', $myListener);
 
         $components = $this->components = new ConsumerAbstractServiceFactory();
         $components->setChannelMock($channel);
@@ -94,37 +84,36 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateConsumer()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'exchanges' => array(
-                    'demo-exchange' => array(
+                'exchanges' => [
+                    'demo-exchange' => [
                         'name' => 'demo-exchange',
                         'type' => 'direct'
-                    )
-                ),
-                'queues' => array(
-                    'demo-queue' => array(
+                    ]
+                ],
+                'queues' => [
+                    'demo-queue' => [
                         'name' => 'demo-queue',
                         'exchange' => 'demo-exchange'
-                    )
-                ),
-                'consumers' => array(
-                    'test-consumer' => array(
+                    ]
+                ],
+                'consumers' => [
+                    'test-consumer' => [
                         'connection' => 'default',
                         'queues' => ['demo-queue'],
                         'auto_setup_fabric' => false,
                         'callback' => 'test-callback',
                         'flush_callback' => 'test-callback',
                         'error_callback' => 'test-callback',
-                        'listeners' => ['My\\Listener'],
-                        'qos' => array(
+                        'qos' => [
                             'prefetchCount' => 10
-                        )
-                    ),
-                ),
-            )
-        );
+                        ]
+                    ],
+                ],
+            ]
+        ];
 
         $this->prepare($config);
 
@@ -140,35 +129,35 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateConsumerThrowsExceptionOnInvalidLogger()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'exchanges' => array(
-                    'demo-exchange' => array(
+                'exchanges' => [
+                    'demo-exchange' => [
                         'name' => 'demo-exchange',
                         'type' => 'direct'
-                    )
-                ),
-                'queues' => array(
-                    'demo-queue' => array(
+                    ]
+                ],
+                'queues' => [
+                    'demo-queue' => [
                         'name' => 'demo-queue',
                         'exchange' => 'demo-exchange'
-                    )
-                ),
-                'consumers' => array(
-                    'test-consumer' => array(
+                    ]
+                ],
+                'consumers' => [
+                    'test-consumer' => [
                         'connection' => 'default',
                         'queues' => ['demo-queue'],
                         'auto_setup_fabric' => false,
                         'logger' => 'invalid stuff',
                         'callback' => 'test-callback',
-                        'qos' => array(
+                        'qos' => [
                             'prefetchCount' => 10
-                        )
-                    ),
-                ),
-            )
-        );
+                        ]
+                    ],
+                ],
+            ]
+        ];
 
         $this->prepare($config);
 
@@ -181,34 +170,34 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateConsumerThrowsExceptionOnInvalidCallback()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'exchanges' => array(
-                    'demo-exchange' => array(
+                'exchanges' => [
+                    'demo-exchange' => [
                         'name' => 'demo-exchange',
                         'type' => 'direct'
-                    )
-                ),
-                'queues' => array(
-                    'demo-queue' => array(
+                    ]
+                ],
+                'queues' => [
+                    'demo-queue' => [
                         'name' => 'demo-queue',
                         'exchange' => 'demo-exchange'
-                    )
-                ),
-                'consumers' => array(
-                    'test-consumer' => array(
+                    ]
+                ],
+                'consumers' => [
+                    'test-consumer' => [
                         'connection' => 'default',
                         'queues' => ['demo-queue'],
                         'auto_setup_fabric' => false,
                         'callback' => 'invalid-callback',
-                        'qos' => array(
+                        'qos' => [
                             'prefetchCount' => 10
-                        )
-                    ),
-                ),
-            )
-        );
+                        ]
+                    ],
+                ],
+            ]
+        ];
 
         $this->prepare($config);
 
@@ -221,35 +210,35 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateConsumerThrowsExceptionOnInvalidFlushCallback()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'exchanges' => array(
-                    'demo-exchange' => array(
+                'exchanges' => [
+                    'demo-exchange' => [
                         'name' => 'demo-exchange',
                         'type' => 'direct'
-                    )
-                ),
-                'queues' => array(
-                    'demo-queue' => array(
+                    ]
+                ],
+                'queues' => [
+                    'demo-queue' => [
                         'name' => 'demo-queue',
                         'exchange' => 'demo-exchange'
-                    )
-                ),
-                'consumers' => array(
-                    'test-consumer' => array(
+                    ]
+                ],
+                'consumers' => [
+                    'test-consumer' => [
                         'connection' => 'default',
                         'queues' => ['demo-queue'],
                         'auto_setup_fabric' => false,
                         'callback' => 'test-callback',
                         'flush_callback' => 'invalid-callback',
-                        'qos' => array(
+                        'qos' => [
                             'prefetchCount' => 10
-                        )
-                    ),
-                ),
-            )
-        );
+                        ]
+                    ],
+                ],
+            ]
+        ];
 
         $this->prepare($config);
 
@@ -262,35 +251,75 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateConsumerThrowsExceptionOnInvalidErrorCallback()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'exchanges' => array(
-                    'demo-exchange' => array(
+                'exchanges' => [
+                    'demo-exchange' => [
                         'name' => 'demo-exchange',
                         'type' => 'direct'
-                    )
-                ),
-                'queues' => array(
-                    'demo-queue' => array(
+                    ]
+                ],
+                'queues' => [
+                    'demo-queue' => [
                         'name' => 'demo-queue',
                         'exchange' => 'demo-exchange'
-                    )
-                ),
-                'consumers' => array(
-                    'test-consumer' => array(
+                    ]
+                ],
+                'consumers' => [
+                    'test-consumer' => [
                         'connection' => 'default',
                         'queues' => ['demo-queue'],
                         'auto_setup_fabric' => false,
                         'callback' => 'test-callback',
                         'error_callback' => 'invalid-callback',
-                        'qos' => array(
+                        'qos' => [
                             'prefetchCount' => 10
-                        )
-                    ),
-                ),
-            )
-        );
+                        ]
+                    ],
+                ],
+            ]
+        ];
+
+        $this->prepare($config);
+
+        $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
+    }
+
+    /**
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedExceptionMessage No delivery callback specified for consumer test-consumer
+     */
+    public function testCreateConsumerThrowsExceptionOnMissingCallback()
+    {
+        $config = [
+            'humus_amqp_module' => [
+                'default_connection' => 'default',
+                'exchanges' => [
+                    'demo-exchange' => [
+                        'name' => 'demo-exchange',
+                        'type' => 'direct'
+                    ]
+                ],
+                'queues' => [
+                    'demo-queue' => [
+                        'name' => 'demo-queue',
+                        'exchange' => 'demo-exchange'
+                    ]
+                ],
+                'consumers' => [
+                    'test-consumer' => [
+                        'connection' => 'default',
+                        'queues' => ['demo-queue'],
+                        'auto_setup_fabric' => false,
+                        'error_callback' => 'invalid-callback',
+                        'qos' => [
+                            'prefetchCount' => 10
+                        ]
+                    ],
+                ],
+            ]
+        ];
 
         $this->prepare($config);
 
@@ -303,34 +332,34 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateConsumerThrowsExceptionOnMissingQueues()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'exchanges' => array(
-                    'demo-exchange' => array(
+                'exchanges' => [
+                    'demo-exchange' => [
                         'name' => 'demo-exchange',
                         'type' => 'direct'
-                    )
-                ),
-                'queues' => array(
-                    'demo-queue' => array(
+                    ]
+                ],
+                'queues' => [
+                    'demo-queue' => [
                         'name' => 'demo-queue',
                         'exchange' => 'demo-exchange'
-                    )
-                ),
-                'consumers' => array(
-                    'test-consumer' => array(
+                    ]
+                ],
+                'consumers' => [
+                    'test-consumer' => [
                         'connection' => 'default',
                         'auto_setup_fabric' => false,
                         'callback' => 'test-callback',
                         'error_callback' => 'invalid-callback',
-                        'qos' => array(
+                        'qos' => [
                             'prefetchCount' => 10
-                        )
-                    ),
-                ),
-            )
-        );
+                        ]
+                    ],
+                ],
+            ]
+        ];
 
         $this->prepare($config);
 
@@ -343,34 +372,34 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateConsumerThrowsExceptionOnMissingQueue()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'exchanges' => array(
-                    'demo-exchange' => array(
+                'exchanges' => [
+                    'demo-exchange' => [
                         'name' => 'demo-exchange',
                         'type' => 'direct'
-                    )
-                ),
-                'queues' => array(
-                    'demo-queue' => array(
+                    ]
+                ],
+                'queues' => [
+                    'demo-queue' => [
                         'name' => 'demo-queue',
                         'exchange' => 'demo-exchange'
-                    )
-                ),
-                'consumers' => array(
-                    'test-consumer' => array(
+                    ]
+                ],
+                'consumers' => [
+                    'test-consumer' => [
                         'connection' => 'default',
                         'queues' => ['invalid-queue'],
                         'auto_setup_fabric' => false,
                         'callback' => 'test-callback',
-                        'qos' => array(
+                        'qos' => [
                             'prefetchCount' => 10
-                        )
-                    ),
-                ),
-            )
-        );
+                        ]
+                    ],
+                ],
+            ]
+        ];
 
         $this->prepare($config);
 
@@ -383,30 +412,30 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateConsumerThrowsExceptionOnQueuesExchangeMissing()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'exchanges' => array(
-                ),
-                'queues' => array(
-                    'demo-queue' => array(
+                'exchanges' => [
+                ],
+                'queues' => [
+                    'demo-queue' => [
                         'name' => 'demo-queue',
                         'exchange' => 'demo-exchange'
-                    )
-                ),
-                'consumers' => array(
-                    'test-consumer' => array(
+                    ]
+                ],
+                'consumers' => [
+                    'test-consumer' => [
                         'connection' => 'default',
                         'queues' => ['demo-queue'],
                         'auto_setup_fabric' => false,
                         'callback' => 'test-callback',
-                        'qos' => array(
+                        'qos' => [
                             'prefetchCount' => 10
-                        )
-                    ),
-                ),
-            )
-        );
+                        ]
+                    ],
+                ],
+            ]
+        ];
 
         $this->prepare($config);
 
@@ -415,35 +444,35 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateConsumerThrowsExceptionOnQueueConnectionMismatch()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'exchanges' => array(
-                    'demo-exchange' => array(
+                'exchanges' => [
+                    'demo-exchange' => [
                         'name' => 'demo-exchange',
                         'type' => 'direct'
-                    )
-                ),
-                'queues' => array(
-                    'demo-queue' => array(
+                    ]
+                ],
+                'queues' => [
+                    'demo-queue' => [
                         'name' => 'demo-queue',
                         'exchange' => 'demo-exchange',
                         'connection' => 'other'
-                    )
-                ),
-                'consumers' => array(
-                    'test-consumer' => array(
+                    ]
+                ],
+                'consumers' => [
+                    'test-consumer' => [
                         'connection' => 'default',
                         'queues' => ['demo-queue'],
                         'auto_setup_fabric' => false,
                         'callback' => 'test-callback',
-                        'qos' => array(
+                        'qos' => [
                             'prefetchCount' => 10
-                        )
-                    ),
-                ),
-            )
-        );
+                        ]
+                    ],
+                ],
+            ]
+        ];
 
         $this->prepare($config);
 
@@ -458,36 +487,36 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateConsumerThrowsExceptionOnQueueToExchangeConnectionMismatch()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'exchanges' => array(
-                    'demo-exchange' => array(
+                'exchanges' => [
+                    'demo-exchange' => [
                         'name' => 'demo-exchange',
                         'type' => 'direct',
                         'connection' => 'other'
-                    )
-                ),
-                'queues' => array(
-                    'demo-queue' => array(
+                    ]
+                ],
+                'queues' => [
+                    'demo-queue' => [
                         'name' => 'demo-queue',
                         'exchange' => 'demo-exchange',
                         'connection' => 'default'
-                    )
-                ),
-                'consumers' => array(
-                    'test-consumer' => array(
+                    ]
+                ],
+                'consumers' => [
+                    'test-consumer' => [
                         'connection' => 'default',
                         'queues' => ['demo-queue'],
                         'auto_setup_fabric' => false,
                         'callback' => 'test-callback',
-                        'qos' => array(
+                        'qos' => [
                             'prefetchCount' => 10
-                        )
-                    ),
-                ),
-            )
-        );
+                        ]
+                    ],
+                ],
+            ]
+        ];
 
         $this->prepare($config);
 
@@ -502,48 +531,48 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateConsumerWithCustomLogger()
     {
-        $config = array(
-            'log' => array(
-                'consumer-logger' => array(
-                    'writers' => array(
-                        array(
+        $config = [
+            'log' => [
+                'consumer-logger' => [
+                    'writers' => [
+                        [
                             'name' => 'stream',
                             'priority' => 1000,
-                            'options' => array(
+                            'options' => [
                                 'stream' => sys_get_temp_dir() . '/consumers.log'
-                            )
-                        )
-                    )
-                )
-            ),
-            'humus_amqp_module' => array(
+                            ]
+                        ]
+                    ]
+                ]
+            ],
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'exchanges' => array(
-                    'demo-exchange' => array(
+                'exchanges' => [
+                    'demo-exchange' => [
                         'name' => 'demo-exchange',
                         'type' => 'direct'
-                    )
-                ),
-                'queues' => array(
-                    'demo-queue' => array(
+                    ]
+                ],
+                'queues' => [
+                    'demo-queue' => [
                         'name' => 'demo-queue',
                         'exchange' => 'demo-exchange'
-                    )
-                ),
-                'consumers' => array(
-                    'test-consumer' => array(
+                    ]
+                ],
+                'consumers' => [
+                    'test-consumer' => [
                         'connection' => 'default',
                         'queues' => ['demo-queue'],
                         'auto_setup_fabric' => false,
                         'logger' => 'consumer-logger',
                         'callback' => 'test-callback',
-                        'qos' => array(
+                        'qos' => [
                             'prefetchCount' => 10
-                        )
-                    ),
-                ),
-            ),
-        );
+                        ]
+                    ],
+                ],
+            ],
+        ];
 
         $this->prepare($config);
         $this->services->addAbstractFactory(new \Zend\Log\LoggerAbstractServiceFactory());

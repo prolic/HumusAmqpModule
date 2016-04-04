@@ -124,8 +124,8 @@ class RpcServerController extends AbstractConsoleController
             );
         }
 
-        pcntl_signal(SIGTERM, array($this, 'stopRpcServer'));
-        pcntl_signal(SIGINT, array($this, 'stopRpcServer'));
-        pcntl_signal(SIGHUP, array($this, 'stopRpcServer'));
+        pcntl_signal(SIGTERM, [$this, 'stopRpcServer']);
+        pcntl_signal(SIGINT, [$this, 'stopRpcServer']);
+        pcntl_signal(SIGHUP, [$this, 'stopRpcServer']);
     }
 }

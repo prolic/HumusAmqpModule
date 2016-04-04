@@ -37,44 +37,42 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'exchanges' => array(
-                    'test-rpc-server' => array(
+                'exchanges' => [
+                    'test-rpc-server' => [
                         'name' => 'test-rpc-server',
                         'type' => 'direct'
-                    ),
-                ),
-                'queues' => array(
-                    'test-rpc-server' => array(
+                    ],
+                ],
+                'queues' => [
+                    'test-rpc-server' => [
                         'name' => 'test-rpc-server',
                         'exchange' => 'test-rpc-server'
-                    ),
-                ),
-                'rpc_servers' => array(
-                    'test-rpc-server' => array(
+                    ],
+                ],
+                'rpc_servers' => [
+                    'test-rpc-server' => [
                         'connection' => 'default',
                         'queue' => 'test-rpc-server',
                         'callback' => 'test-callback',
-                        'listeners' => ['My\\Listener'],
-                        'logger' => 'custom-log',
-                        'qos' => array(
+                        'qos' => [
                             'prefetchSize' => 0,
                             'prefetchCount' => 1,
-                        ),
-                    ),
-                ),
-            )
-        );
+                        ],
+                    ],
+                ],
+            ]
+        ];
 
-        $connection = $this->getMock('AMQPConnection', array(), array(), '', false);
-        $channel    = $this->getMock('AMQPChannel', array(), array(), '', false);
+        $connection = $this->getMock('AMQPConnection', [], [], '', false);
+        $channel    = $this->getMock('AMQPChannel', [], [], '', false);
         $channel
             ->expects($this->any())
             ->method('getPrefetchCount')
             ->will($this->returnValue(10));
-        $queue      = $this->getMock('AMQPQueue', array(), array(), '', false);
+        $queue      = $this->getMock('AMQPQueue', [], [], '', false);
         $queue
             ->expects($this->any())
             ->method('getChannel')
@@ -92,7 +90,6 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             ->with('default')
             ->willReturn($connection);
 
-        $myListener = $this->getMock('Zend\EventManager\ListenerAggregateInterface');
         $customLog = $this->getMock('Zend\Log\LoggerInterface');
 
         $services    = $this->services = new ServiceManager();
@@ -105,7 +102,6 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
         $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager);
         $services->setService('HumusAmqpModule\PluginManager\Callback', $callbackManager);
-        $services->setService('My\Listener', $myListener);
         $services->setService('custom-log', $customLog);
 
         $components = $this->components = new TestAsset\RpcServerAbstractServiceFactory();
@@ -125,6 +121,19 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $rpcServer = $this->components->createServiceWithName($this->services, 'test-rpc-server', 'test-rpc-server');
         $this->assertInstanceOf('HumusAmqpModule\RpcServer', $rpcServer);
+    }
+
+    /**
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedExceptionMessage Callback is missing for rpc server test-rpc-server
+     */
+    public function testCreateRpcServerWithoutCallback()
+    {
+        $config = $this->services->get('Config');
+        unset($config['humus_amqp_module']['rpc_servers']['test-rpc-server']['callback']);
+        $this->services->setService('Config', $config);
+
+        $this->components->createServiceWithName($this->services, 'test-rpc-server', 'test-rpc-server');
     }
 
     /**

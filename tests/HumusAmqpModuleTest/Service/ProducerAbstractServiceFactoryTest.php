@@ -37,66 +37,66 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'connections' => array(
-                    'default' => array(
+                'connections' => [
+                    'default' => [
                         'host' => 'localhost',
                         'port' => 5672,
                         'login' => 'guest',
                         'password' => 'guest',
                         'vhost' => '/',
-                    )
-                ),
-                'exchanges' => array(
-                    'demo-exchange' => array(
+                    ]
+                ],
+                'exchanges' => [
+                    'demo-exchange' => [
                         'name' => 'demo-exchange',
                         'type' => 'direct',
                         'durable' => false,
                         'autoDelete' => true
-                    ),
-                    'invalid-exchange' => array(
+                    ],
+                    'invalid-exchange' => [
                         'connection' => 'invalid-second'
-                    )
-                ),
-                'queues' => array(
-                    'test-queue' => array(
+                    ]
+                ],
+                'queues' => [
+                    'test-queue' => [
                         'name' => 'test-queue',
                         'exchange' => 'demo-exchange',
                         'autoDelete' => true
-                    )
-                ),
-                'producers' => array(
-                    'test-producer' => array(
+                    ]
+                ],
+                'producers' => [
+                    'test-producer' => [
                         'connection' => 'default',
                         'exchange' => 'demo-exchange',
                         'auto_setup_fabric' => true
-                    ),
-                    'test-producer-2' => array(
+                    ],
+                    'test-producer-2' => [
                         'exchange' => 'demo-exchange',
                         'auto_setup_fabric' => true
-                    ),
-                    'test-producer-3' => array(
-                    ),
-                    'test-producer-4' => array(
+                    ],
+                    'test-producer-3' => [
+                    ],
+                    'test-producer-4' => [
                         'exchange' => 'missing-exchange'
-                    ),
-                    'test-producer-5' => array(
+                    ],
+                    'test-producer-5' => [
                         'connection' => 'invalid-connection',
                         'exchange' => 'invalid-exchange'
-                    )
-                )
-            )
-        );
+                    ]
+                ]
+            ]
+        ];
 
-        $connection = $this->getMock('AMQPConnection', array(), array(), '', false);
-        $channel    = $this->getMock('AMQPChannel', array(), array(), '', false);
+        $connection = $this->getMock('AMQPConnection', [], [], '', false);
+        $channel    = $this->getMock('AMQPChannel', [], [], '', false);
         $channel
             ->expects($this->any())
             ->method('getPrefetchCount')
             ->will($this->returnValue(10));
-        $exchange      = $this->getMock('AMQPExchange', array(), array(), '', false);
+        $exchange      = $this->getMock('AMQPExchange', [], [], '', false);
         $exchangeFactory = $this->getMock('HumusAmqpModule\ExchangeFactory');
         $exchangeFactory
             ->expects($this->any())
@@ -167,46 +167,46 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testCannotCreateProducerWhenConnectionPluginManagerIsMissing()
     {
-        $config = array(
-            'humus_amqp_module' => array(
+        $config = [
+            'humus_amqp_module' => [
                 'default_connection' => 'default',
-                'connections' => array(
-                    'default' => array(
+                'connections' => [
+                    'default' => [
                         'host' => 'localhost',
                         'port' => 5672,
                         'login' => 'guest',
                         'password' => 'guest',
                         'vhost' => '/',
-                    )
-                ),
-                'exchanges' => array(
-                    'demo-exchange' => array(
+                    ]
+                ],
+                'exchanges' => [
+                    'demo-exchange' => [
                         'name' => 'demo-exchange',
                         'type' => 'direct',
                         'durable' => false,
                         'autoDelete' => true
-                    )
-                ),
-                'queues' => array(
-                    'test-queue' => array(
+                    ]
+                ],
+                'queues' => [
+                    'test-queue' => [
                         'name' => 'test-queue',
                         'exchange' => 'demo-exchange',
                         'autoDelete' => true
-                    )
-                ),
-                'producers' => array(
-                    'test-producer' => array(
+                    ]
+                ],
+                'producers' => [
+                    'test-producer' => [
                         'connection' => 'default',
                         'exchange' => 'demo-exchange',
                         'auto_setup_fabric' => true
-                    ),
-                    'test-producer-2' => array(
+                    ],
+                    'test-producer-2' => [
                         'exchange' => 'demo-exchange',
                         'auto_setup_fabric' => true
-                    ),
-                )
-            )
-        );
+                    ],
+                ]
+            ]
+        ];
 
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);

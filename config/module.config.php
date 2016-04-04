@@ -18,105 +18,105 @@
 
 namespace HumusAmqpModule;
 
-$config = array(
-    'console' => array(
+$config = [
+    'console' => [
         'router' => include __DIR__ . '/console.router.config.php'
-    ),
-    'controllers' => array(
-        'invokables' => array(
+    ],
+    'controllers' => [
+        'invokables' => [
             __NAMESPACE__ . '\\Controller\\List' => __NAMESPACE__ . '\\Controller\\ListController',
             __NAMESPACE__ . '\\Controller\\Exchanges' => __NAMESPACE__ . '\\Controller\\ExchangesController',
             __NAMESPACE__ . '\\Controller\\GenSupervisordConfig' => __NAMESPACE__ . '\\Controller\GenSupervisordConfigController'
-        ),
-        'factories' => array(
+        ],
+        'factories' => [
             __NAMESPACE__ . '\\Controller\\Consumer' => __NAMESPACE__ . '\\Service\\Controller\\ConsumerFactory',
             __NAMESPACE__ . '\\Controller\\PurgeConsumer' => __NAMESPACE__ . '\\Service\\Controller\\PurgeConsumerFactory',
             __NAMESPACE__ . '\\Controller\\RpcServer' => __NAMESPACE__ . '\\Service\\Controller\\RpcServerFactory',
             __NAMESPACE__ . '\\Controller\\SetupFabric' => __NAMESPACE__ . '\\Service\\Controller\\SetupFabricFactory',
             __NAMESPACE__ . '\\Controller\\StdInProducer' => __NAMESPACE__ . '\\Service\\Controller\\StdInProducerFactory',
-        )
-    ),
-    'humus_amqp_module' => array(
+        ]
+    ],
+    'humus_amqp_module' => [
         'default_connection' => 'default',
-        'plugin_managers' => array(
-            'callback' => array(),
-            'connection' => array(
-                'abstract_factories' => array(
+        'plugin_managers' => [
+            'callback' => [],
+            'connection' => [
+                'abstract_factories' => [
                     __NAMESPACE__ . '\\Service\\ConnectionAbstractServiceFactory'
-                )
-            ),
-            'producer' => array(
-                'abstract_factories' => array(
+                ]
+            ],
+            'producer' => [
+                'abstract_factories' => [
                     __NAMESPACE__ . '\\Service\\ProducerAbstractServiceFactory'
-                )
-            ),
-            'consumer' => array(
-                'abstract_factories' => array(
+                ]
+            ],
+            'consumer' => [
+                'abstract_factories' => [
                     __NAMESPACE__ . '\\Service\\ConsumerAbstractServiceFactory'
-                )
-            ),
-            'rpc_server' => array(
-                'abstract_factories' => array(
+                ]
+            ],
+            'rpc_server' => [
+                'abstract_factories' => [
                     __NAMESPACE__ . '\\Service\\RpcServerAbstractServiceFactory'
-                )
-            ),
-            'rpc_client' => array(
-                'abstract_factories' => array(
+                ]
+            ],
+            'rpc_client' => [
+                'abstract_factories' => [
                     __NAMESPACE__ . '\\Service\\RpcClientAbstractServiceFactory'
-                )
-            )
-        ),
-        'exchanges' => array(),
-        'queues' => array(),
-        'producers' => array(),
-        'consumers' => array(),
-        'rpc_clients' => array(),
-        'rpc_servers' => array(),
-        'connections' => array()
-    ),
-    'humus_supervisor_module' => array(
-        'humus-amqp-supervisor' => array(
+                ]
+            ]
+        ],
+        'exchanges' => [],
+        'queues' => [],
+        'producers' => [],
+        'consumers' => [],
+        'rpc_clients' => [],
+        'rpc_servers' => [],
+        'connections' => []
+    ],
+    'humus_supervisor_module' => [
+        'humus-amqp-supervisor' => [
             'host' => 'localhost',
             'port' => 19005,
             'username' => 'user',
             'password' => '123',
-            'supervisord' => array(
-                'config' => array(
+            'supervisord' => [
+                'config' => [
                     'logfile' => getcwd() . '/data/supervisord/logs/supervisord.log',
                     'pidfile' => getcwd() . '/data/supervisord/supervisord.pid',
                     'childlogdir' => getcwd() . '/data/supervisord/logs',
                     'user' => get_current_user(),
-                ),
-                'rpcinterface' => array(
+                ],
+                'rpcinterface' => [
                     'supervisor.rpcinterface_factory' => 'supervisor.rpcinterface:make_main_rpcinterface'
-                ),
-                'supervisorctl' => array(
+                ],
+                'supervisorctl' => [
                     'serverurl' => getcwd() . '/data/supervisord/supervisor.sock'
-                ),
-                'unix_http_server' => array(
+                ],
+                'unix_http_server' => [
                     'file' => getcwd() . '/data/supervisord/supervisor.sock',
                     'chmod' => '0700'
-                ),
-                'inet_http_server' => array(
+                ],
+                'inet_http_server' => [
                     'port' => 19005,
                     'username' => 'user',
                     'password' => '123'
-                )
-            )
-        )
-    ),
-);
+                ]
+            ]
+        ]
+    ],
+];
 
 if (class_exists('HumusSupervisorModule\\Module')) {
-    $config['console']['router']['routes']['humus_amqp_module-gen-supervisord-config'] = array(
-        'options' => array(
+    $config['console']['router']['routes']['humus_amqp_module-gen-supervisord-config'] = [
+        'options' => [
             'route' => 'humus amqp gen-supervisord-config [<path>]',
-            'defaults' => array(
+            'defaults' => [
                 'controller' => __NAMESPACE__ . '\\Controller\GenSupervisordConfig',
                 'action' => 'index'
-            )
-        )
-    );
+            ]
+        ]
+    ];
 }
 
 return $config;

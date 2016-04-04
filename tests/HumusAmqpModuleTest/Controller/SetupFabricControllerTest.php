@@ -70,12 +70,12 @@ class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
     {
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('Config', array(
-            'humus_amqp_module' => array(
-                'exchanges' => array(),
-                'queues' => array()
-            )
-        ));
+        $serviceManager->setService('Config', [
+            'humus_amqp_module' => [
+                'exchanges' => [],
+                'queues' => []
+            ]
+        ]);
 
         ob_start();
         $this->dispatch('humus amqp setup-fabric');
@@ -89,17 +89,17 @@ class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
     {
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('Config', array(
-            'humus_amqp_module' => array(
-                'exchanges' => array(
-                    'foo' => array(
+        $serviceManager->setService('Config', [
+            'humus_amqp_module' => [
+                'exchanges' => [
+                    'foo' => [
                         'name' => 'foo',
                         'type' => 'direct'
-                    )
-                ),
-                'queues' => array()
-            )
-        ));
+                    ]
+                ],
+                'queues' => []
+            ]
+        ]);
 
         ob_start();
         $this->dispatch('humus amqp setup-fabric');

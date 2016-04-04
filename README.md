@@ -5,7 +5,7 @@ Humus AMQP Module
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/prolic/HumusAmqpModule/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/prolic/HumusAmqpModule/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/prolic/HumusAmqpModule/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/prolic/HumusAmqpModule/?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/humus-amqp-module/badge/?version=latest)](http://humus-amqp-module.readthedocs.org/en/latest/)
-[![Documentation Status](https://readthedocs.org/projects/humus-amqp-module/badge/?version=v0.1.0)](http://humus-amqp-module.readthedocs.org/en/v0.1.0/)
+[![Documentation Status](https://readthedocs.org/projects/humus-amqp-module/badge/?version=v0.1.7)](http://humus-amqp-module.readthedocs.org/en/v0.1.0/)
 [![License](https://poser.pugx.org/prolic/humus-amqp-module/license.svg)](https://packagist.org/packages/prolic/humus-amqp-module)
 
 [![Latest Stable Version](https://poser.pugx.org/prolic/humus-amqp-module/v/stable.svg)](https://packagist.org/packages/prolic/humus-amqp-module)

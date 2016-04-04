@@ -41,7 +41,7 @@ class ExchangesController extends AbstractConsoleController
         $config = $this->getServiceLocator()->get('Config');
         $moduleConfig = $config['humus_amqp_module'];
 
-        $exchanges = array();
+        $exchanges = [];
         foreach ($moduleConfig['exchanges'] as $name => $options) {
             $spec = new ExchangeSpecification($options);
             $exchanges[$spec->getType()][] = $name;

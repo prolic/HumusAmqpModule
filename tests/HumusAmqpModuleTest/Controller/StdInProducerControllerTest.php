@@ -35,7 +35,7 @@ class StdInProducerControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatch()
     {
-        $producer = $this->getMock(__NAMESPACE__ . '\TestAsset\Producer', array('publish'));
+        $producer = $this->getMock(__NAMESPACE__ . '\TestAsset\Producer', ['publish']);
         $producer
             ->expects($this->once())
             ->method('publish')

@@ -42,7 +42,7 @@ class RpcServer extends Consumer
      */
     public function __construct(AMQPQueue $queue, $idleTimeout, $waitTimeout)
     {
-        $queues = array($queue);
+        $queues = [$queue];
         parent::__construct($queues, $idleTimeout, $waitTimeout);
     }
 
@@ -50,7 +50,6 @@ class RpcServer extends Consumer
      * @param AMQPEnvelope $message
      * @param AMQPQueue $queue
      * @return bool|null
-     * @triggers delivery
      */
     public function handleDelivery(AMQPEnvelope $message, AMQPQueue $queue)
     {
@@ -61,15 +60,16 @@ class RpcServer extends Consumer
             $this->timestampLastMessage = microtime(1);
             $this->ack();
 
-            $params = compact('message', 'queue');
-            $results = $this->getEventManager()->trigger('delivery', $this, $params);
-            $result = $results->last();
+            $callback = $this->getDeliveryCallback();
+            $result = call_user_func_array($callback, [$message, $queue]);
 
-            $response = json_encode(array('success' => true, 'result' => $result));
-            $this->sendReply($response, $message->getReplyTo(), $message->getCorrelationId());
+            $reponse = json_encode(['success' => true, 'result' => $result]);
+            $this->sendReply($reponse, $message->getReplyTo(), $message->getCorrelationId());
         } catch (\Exception $e) {
-            $response = json_encode(array('success' => false, 'error' => $e->getMessage()));
-            $this->sendReply($response, $message->getReplyTo(), $message->getCorrelationId());
+            var_dump($e->getMessage());
+            die;
+            $reponse = json_encode(['success' => false, 'error' => $e->getMessage()]);
+            $this->sendReply($reponse, $message->getReplyTo(), $message->getCorrelationId());
         }
     }
 

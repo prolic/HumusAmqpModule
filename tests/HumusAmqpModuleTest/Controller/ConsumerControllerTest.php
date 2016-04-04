@@ -35,7 +35,7 @@ class ConsumerControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatchWithTestConsumer()
     {
-        $consumer = $this->getMock('HumusAmqpModule\Consumer', array('consume'), array(), '', false);
+        $consumer = $this->getMock('HumusAmqpModule\Consumer', ['consume'], [], '', false);
         $consumer
             ->expects($this->once())
             ->method('consume')

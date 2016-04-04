@@ -20,17 +20,13 @@ namespace HumusAmqpModule;
 
 use AMQPExchange;
 use AMQPQueue;
-use Zend\EventManager\EventManagerAwareInterface;
-use Zend\EventManager\EventManagerAwareTrait;
 
 /**
  * Class RpcClient
  * @package HumusAmqpModule
  */
-class RpcClient implements EventManagerAwareInterface
+class RpcClient
 {
-    use EventManagerAwareTrait;
-
     /**
      * @var AMQPQueue
      */
@@ -44,7 +40,7 @@ class RpcClient implements EventManagerAwareInterface
     /**
      * @var array
      */
-    protected $replies = array();
+    protected $replies = [];
 
     /**
      * @var int
@@ -54,7 +50,7 @@ class RpcClient implements EventManagerAwareInterface
     /**
      * @var AMQPExchange[]
      */
-    protected $exchanges = array();
+    protected $exchanges = [];
 
     /**
      * Constructor
@@ -82,18 +78,6 @@ class RpcClient implements EventManagerAwareInterface
             throw new Exception\InvalidArgumentException('You must provide a request Id');
         }
 
-        $params = compact('msgBody', 'server', 'requestId', 'routingKey', 'expiration');
-        $results = $this->getEventManager()->trigger(__FUNCTION__, $this, $params);
-        $result = $results->last();
-
-        if (is_array($result)) {
-            $msgBody    = $result['msgBody'];
-            $server     = $result['server'];
-            $requestId  = $result['requestId'];
-            $routingKey = $result['routingKey'];
-            $expiration = $result['expiration'];
-        }
-        
         $messageAttributes = new MessageAttributes();
         $messageAttributes->setReplyTo($this->queue->getName());
         $messageAttributes->setDeliveryMode(MessageAttributes::DELIVERY_MODE_NON_PERSISTENT);
@@ -144,13 +128,6 @@ class RpcClient implements EventManagerAwareInterface
 
         $this->requests = 0;
         $this->timeout = 0;
-
-        $results = $this->getEventManager()->trigger(__FUNCTION__, $this, ['replies' => $this->replies]);
-        $result = $results->last();
-
-        if (is_array($result)) {
-            return $result['replies'];
-        }
 
         return $this->replies;
     }
