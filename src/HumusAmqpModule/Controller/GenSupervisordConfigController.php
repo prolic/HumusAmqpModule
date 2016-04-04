@@ -30,11 +30,21 @@ use Zend\Mvc\Controller\AbstractConsoleController;
 use Zend\Stdlib\ErrorHandler;
 
 /**
- * Class GenSupervisordConfigController
+ * Class GensuperVisordConfigController
  * @package HumusAmqpModule\Controller
  */
 class GenSupervisordConfigController extends AbstractConsoleController
 {
+    /**
+     * @var array
+     */
+    private $config = [];
+
+    /**
+     * @var array
+     */
+    private $superVisordConfig = [];
+    
     public function indexAction()
     {
         $request = $this->getRequest();
@@ -47,34 +57,30 @@ class GenSupervisordConfigController extends AbstractConsoleController
         }
 
         // @todo: do not parse config, but use the plugin managers instead, see: getRegisteredServices()
-        $config = $this->getServiceLocator()->get('Config');
-        $moduleConfig = $config['humus_amqp_module'];
-        $supervisordConfig = $config['humus_supervisor_module']['humus-amqp-supervisor']['supervisord'];
-
         $consumerTypes = [
             'consumers', 'rpc_servers'
         ];
 
         $config = new Configuration();
 
-        $section = new SupervisordSection($supervisordConfig['config']);
+        $section = new SupervisordSection($this->superVisordConfig['config']);
         $config->addSection($section);
 
-        $section = new RpcInterfaceSection('supervisor', $supervisordConfig['rpcinterface']);
+        $section = new RpcInterfaceSection('supervisor', $this->superVisordConfig['rpcinterface']);
         $config->addSection($section);
 
-        $section = new SupervisorctlSection($supervisordConfig['supervisorctl']);
+        $section = new SupervisorctlSection($this->superVisordConfig['supervisorctl']);
         $config->addSection($section);
 
-        $section = new UnixHttpServerSection($supervisordConfig['unix_http_server']);
+        $section = new UnixHttpServerSection($this->superVisordConfig['unix_http_server']);
         $config->addSection($section);
 
-        $section = new InetHttpServerSection($supervisordConfig['inet_http_server']);
+        $section = new InetHttpServerSection($this->superVisordConfig['inet_http_server']);
         $config->addSection($section);
 
 
         foreach ($consumerTypes as $consumerType) {
-            $partConfig = $moduleConfig[$consumerType];
+            $partConfig = $this->config[$consumerType];
 
             // no config found, check next one
             if (empty($partConfig)) {
@@ -111,5 +117,21 @@ class GenSupervisordConfigController extends AbstractConsoleController
 
         $this->getConsole()->writeLine('OK: configuration written to ' . $path, ColorInterface::GREEN);
         return;
+    }
+
+    /**
+     * @param array $config
+     */
+    public function setConfig(array $config)
+    {
+        $this->config = $config;
+    }
+
+    /**
+     * @param array $superVisordConfig
+     */
+    public function setSuperVisordConfig(array $superVisordConfig)
+    {
+        $this->superVisordConfig = $superVisordConfig;
     }
 }

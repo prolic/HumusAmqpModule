@@ -31,6 +31,11 @@ use Zend\Stdlib\ResponseInterface;
 class ExchangesController extends AbstractConsoleController
 {
     /**
+     * @var array
+     */
+    private $config = [];
+    
+    /**
      * {@inheritdoc}
      */
     public function dispatch(RequestInterface $request, ResponseInterface $response = null)
@@ -38,11 +43,8 @@ class ExchangesController extends AbstractConsoleController
         parent::dispatch($request, $response);
         /* @var $response \Zend\Console\Response */
 
-        $config = $this->getServiceLocator()->get('Config');
-        $moduleConfig = $config['humus_amqp_module'];
-
         $exchanges = [];
-        foreach ($moduleConfig['exchanges'] as $name => $options) {
+        foreach ($this->config['exchanges'] as $name => $options) {
             $spec = new ExchangeSpecification($options);
             $exchanges[$spec->getType()][] = $name;
         }
@@ -61,5 +63,13 @@ class ExchangesController extends AbstractConsoleController
                 $this->getConsole()->writeLine($value);
             }
         }
+    }
+
+    /**
+     * @param array $config
+     */
+    public function setConfig(array $config)
+    {
+        $this->config = $config;
     }
 }

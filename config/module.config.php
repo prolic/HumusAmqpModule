@@ -23,13 +23,11 @@ $config = [
         'router' => include __DIR__ . '/console.router.config.php'
     ],
     'controllers' => [
-        'invokables' => [
-            __NAMESPACE__ . '\\Controller\\List' => __NAMESPACE__ . '\\Controller\\ListController',
-            __NAMESPACE__ . '\\Controller\\Exchanges' => __NAMESPACE__ . '\\Controller\\ExchangesController',
-            __NAMESPACE__ . '\\Controller\\GenSupervisordConfig' => __NAMESPACE__ . '\\Controller\GenSupervisordConfigController'
-        ],
         'factories' => [
             __NAMESPACE__ . '\\Controller\\Consumer' => __NAMESPACE__ . '\\Service\\Controller\\ConsumerFactory',
+            __NAMESPACE__ . '\\Controller\\Exchanges' => __NAMESPACE__ . '\\Service\\Controller\\ExchangesFactory',
+            __NAMESPACE__ . '\\Controller\\GenSupervisordConfig' => __NAMESPACE__ . '\\Service\\Controller\GenSupervisordConfigFactory',
+            __NAMESPACE__ . '\\Controller\\List' => __NAMESPACE__ . '\\Service\\Controller\\ListFactory',
             __NAMESPACE__ . '\\Controller\\PurgeConsumer' => __NAMESPACE__ . '\\Service\\Controller\\PurgeConsumerFactory',
             __NAMESPACE__ . '\\Controller\\RpcServer' => __NAMESPACE__ . '\\Service\\Controller\\RpcServerFactory',
             __NAMESPACE__ . '\\Controller\\SetupFabric' => __NAMESPACE__ . '\\Service\\Controller\\SetupFabricFactory',

@@ -10,9 +10,6 @@ matrix:
   allow_failures:
     - php: hhvm
 
-env:
-- LIBRABBITMQ_VERSION=v0.5.2 PHP_AMQP_VERSION=v1.4.0
-
 before_script:
   - echo "extension = amqp.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   # update composer and fetch dependencies

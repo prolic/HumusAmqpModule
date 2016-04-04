@@ -89,7 +89,6 @@ class ListControllerTest extends AbstractConsoleControllerTestCase
         $config['humus_amqp_module']['rpc_servers'] = [];
         $serviceManager->setService('Config', $config);
 
-
         ob_start();
         $this->dispatch('humus amqp list rpc-servers');
         $res = ob_get_clean();

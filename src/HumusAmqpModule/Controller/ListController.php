@@ -30,6 +30,11 @@ use Zend\Stdlib\ResponseInterface;
 class ListController extends AbstractConsoleController
 {
     /**
+     * @var array
+     */
+    private $config = [];
+    
+    /**
      * {@inheritdoc}
      */
     public function dispatch(RequestInterface $request, ResponseInterface $response = null)
@@ -40,18 +45,16 @@ class ListController extends AbstractConsoleController
         /* @var $response \Zend\Console\Response */
 
         $type = $request->getParam('type');
-        $config = $this->getServiceLocator()->get('Config');
-        $moduleConfig = $config['humus_amqp_module'];
 
         $this->getConsole()->writeLine('List of all available ' . $type, ColorInterface::GREEN);
 
         $cType = str_replace('-', '_', $type);
-        if (!isset($moduleConfig[$cType])) {
+        if (!isset($this->config[$cType])) {
             $this->getConsole()->writeLine('No ' . $type . ' found', ColorInterface::RED);
             return;
         }
 
-        $list = array_keys($moduleConfig[str_replace('-', '_', $type)]);
+        $list = array_keys($this->config[str_replace('-', '_', $type)]);
 
         if (0 == count($list)) {
             $this->getConsole()->writeLine('No ' . $type . ' found', ColorInterface::RED);
@@ -60,5 +63,13 @@ class ListController extends AbstractConsoleController
         foreach ($list as $entry) {
             $this->getConsole()->writeLine($entry);
         }
+    }
+
+    /**
+     * @param array $config
+     */
+    public function setConfig(array $config)
+    {
+        $this->config = $config;
     }
 }
