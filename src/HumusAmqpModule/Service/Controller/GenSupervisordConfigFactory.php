@@ -18,16 +18,15 @@
 
 namespace HumusAmqpModule\Service\Controller;
 
-use HumusAmqpModule\Controller\ExchangesController;
 use HumusAmqpModule\Controller\GenSupervisordConfigController;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
- * Class ExchangesFactory
+ * Class GenSupervisordConfigFactory
  * @package HumusAmqpModule\Service\Controller
  */
-class GenSupervisordFactory implements FactoryInterface
+class GenSupervisordConfigFactory implements FactoryInterface
 {
     /**
      * @param ServiceLocatorInterface $serviceLocator

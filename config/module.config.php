@@ -26,7 +26,7 @@ $config = [
         'factories' => [
             __NAMESPACE__ . '\\Controller\\Consumer' => __NAMESPACE__ . '\\Service\\Controller\\ConsumerFactory',
             __NAMESPACE__ . '\\Controller\\Exchanges' => __NAMESPACE__ . '\\Service\\Controller\\ExchangesFactory',
-            __NAMESPACE__ . '\\Controller\\GenSupervisordConfig' => __NAMESPACE__ . '\\Service\\Controller\GenSupervisordConfigFactory',
+            __NAMESPACE__ . '\\Controller\\GenSupervisordConfig' => __NAMESPACE__ . '\\Service\\Controller\\GenSupervisordConfigFactory',
             __NAMESPACE__ . '\\Controller\\List' => __NAMESPACE__ . '\\Service\\Controller\\ListFactory',
             __NAMESPACE__ . '\\Controller\\PurgeConsumer' => __NAMESPACE__ . '\\Service\\Controller\\PurgeConsumerFactory',
             __NAMESPACE__ . '\\Controller\\RpcServer' => __NAMESPACE__ . '\\Service\\Controller\\RpcServerFactory',
@@ -110,7 +110,7 @@ if (class_exists('HumusSupervisorModule\\Module')) {
         'options' => [
             'route' => 'humus amqp gen-supervisord-config [<path>]',
             'defaults' => [
-                'controller' => __NAMESPACE__ . '\\Controller\GenSupervisordConfig',
+                'controller' => __NAMESPACE__ . '\\Controller\\GenSupervisordConfig',
                 'action' => 'index'
             ]
         ]
