@@ -121,10 +121,7 @@ class RpcClient
             }
 
             $time = microtime(1);
-        } while (
-            (count($this->replies) < $this->requests)
-            || (($time - $now) < $this->timeout)
-        );
+        } while ((count($this->replies) < $this->requests) || (($time - $now) < $this->timeout));
 
         $this->requests = 0;
         $this->timeout = 0;

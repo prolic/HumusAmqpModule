@@ -155,4 +155,112 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
 
         $consumer->consume(5);
     }
+
+    public function testHandleDeliveryException()
+    {
+        $amqpChannel = $this->getMockBuilder('AMQPChannel')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $amqpChannel->expects($this->once())->method('getPrefetchCount')->willReturn(3);
+
+        $amqpQueue = $this->getMockBuilder('AMQPQueue')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
+
+        $consumer = new Consumer([$amqpQueue], 1, 1 * 1000 * 500);
+
+        $exception = new \Exception('Test Exception');
+        $errorCallback = $this->getMockBuilder('stdClass')
+            ->setMethods(['__invoke'])
+            ->getMock();
+
+        $errorCallback->expects(static::once())
+            ->method('__invoke')
+            ->with($exception, $consumer);
+        $consumer->setErrorCallback($errorCallback);
+        $consumer->handleDeliveryException($exception);
+    }
+
+    public function testHandleDeliveryExceptionWithLogger()
+    {
+        $amqpChannel = $this->getMockBuilder('AMQPChannel')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $amqpChannel->expects($this->once())->method('getPrefetchCount')->willReturn(3);
+
+        $amqpQueue = $this->getMockBuilder('AMQPQueue')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
+
+        $logger = $this->getMockBuilder('Zend\Log\LoggerInterface')
+            ->getMock();
+
+        $logger->expects(static::once())->method('err');
+
+        $exception = new \Exception('Test Exception');
+
+        $consumer = new Consumer([$amqpQueue], 1, 1 * 1000 * 500);
+        $consumer->setLogger($logger);
+        $consumer->handleDeliveryException($exception);
+    }
+
+    public function testHandleFlushDeferredException()
+    {
+        $amqpChannel = $this->getMockBuilder('AMQPChannel')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $amqpChannel->expects($this->once())->method('getPrefetchCount')->willReturn(3);
+
+        $amqpQueue = $this->getMockBuilder('AMQPQueue')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
+
+        $consumer = new Consumer([$amqpQueue], 1, 1 * 1000 * 500);
+
+        $exception = new \Exception('Test Exception');
+        $errorCallback = $this->getMockBuilder('stdClass')
+            ->setMethods(['__invoke'])
+            ->getMock();
+
+        $errorCallback->expects(static::once())
+            ->method('__invoke')
+            ->with($exception, $consumer);
+        $consumer->setErrorCallback($errorCallback);
+        $consumer->handleFlushDeferredException($exception);
+    }
+
+    public function testHandleFlushDeferredExceptionWithLogger()
+    {
+        $amqpChannel = $this->getMockBuilder('AMQPChannel')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $amqpChannel->expects($this->once())->method('getPrefetchCount')->willReturn(3);
+
+        $amqpQueue = $this->getMockBuilder('AMQPQueue')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
+
+        $logger = $this->getMockBuilder('Zend\Log\LoggerInterface')
+            ->getMock();
+
+        $logger->expects(static::once())->method('err');
+
+        $exception = new \Exception('Test Exception');
+
+        $consumer = new Consumer([$amqpQueue], 1, 1 * 1000 * 500);
+        $consumer->setLogger($logger);
+        $consumer->handleDeliveryException($exception);
+    }
 }
