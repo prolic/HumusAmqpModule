@@ -13,27 +13,22 @@ php:
   - hhvm
 
 env:
+  global:
+    - PHP_AMQP_VERSION=v1.7.0 LIBRABBITMQ_VERSION=v0.8.0
   matrix:
-    - DEPENDENCIES="" PHP_AMQP_VERSION=v1.4.0 LIBRABBITMQ_VERSION=v0.4.1
-    - DEPENDENCIES="--prefer-lowest --prefer-stable" PHP_AMQP_VERSION=v1.4.0 LIBRABBITMQ_VERSION=v0.4.1
-    - DEPENDENCIES="" PHP_AMQP_VERSION=v1.7.0 LIBRABBITMQ_VERSION=v0.8.0
-    - DEPENDENCIES="--prefer-lowest --prefer-stable" PHP_AMQP_VERSION=v1.7.0 LIBRABBITMQ_VERSION=v0.8.0
-
+    - DEPENDENCIES=""
+    - DEPENDENCIES="--prefer-lowest --prefer-stable"
 
 matrix:
   allow_failures:
     - php: hhvm
-    - php: 7.0
-      env: DEPENDENCIES="" PHP_AMQP_VERSION=v1.4.0 LIBRABBITMQ_VERSION=v0.4.1
-    - php: 7.0
-      env: DEPENDENCIES="--prefer-lowest --prefer-stable" PHP_AMQP_VERSION=v1.4.0 LIBRABBITMQ_VERSION=v0.4.1
 
 cache:
   directories:
     - $HOME/.composer/cache
 
 before_script:
-  - sh provision/install_deps.sh
+  - sh build/install_deps.sh
   - echo "extension = amqp.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   # update composer and fetch dependencies
   - composer self-update
