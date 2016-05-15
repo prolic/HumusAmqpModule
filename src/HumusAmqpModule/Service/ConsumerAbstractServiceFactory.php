@@ -20,8 +20,11 @@ namespace HumusAmqpModule\Service;
 
 use HumusAmqpModule\Consumer;
 use HumusAmqpModule\Exception;
+use Zend\Log\LoggerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use Psr\Log;
+use Zend\Log\PsrLoggerAdapter;
 
 /**
  * Class ConsumerAbstractServiceFactory
@@ -82,7 +85,16 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
                     'The logger ' . $spec['logger'] . ' is not configured'
                 );
             }
-            $consumer->setLogger($serviceLocator->get($spec['logger']));
+            $logger = $serviceLocator->get($spec['logger']);
+            if ($logger instanceof LoggerInterface) {
+                $logger = new PsrLoggerAdapter($logger);
+            }
+            if (!$logger instanceof \Psr\Log\LoggerInterface) {
+                throw new Exception\InvalidArgumentException(
+                    'The logger ' . $spec['logger'] . ' is not a Psr\Log'
+                );
+            }
+            $consumer->setLogger($logger);
         } else {
             $consumer->setLogger($this->getDefaultNullLogger());
         }
@@ -193,14 +205,10 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
     }
 
     /**
-     * @return \Zend\Log\Logger
+     * @return \Psr\Log\LoggerInterface
      */
     protected function getDefaultNullLogger()
     {
-        $logger = new \Zend\Log\Logger();
-        $writers = new \Zend\Stdlib\SplPriorityQueue();
-        $writers->insert(new \Zend\Log\Writer\Noop(), 1000);
-        $logger->setWriters($writers);
-        return $logger;
+        return new Log\NullLogger();
     }
 }

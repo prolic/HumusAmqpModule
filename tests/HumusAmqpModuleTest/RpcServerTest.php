@@ -3,6 +3,7 @@
 namespace HumusAmqpModuleTest;
 
 use HumusAmqpModule\RpcServer;
+use Prophecy\Argument;
 
 /**
  * Class RpcServerTest
@@ -56,11 +57,10 @@ class RpcServerTest extends \PHPUnit_Framework_TestCase
             return 'response-result';
         });
 
-        $logger = new \Zend\Log\Logger();
-        $writers = new \Zend\Stdlib\SplPriorityQueue();
-        $writers->insert(new \Zend\Log\Writer\Noop(), 0);
-        $logger->setWriters($writers);
-        $rpcServer->setLogger($logger);
+        $logger = $this->prophesize('Psr\Log\LoggerInterface');
+        $logger->debug(Argument::any());
+        $logger->error(Argument::any());
+        $rpcServer->setLogger($logger->reveal());
 
         $amqpQueue->expects($this->once())->method('ack');
 
