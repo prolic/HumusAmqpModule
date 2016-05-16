@@ -148,4 +148,18 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->components->createServiceWithName($this->services, 'test-rpc-server', 'test-rpc-server');
     }
+
+    /**
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The logger foo is not a Psr\Log
+     */
+    public function testCreateConsumerWithInvalidLogger()
+    {
+        $config = $this->services->get('Config');
+        $config['humus_amqp_module']['rpc_servers']['test-rpc-server']['logger'] = 'foo';
+        $this->services->setService('Config', $config);
+        $this->services->setService('foo', new \stdClass());
+
+        $this->components->createServiceWithName($this->services, 'test-rpc-server', 'test-rpc-server');
+    }
 }

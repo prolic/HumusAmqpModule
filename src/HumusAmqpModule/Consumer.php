@@ -22,8 +22,8 @@ use AMQPEnvelope;
 use AMQPQueue;
 use ArrayIterator;
 use InfiniteIterator;
-use Zend\Log\LoggerAwareInterface;
-use Zend\Log\LoggerAwareTrait;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerAwareInterface;
 
 /**
  * The consumer attaches to a single queue
@@ -335,7 +335,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
         $callback = $this->getErrorCallback();
 
         if (null === $callback) {
-            $this->getLogger()->err('Exception during handleDelivery: ' . $e->getMessage());
+            $this->logger->error('Exception during handleDelivery: ' . $e->getMessage());
         } else {
             call_user_func_array($callback, [$e, $this]);
         }
@@ -352,7 +352,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
         $callback = $this->getErrorCallback();
 
         if (null === $callback) {
-            $this->getLogger()->err('Exception during flushDeferred: ' . $e->getMessage());
+            $this->logger->error('Exception during flushDeferred: ' . $e->getMessage());
         } else {
             call_user_func_array($callback, [$e, $this]);
         }
@@ -477,7 +477,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
         try {
             $deferredFlushResult = $this->flushDeferred();
         } catch (\Exception $e) {
-            $this->getLogger()->err('Exception during flushDeferred: ' . $e->getMessage());
+            $this->logger->error('Exception during flushDeferred: ' . $e->getMessage());
             $deferredFlushResult = false;
         }
 

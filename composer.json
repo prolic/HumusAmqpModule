@@ -12,7 +12,7 @@
         }
     ],
     "require": {
-        "php": "^5.4 || ^7.0",
+        "php": "^5.5 || ^7.0",
         "ext-amqp"  : ">=1.7.0",
         "zendframework/zend-console": "^2.3",
         "zendframework/zend-eventmanager": "^2.3",
@@ -20,7 +20,8 @@
         "zendframework/zend-modulemanager": "^2.3",
         "zendframework/zend-servicemanager": "^2.3",
         "zendframework/zend-text": "^2.3",
-        "zendframework/zend-log": "^2.4"
+        "zendframework/zend-log": "^2.6",
+        "psr/log": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.8 || ^5.2",
@@ -36,5 +37,16 @@
         "psr-4": {
             "HumusAmqpModule\\": "src/HumusAmqpModule/"
         }
+    },
+    "scripts": {
+        "test": ["@phpunit", "@phpcs"],
+        "ci-test": [
+            "@ci-phpunit",
+            "@phpcs",
+            "php build/coverage-checker.php build/clover.xml 70"
+        ],
+        "phpunit": "phpunit",
+        "ci-phpunit": "phpunit --coverage-clover ./build/clover.xml",
+        "phpcs": "phpcs --standard=PSR2 ./src/ ./tests/"
     }
 }

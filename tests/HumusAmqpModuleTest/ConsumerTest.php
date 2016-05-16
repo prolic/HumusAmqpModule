@@ -20,6 +20,7 @@ namespace HumusAmqpModuleTest\Amqp;
 
 use HumusAmqpModule\Consumer;
 use HumusAmqpModule\ConsumerInterface;
+use Prophecy\Argument;
 
 /**
  * Class ConsumerTest
@@ -48,11 +49,10 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
 
         $consumer = new Consumer([$amqpQueue], 1, 1 * 1000 * 500);
 
-        $logger = new \Zend\Log\Logger();
-        $writers = new \Zend\Stdlib\SplPriorityQueue();
-        $writers->insert(new \Zend\Log\Writer\Noop(), 0);
-        $logger->setWriters($writers);
-        $consumer->setLogger($logger);
+        $logger = $this->prophesize('Psr\Log\LoggerInterface');
+        $logger->debug(Argument::any());
+        $logger->error(Argument::any());
+        $consumer->setLogger($logger->reveal());
 
         // Create a callback function with a return value set by the data provider.
         $callbackFunction = function () {
@@ -111,11 +111,10 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $consumer = new Consumer([$amqpQueue], 1, 1 * 1000 * 500);
 
 
-        $logger = new \Zend\Log\Logger();
-        $writers = new \Zend\Stdlib\SplPriorityQueue();
-        $writers->insert(new \Zend\Log\Writer\Noop(), 0);
-        $logger->setWriters($writers);
-        $consumer->setLogger($logger);
+        $logger = $this->prophesize('Psr\Log\LoggerInterface');
+        $logger->debug(Argument::any());
+        $logger->error(Argument::any());
+        $consumer->setLogger($logger->reveal());
 
         // Create a callback function with a return value set by the data provider.
         $callbackFunction = function () {
@@ -198,15 +197,13 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
 
         $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
 
-        $logger = $this->getMockBuilder('Zend\Log\LoggerInterface')
-            ->getMock();
-
-        $logger->expects(static::once())->method('err');
+        $logger = $this->prophesize('Psr\Log\LoggerInterface');
+        $logger->error(Argument::any())->shouldBeCalled();
 
         $exception = new \Exception('Test Exception');
 
         $consumer = new Consumer([$amqpQueue], 1, 1 * 1000 * 500);
-        $consumer->setLogger($logger);
+        $consumer->setLogger($logger->reveal());
         $consumer->handleDeliveryException($exception);
     }
 
@@ -252,15 +249,13 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
 
         $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
 
-        $logger = $this->getMockBuilder('Zend\Log\LoggerInterface')
-            ->getMock();
-
-        $logger->expects(static::once())->method('err');
+        $logger = $this->prophesize('Psr\Log\LoggerInterface');
+        $logger->error(Argument::any())->shouldBeCalled();
 
         $exception = new \Exception('Test Exception');
 
         $consumer = new Consumer([$amqpQueue], 1, 1 * 1000 * 500);
-        $consumer->setLogger($logger);
+        $consumer->setLogger($logger->reveal());
         $consumer->handleDeliveryException($exception);
     }
 }

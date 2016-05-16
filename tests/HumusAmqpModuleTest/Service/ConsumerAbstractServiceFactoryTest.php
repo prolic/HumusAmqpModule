@@ -579,4 +579,47 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
     }
+
+    /**
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedExceptionMessage The logger foo is not a Psr\Log
+     */
+    public function testCreateConsumerWithInvalidLogger()
+    {
+        $config = [
+            'humus_amqp_module' => [
+                'default_connection' => 'default',
+                'exchanges' => [
+                    'demo-exchange' => [
+                        'name' => 'demo-exchange',
+                        'type' => 'direct'
+                    ]
+                ],
+                'queues' => [
+                    'demo-queue' => [
+                        'name' => 'demo-queue',
+                        'exchange' => 'demo-exchange'
+                    ]
+                ],
+                'consumers' => [
+                    'test-consumer' => [
+                        'connection' => 'default',
+                        'queues' => ['demo-queue'],
+                        'auto_setup_fabric' => false,
+                        'callback' => 'invalid-callback',
+                        'logger' => 'foo',
+                        'qos' => [
+                            'prefetchCount' => 10
+                        ]
+                    ],
+                ],
+            ]
+        ];
+
+        $this->prepare($config);
+
+        $this->services->setService('foo', new \stdClass());
+
+        $this->components->createServiceWithName($this->services, 'test-consumer', 'test-consumer');
+    }
 }

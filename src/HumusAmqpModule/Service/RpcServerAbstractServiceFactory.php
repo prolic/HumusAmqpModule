@@ -22,6 +22,9 @@ use HumusAmqpModule\RpcServer;
 use HumusAmqpModule\Exception;
 use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use Psr\Log;
+use Zend\Log\PsrLoggerAdapter;
+use Zend\Log\LoggerInterface;
 
 /**
  * Class RpcServerAbstractServiceFactory
@@ -70,7 +73,16 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
                     'The logger ' . $spec['logger'] . ' is not configured'
                 );
             }
-            $rpcServer->setLogger($serviceLocator->get($spec['logger']));
+            $logger = $serviceLocator->get($spec['logger']);
+            if ($logger instanceof LoggerInterface) {
+                $logger = new PsrLoggerAdapter($logger);
+            }
+            if (!$logger instanceof \Psr\Log\LoggerInterface) {
+                throw new Exception\InvalidArgumentException(
+                    'The logger ' . $spec['logger'] . ' is not a Psr\Log'
+                );
+            }
+            $rpcServer->setLogger($logger);
         } else {
             $rpcServer->setLogger($this->getDefaultNullLogger());
         }
@@ -139,14 +151,10 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
     }
 
     /**
-     * @return \Zend\Log\Logger
+     * @return \Psr\Log\LoggerInterface
      */
     protected function getDefaultNullLogger()
     {
-        $logger = new \Zend\Log\Logger();
-        $writers = new \Zend\Stdlib\SplPriorityQueue();
-        $writers->insert(new \Zend\Log\Writer\Noop(), 1000);
-        $logger->setWriters($writers);
-        return $logger;
+        return new Log\NullLogger();
     }
 }
