@@ -16,30 +16,41 @@
  * and is licensed under the MIT license.
  */
 
-namespace HumusAmqpModule\Service\Controller;
+namespace HumusAmqpModule\Controller;
 
-use HumusAmqpModule\Controller\SetupFabricController;
+use HumusAmqpModule\PluginManager\Consumer;
+use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class SetupFabricFactory implements FactoryInterface
+class PurgeConsumerControllerFactory implements FactoryInterface
 {
     /**
-     * Create service
+     * Create an object
      *
+     * @param  ContainerInterface $container
+     * @param  string             $requestedName
+     * @param  null|array         $options
+     * @return PurgeConsumerController
+     */
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
+    {
+        $controller = new PurgeConsumerController();
+        $controller->setConsumerManager($container->get(Consumer::class));
+        return $controller;
+    }
+
+    /**
      * @param ServiceLocatorInterface $serviceLocator
-     * @return mixed
+     * @return PurgeConsumerController
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $sm = $serviceLocator->getServiceLocator();
+        if ($serviceLocator instanceof AbstractPluginManager) {
+            $serviceLocator = $serviceLocator->getServiceLocator();
+        }
 
-        $config = $sm->get('Config')['humus_amqp_module'];
-
-        $controller  = new SetupFabricController();
-        $controller->setConnectionManager($sm->get('HumusAmqpModule\PluginManager\Connection'));
-        $controller->setConfig($config);
-
-        return $controller;
+        return $this($serviceLocator, PurgeConsumerController::class);
     }
 }

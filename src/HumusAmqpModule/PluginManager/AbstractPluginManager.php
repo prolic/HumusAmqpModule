@@ -16,23 +16,31 @@
  * and is licensed under the MIT license.
  */
 
-namespace HumusAmqpModule\Service\Controller;
+namespace HumusAmqpModule\PluginManager;
 
-class ConsumerFactory extends AbstractConsumerFactory
+use HumusAmqpModule\Exception;
+use Zend\ServiceManager\AbstractPluginManager as ZendPluginManager;
+
+/**
+ * Class AbstractPluginManager
+ * Useful for compatibility between v2 and v3
+ * @package HumusAmqpModule\PluginManager
+ */
+class AbstractPluginManager extends ZendPluginManager
 {
-    /**
-     * @return string
-     */
-    protected function getConsumerType()
-    {
-        return 'HumusAmqpModule\\PluginManager\\Consumer';
-    }
 
     /**
-     * @return string
+     * Validate the plugin
+     *
+     * Checks that the filter loaded is either a valid callback or an instance
+     * of FilterInterface.
+     *
+     * @param  mixed $plugin
+     * @return void
+     * @throws Exception\RuntimeException if invalid
      */
-    protected function getControllerClass()
+    public function validatePlugin($plugin)
     {
-        return 'HumusAmqpModule\Controller\ConsumerController';
+        $this->validate($plugin);
     }
 }

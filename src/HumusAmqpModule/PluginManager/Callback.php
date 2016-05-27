@@ -19,7 +19,6 @@
 namespace HumusAmqpModule\PluginManager;
 
 use HumusAmqpModule\Exception;
-use Zend\ServiceManager\AbstractPluginManager;
 
 /**
  * Class Callback
@@ -37,7 +36,7 @@ class Callback extends AbstractPluginManager
      * @return void
      * @throws Exception\RuntimeException if invalid
      */
-    public function validatePlugin($plugin)
+    public function validate($plugin)
     {
         if (is_callable($plugin)) {
             // we're okay

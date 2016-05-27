@@ -16,28 +16,40 @@
  * and is licensed under the MIT license.
  */
 
-namespace HumusAmqpModule\Service\Controller;
+namespace HumusAmqpModule\Controller;
 
-use HumusAmqpModule\Controller\RpcServerController;
+use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class RpcServerFactory implements FactoryInterface
+class ExchangesControllerFactory implements FactoryInterface
 {
     /**
-     * Create service
+     * Create an object
      *
+     * @param  ContainerInterface $container
+     * @param  string             $requestedName
+     * @param  null|array         $options
+     * @return ExchangesController
+     */
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
+    {
+        $controller = new ExchangesController();
+        $controller->setConfig($container->get('config')['humus_amqp_module']);
+        return $controller;
+    }
+
+    /**
      * @param ServiceLocatorInterface $serviceLocator
-     * @return mixed
+     * @return ExchangesController
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $sm = $serviceLocator->getServiceLocator();
-        $rpcServerManager = $sm->get('HumusAmqpModule\PluginManager\RpcServer');
+        if ($serviceLocator instanceof AbstractPluginManager) {
+            $serviceLocator = $serviceLocator->getServiceLocator();
+        }
 
-        $controller = new RpcServerController();
-        $controller->setRpcServerManager($rpcServerManager);
-
-        return $controller;
+        return $this($serviceLocator, ExchangesController::class);
     }
 }

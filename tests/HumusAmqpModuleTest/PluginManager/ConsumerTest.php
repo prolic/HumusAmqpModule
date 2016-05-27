@@ -19,22 +19,23 @@
 namespace HumusAmqpModuleTest\PluginManager;
 
 use HumusAmqpModule\PluginManager\Consumer as ConsumerPluginManager;
+use Interop\Container\ContainerInterface;
 
 class ConsumerTest extends \PHPUnit_Framework_TestCase
 {
     public function testValidatePlugin()
     {
         $mock = $this->getMockForAbstractClass('HumusAmqpModule\\ConsumerInterface');
-        $manager = new ConsumerPluginManager();
+        $manager = new ConsumerPluginManager($this->prophesize(ContainerInterface::class)->reveal());
         $manager->validatePlugin($mock);
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\RuntimeException
+     * @expectedException \HumusAmqpModule\Exception\RuntimeException
      */
     public function testInvalidPlugin()
     {
-        $manager = new ConsumerPluginManager();
+        $manager = new ConsumerPluginManager($this->prophesize(ContainerInterface::class)->reveal());
         $manager->validatePlugin('foo');
     }
 }

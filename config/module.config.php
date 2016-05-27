@@ -24,14 +24,14 @@ $config = [
     ],
     'controllers' => [
         'factories' => [
-            __NAMESPACE__ . '\\Controller\\Consumer' => __NAMESPACE__ . '\\Service\\Controller\\ConsumerFactory',
-            __NAMESPACE__ . '\\Controller\\Exchanges' => __NAMESPACE__ . '\\Service\\Controller\\ExchangesFactory',
-            __NAMESPACE__ . '\\Controller\\GenSupervisordConfig' => __NAMESPACE__ . '\\Service\\Controller\\GenSupervisordConfigFactory',
-            __NAMESPACE__ . '\\Controller\\List' => __NAMESPACE__ . '\\Service\\Controller\\ListFactory',
-            __NAMESPACE__ . '\\Controller\\PurgeConsumer' => __NAMESPACE__ . '\\Service\\Controller\\PurgeConsumerFactory',
-            __NAMESPACE__ . '\\Controller\\RpcServer' => __NAMESPACE__ . '\\Service\\Controller\\RpcServerFactory',
-            __NAMESPACE__ . '\\Controller\\SetupFabric' => __NAMESPACE__ . '\\Service\\Controller\\SetupFabricFactory',
-            __NAMESPACE__ . '\\Controller\\StdInProducer' => __NAMESPACE__ . '\\Service\\Controller\\StdInProducerFactory',
+            Controller\ConsumerController::class => Controller\ConsumerControllerFactory::class,
+            Controller\ExchangesController::class => Controller\ExchangesControllerFactory::class,
+            Controller\ListController::class => Controller\ListControllerFactory::class,
+            Controller\PurgeConsumerController::class => Controller\PurgeConsumerControllerFactory::class,
+            Controller\GenSupervisordConfigController::class => Controller\GenSupervisordConfigControllerFactory::class,
+            Controller\RpcServerController::class => Controller\RpcServerControllerFactory::class,
+            Controller\SetupFabricController::class => Controller\SetupFabricControllerFactory::class,
+            Controller\StdInProducerController::class => Controller\StdInProducerControllerFactory::class,
         ]
     ],
     'humus_amqp_module' => [
@@ -40,27 +40,27 @@ $config = [
             'callback' => [],
             'connection' => [
                 'abstract_factories' => [
-                    __NAMESPACE__ . '\\Service\\ConnectionAbstractServiceFactory'
+                    Service\ConnectionAbstractServiceFactory::class,
                 ]
             ],
             'producer' => [
                 'abstract_factories' => [
-                    __NAMESPACE__ . '\\Service\\ProducerAbstractServiceFactory'
+                    Service\ProducerAbstractServiceFactory::class,
                 ]
             ],
             'consumer' => [
                 'abstract_factories' => [
-                    __NAMESPACE__ . '\\Service\\ConsumerAbstractServiceFactory'
+                    Service\ConsumerAbstractServiceFactory::class,
                 ]
             ],
             'rpc_server' => [
                 'abstract_factories' => [
-                    __NAMESPACE__ . '\\Service\\RpcServerAbstractServiceFactory'
+                    Service\RpcServerAbstractServiceFactory::class,
                 ]
             ],
             'rpc_client' => [
                 'abstract_factories' => [
-                    __NAMESPACE__ . '\\Service\\RpcClientAbstractServiceFactory'
+                    Service\RpcClientAbstractServiceFactory::class,
                 ]
             ]
         ],
@@ -103,14 +103,17 @@ $config = [
             ]
         ]
     ],
+    'service_manager' => [
+        
+    ],
 ];
 
-if (class_exists('HumusSupervisorModule\\Module')) {
+if (class_exists('HumusSupervisorModule\Module')) {
     $config['console']['router']['routes']['humus_amqp_module-gen-supervisord-config'] = [
         'options' => [
             'route' => 'humus amqp gen-supervisord-config [<path>]',
             'defaults' => [
-                'controller' => __NAMESPACE__ . '\\Controller\\GenSupervisordConfig',
+                'controller' => Controller\GenSupervisordConfigController::class,
                 'action' => 'index'
             ]
         ]

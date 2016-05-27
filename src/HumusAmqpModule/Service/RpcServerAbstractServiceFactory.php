@@ -20,11 +20,11 @@ namespace HumusAmqpModule\Service;
 
 use HumusAmqpModule\RpcServer;
 use HumusAmqpModule\Exception;
+use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ServiceLocatorInterface;
 use Psr\Log;
 use Zend\Log\PsrLoggerAdapter;
-use Zend\Log\LoggerInterface;
+use Zend\Log\LoggerInterface as ZendLoggerInterface;
 
 /**
  * Class RpcServerAbstractServiceFactory
@@ -38,67 +38,65 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
     protected $subConfigKey = 'rpc_servers';
 
     /**
-     * Create service with name
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string $name
-     * @param string $requestedName
+     * @param ContainerInterface $container
+     * @param string             $requestedName
+     * @param array|null         $options
      * @return RpcServer
      * @throws Exception\InvalidArgumentException
      */
-    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
         // get global service locator, if we are in a plugin manager
-        if ($serviceLocator instanceof AbstractPluginManager) {
-            $serviceLocator = $serviceLocator->getServiceLocator();
+        if ($container instanceof AbstractPluginManager) {
+            $container = $container->getServiceLocator();
         }
 
-        $spec = $this->getSpec($serviceLocator, $name, $requestedName);
-        $this->validateSpec($serviceLocator, $spec, $requestedName);
+        $spec = $this->getSpec($container, $requestedName, $requestedName);
+        $this->validateSpec($container, $spec, $requestedName);
 
-        $connection = $this->getConnection($serviceLocator, $spec);
+        $connection = $this->getConnection($container, $spec);
         $channel    = $this->createChannel($connection, $spec);
 
-        $queueSpec = $this->getQueueSpec($serviceLocator, $spec['queue']);
+        $queueSpec = $this->getQueueSpec($container, $spec['queue']);
         $queue     = $this->getQueue($queueSpec, $channel, $this->useAutoSetupFabric($spec));
 
-        $idleTimeout = isset($spec['idle_timeout']) ? $spec['idle_timeout'] : 5.0;
-        $waitTimeout = isset($spec['wait_timeout']) ? $spec['wait_timeout'] : 100000;
+        $idleTimeout = array_key_exists('idle_timeout', $spec) ? $spec['idle_timeout'] : 5.0;
+        $waitTimeout = array_key_exists('wait_timeout', $spec) ? $spec['wait_timeout'] : 100000;
 
         $rpcServer = new RpcServer($queue, $idleTimeout, $waitTimeout);
 
-        if (isset($spec['logger'])) {
-            if (!$serviceLocator->has($spec['logger'])) {
+        if (array_key_exists('logger', $spec)) {
+            if (!$container->has($spec['logger'])) {
                 throw new Exception\InvalidArgumentException(
                     'The logger ' . $spec['logger'] . ' is not configured'
                 );
             }
-            $logger = $serviceLocator->get($spec['logger']);
-            if ($logger instanceof LoggerInterface) {
+            $logger = $container->get($spec['logger']);
+            if ($logger instanceof ZendLoggerInterface) {
                 $logger = new PsrLoggerAdapter($logger);
             }
-            if (!$logger instanceof \Psr\Log\LoggerInterface) {
-                throw new Exception\InvalidArgumentException(
-                    'The logger ' . $spec['logger'] . ' is not a Psr\Log'
-                );
+            if (!$logger instanceof Log\LoggerInterface) {
+                throw new Exception\InvalidArgumentException('The logger ' . $spec['logger'] . ' is not a Psr\Log');
             }
             $rpcServer->setLogger($logger);
         } else {
             $rpcServer->setLogger($this->getDefaultNullLogger());
         }
 
-        $callbackManager = $this->getCallbackManager($serviceLocator);
+        $callbackManager = $this->getCallbackManager($container);
 
-        $callback        = $callbackManager->get($spec['callback']);
+        /** @var callable $callback */
+        $callback = $callbackManager->get($spec['callback']);
 
         $rpcServer->setDeliveryCallback($callback);
 
-        if (isset($spec['error_callback'])) {
+        if (array_key_exists('error_callback', $spec)) {
             if (!$callbackManager->has($spec['error_callback'])) {
                 throw new Exception\InvalidArgumentException(
                     'The required callback ' . $spec['error_callback'] . ' can not be found'
                 );
             }
+            /** @var callable $errorCallback */
             $errorCallback = $callbackManager->get($spec['error_callback']);
             $rpcServer->setFlushCallback($errorCallback);
         }
@@ -107,30 +105,30 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
     }
 
     /**
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param array $spec
-     * @param string $requestedName
+     * @param ContainerInterface $container
+     * @param array              $spec
+     * @param string             $requestedName
      * @throws Exception\InvalidArgumentException
      */
-    protected function validateSpec(ServiceLocatorInterface $serviceLocator, array $spec, $requestedName)
+    protected function validateSpec(ContainerInterface $container, array $spec, $requestedName)
     {
-        if (!isset($spec['queue'])) {
+        if (!array_key_exists('queue', $spec)) {
             throw new Exception\InvalidArgumentException('Queue is missing for rpc client ' . $requestedName);
         }
 
-        if (!isset($spec['callback'])) {
+        if (!array_key_exists('callback', $spec)) {
             throw new Exception\InvalidArgumentException('Callback is missing for rpc server ' . $requestedName);
         }
 
-        $defaultConnection = $this->getDefaultConnectionName($serviceLocator);
+        $defaultConnection = $this->getDefaultConnectionName($container);
 
-        if (isset($spec['connection'])) {
+        if (array_key_exists('connection', $spec)) {
             $connection = $spec['connection'];
         } else {
             $connection = $defaultConnection;
         }
 
-        $config  = $this->getConfig($serviceLocator);
+        $config  = $this->getConfig($container);
 
         // validate queue existence
         if (!isset($config['queues'][$spec['queue']])) {
@@ -141,7 +139,7 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
 
         // validate queue connection
         $queue = $config['queues'][$spec['queue']];
-        $testConnection = isset($queue['connection']) ? $queue['connection'] : $defaultConnection;
+        $testConnection = array_key_exists('connection', $queue) ? $queue['connection'] : $defaultConnection;
         if ($testConnection != $connection) {
             throw new Exception\InvalidArgumentException(
                 'The rpc client connection for queue ' . $spec['queue'] . ' (' . $testConnection . ') does not '
@@ -151,7 +149,7 @@ class RpcServerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
     }
 
     /**
-     * @return \Psr\Log\LoggerInterface
+     * @return Log\LoggerInterface
      */
     protected function getDefaultNullLogger()
     {

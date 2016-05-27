@@ -27,6 +27,7 @@ use HumusAmqpModule\ExchangeFactoryInterface;
 use HumusAmqpModule\ExchangeSpecification;
 use HumusAmqpModule\PluginManager\Connection as ConnectionManager;
 use HumusAmqpModule\QosOptions;
+use Interop\Container\ContainerInterface;
 use Traversable;
 use Zend\ServiceManager\AbstractFactoryInterface;
 use Zend\ServiceManager\AbstractPluginManager;
@@ -74,17 +75,14 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
     protected $exchangeFactory;
 
     /**
-     * Determine if we can create a service with name
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param $name
-     * @param $requestedName
+     * @param ContainerInterface $container
+     * @param string             $requestedName
      * @return bool
      */
-    public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    public function canCreate(ContainerInterface $container, $requestedName)
     {
-        $config = $this->getConfig($serviceLocator);
-        if (empty($config)) {
+        $config = $this->getConfig($container);
+        if (!count($config)) {
             return false;
         }
 
@@ -94,39 +92,65 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
 
         $spec = $config[$this->subConfigKey][$requestedName];
 
-        if ((is_array($spec) || $spec instanceof Traversable)) {
-            return true;
-        }
+        return is_array($spec) || $spec instanceof Traversable;
+    }
 
-        return false;
+    /**
+     * @param ServiceLocatorInterface $services
+     * @param string                  $name
+     * @param string                  $requestedName
+     * @return mixed
+     */
+    public function createServiceWithName(ServiceLocatorInterface $services, $name, $requestedName)
+    {
+        return $this($services, $requestedName);
+    }
+
+    /**
+     * @param ContainerInterface $container
+     * @param string             $requestedName
+     * @param array|null         $options
+     * @return mixed
+     */
+    abstract public function __invoke(ContainerInterface $container, $requestedName, array $options = null);
+
+    /**
+     * Determine if we can create a service with name
+     *
+     * @param ServiceLocatorInterface $serviceLocator
+     * @param string $name
+     * @param string $requestedName
+     * @return bool
+     */
+    public function canCreateServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    {
+        return $this->canCreate($serviceLocator, $requestedName);
     }
 
     /**
      * Get amqp configuration, if any
      *
-     * @param  ServiceLocatorInterface $services
+     * @param  ContainerInterface $container
      * @return array
      */
-    protected function getConfig(ServiceLocatorInterface $services)
+    protected function getConfig(ContainerInterface $container)
     {
         if ($this->config !== null) {
             return $this->config;
         }
 
         // get global service locator, if we are in a plugin manager
-        if ($services instanceof AbstractPluginManager) {
-            $services = $services->getServiceLocator();
+        if ($container instanceof AbstractPluginManager) {
+            $container = $container->getServiceLocator();
         }
 
-        if (!$services->has('Config')) {
+        if (!$container->has('config')) {
             $this->config = [];
             return $this->config;
         }
 
-        $config = $services->get('Config');
-        if (!isset($config[$this->configKey])
-            || !is_array($config[$this->configKey])
-        ) {
+        $config = $container->get('config');
+        if (!array_key_exists($this->configKey, $config) || !is_array($config[$this->configKey])) {
             $this->config = [];
             return $this->config;
         }
@@ -136,58 +160,56 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
     }
 
     /**
-     * @param ServiceLocatorInterface $services
+     * @param ContainerInterface $container
      * @return string
      */
-    protected function getDefaultConnectionName(ServiceLocatorInterface $services)
+    protected function getDefaultConnectionName(ContainerInterface $container)
     {
         if (null === $this->defaultConnectionName) {
-            $config = $this->getConfig($services);
+            $config = $this->getConfig($container);
             $this->defaultConnectionName = $config['default_connection'];
         }
         return $this->defaultConnectionName;
     }
 
     /**
-     * @param ServiceLocatorInterface $services
+     * @param ContainerInterface $container
      * @return AMQPConnection
      */
-    protected function getDefaultConnection(ServiceLocatorInterface $services)
+    protected function getDefaultConnection(ContainerInterface $container)
     {
-        $connectionManager = $this->getConnectionManager($services);
-        $connection = $connectionManager->get($this->getDefaultConnectionName($services));
+        $connectionManager = $this->getConnectionManager($container);
+        $connection = $connectionManager->get($this->getDefaultConnectionName($container));
 
         return $connection;
     }
 
     /**
-     * @param ServiceLocatorInterface $services
-     * @param array $spec
+     * @param ContainerInterface $container
+     * @param array              $spec
      * @return AMQPConnection
      */
-    protected function getConnection(ServiceLocatorInterface $services, array $spec)
+    protected function getConnection(ContainerInterface $container, array $spec)
     {
         if (!isset($spec['connection'])) {
-            return $this->getDefaultConnection($services);
+            return $this->getDefaultConnection($container);
         }
 
-        $connectionManager = $this->getConnectionManager($services);
-        $connection = $connectionManager->get($spec['connection']);
-
-        return $connection;
+        $connectionManager = $this->getConnectionManager($container);
+        return $connectionManager->get($spec['connection']);
     }
 
     /**
      * Note: Exchanges are not shared, only using producers or consumers can be shared
      *
-     * @param ServiceLocatorInterface $services
+     * @param ContainerInterface $services
      * @param AMQPChannel $channel
      * @param string $name
      * @param bool $autoSetupFabric
      * @return AMQPExchange
      */
     protected function getExchange(
-        ServiceLocatorInterface $services,
+        ContainerInterface $services,
         AMQPChannel $channel,
         $name,
         $autoSetupFabric
@@ -234,15 +256,14 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
     }
 
     /**
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string $exchangeName
+     * @param ContainerInterface $container
+     * @param string             $exchangeName
      * @return ExchangeSpecification
      */
-    protected function getExchangeSpec(ServiceLocatorInterface $serviceLocator, $exchangeName)
+    protected function getExchangeSpec(ContainerInterface $container, $exchangeName)
     {
-        $config  = $this->getConfig($serviceLocator);
-        $spec = new ExchangeSpecification($config['exchanges'][$exchangeName]);
-        return $spec;
+        $config  = $this->getConfig($container);
+        return new ExchangeSpecification($config['exchanges'][$exchangeName]);
     }
 
     /**
@@ -251,22 +272,22 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
      */
     protected function useAutoSetupFabric(array $spec)
     {
-        return (isset($spec['auto_setup_fabric']) && $spec['auto_setup_fabric']);
+        return array_key_exists('auto_setup_fabric', $spec) && $spec['auto_setup_fabric'];
     }
 
     /**
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string $name
-     * @param string $requestedName
+     * @param ContainerInterface $container
+     * @param string             $name
+     * @param string             $requestedName
      * @return array
      */
-    protected function getSpec(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    protected function getSpec(ContainerInterface $container, $name, $requestedName)
     {
-        if (isset($this->specs[$name])) {
+        if (array_key_exists($name, $this->specs)) {
             return $this->specs[$name];
         }
 
-        $config  = $this->getConfig($serviceLocator);
+        $config  = $this->getConfig($container);
         $spec = $config[$this->subConfigKey][$requestedName];
 
         $this->specs[$name] = $spec;
@@ -275,19 +296,17 @@ abstract class AbstractAmqpAbstractServiceFactory implements AbstractFactoryInte
     }
 
     /**
-     * @param ServiceLocatorInterface $serviceLocator
+     * @param ContainerInterface $container
      * @return ConnectionManager
      * @throws \HumusAmqpModule\Exception\RuntimeException
      */
-    protected function getConnectionManager(ServiceLocatorInterface $serviceLocator)
+    protected function getConnectionManager(ContainerInterface $container)
     {
         if (null === $this->connectionManager) {
-            if (!$serviceLocator->has('HumusAmqpModule\PluginManager\Connection')) {
-                throw new Exception\RuntimeException(
-                    'HumusAmqpModule\PluginManager\Connection not found'
-                );
+            if (!$container->has(ConnectionManager::class)) {
+                throw new Exception\RuntimeException(sprintf('%s not found', ConnectionManager::class));
             }
-            $this->connectionManager = $serviceLocator->get('HumusAmqpModule\PluginManager\Connection');
+            $this->connectionManager = $container->get(ConnectionManager::class);
         }
         return $this->connectionManager;
     }

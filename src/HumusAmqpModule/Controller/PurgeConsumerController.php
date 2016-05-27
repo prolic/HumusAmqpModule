@@ -18,10 +18,10 @@
 
 namespace HumusAmqpModule\Controller;
 
+use Interop\Container\ContainerInterface;
 use Zend\Console\ColorInterface;
 use Zend\Console\Prompt;
 use Zend\Mvc\Controller\AbstractConsoleController;
-use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
@@ -32,7 +32,7 @@ use Zend\Stdlib\ResponseInterface;
 class PurgeConsumerController extends AbstractConsoleController implements ConsumerManagerAwareInterface
 {
     /**
-     * @var ServiceLocatorInterface
+     * @var ContainerInterface
      */
     protected $consumerManager;
 
@@ -79,15 +79,15 @@ class PurgeConsumerController extends AbstractConsoleController implements Consu
     }
 
     /**
-     * @param ServiceLocatorInterface $manager
+     * @param ContainerInterface $manager
      */
-    public function setConsumerManager(ServiceLocatorInterface $manager)
+    public function setConsumerManager(ContainerInterface $manager)
     {
         $this->consumerManager = $manager;
     }
 
     /**
-     * @return ServiceLocatorInterface
+     * @return ContainerInterface
      */
     public function getConsumerManager()
     {

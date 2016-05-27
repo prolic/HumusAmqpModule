@@ -20,8 +20,8 @@ namespace HumusAmqpModule\Service;
 
 use HumusAmqpModule\Exception;
 use HumusAmqpModule\RpcClient;
+use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Class RpcClientAbstractServiceFactory
@@ -35,56 +35,51 @@ class RpcClientAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
     protected $subConfigKey = 'rpc_clients';
 
     /**
-     * Create service with name
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string $name
-     * @param string $requestedName
+     * @param ContainerInterface $container
+     * @param string             $requestedName
+     * @param array|null         $options
      * @return RpcClient
      * @throws Exception\InvalidArgumentException
      */
-    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
-        // get global service locator, if we are in a plugin manager
-        // @todo: recheck, if this is really necessary and try to find another way of getting the global service locator
-        if ($serviceLocator instanceof AbstractPluginManager) {
-            $serviceLocator = $serviceLocator->getServiceLocator();
+        if ($container instanceof AbstractPluginManager) {
+            $container = $container->getServiceLocator();
         }
 
-        $spec       = $this->getSpec($serviceLocator, $name, $requestedName);
-        $this->validateSpec($serviceLocator, $spec, $requestedName);
+        $spec       = $this->getSpec($container, $requestedName, $requestedName);
+        $this->validateSpec($container, $spec, $requestedName);
 
-        $connection = $this->getConnection($serviceLocator, $spec);
+        $connection = $this->getConnection($container, $spec);
         $channel    = $this->createChannel($connection, $spec);
 
-        $queueSpec = $this->getQueueSpec($serviceLocator, $spec['queue']);
+        $queueSpec = $this->getQueueSpec($container, $spec['queue']);
         $queue     = $this->getQueue($queueSpec, $channel, $this->useAutoSetupFabric($spec));
 
-        $rpcClient = new RpcClient($queue);
-        return $rpcClient;
+        return new RpcClient($queue);
     }
 
     /**
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param array $spec
-     * @param string $requestedName
+     * @param ContainerInterface $container
+     * @param array              $spec
+     * @param string             $requestedName
      * @throws Exception\InvalidArgumentException
      */
-    protected function validateSpec(ServiceLocatorInterface $serviceLocator, array $spec, $requestedName)
+    protected function validateSpec(ContainerInterface $container, array $spec, $requestedName)
     {
-        if (!isset($spec['queue'])) {
+        if (!array_key_exists('queue', $spec)) {
             throw new Exception\InvalidArgumentException('Queue is missing for rpc client ' . $requestedName);
         }
 
-        $defaultConnection = $this->getDefaultConnectionName($serviceLocator);
+        $defaultConnection = $this->getDefaultConnectionName($container);
 
-        if (isset($spec['connection'])) {
+        if (array_key_exists('connection', $spec)) {
             $connection = $spec['connection'];
         } else {
             $connection = $defaultConnection;
         }
 
-        $config  = $this->getConfig($serviceLocator);
+        $config  = $this->getConfig($container);
 
         // validate queue existence
         if (!isset($config['queues'][$spec['queue']])) {
@@ -95,7 +90,7 @@ class RpcClientAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFa
 
         // validate queue connection
         $queue = $config['queues'][$spec['queue']];
-        $testConnection = isset($queue['connection']) ? $queue['connection'] : $defaultConnection;
+        $testConnection = array_key_exists('connection', $queue) ? $queue['connection'] : $defaultConnection;
         if ($testConnection != $connection) {
             throw new Exception\InvalidArgumentException(
                 'The rpc client connection for queue ' . $spec['queue'] . ' (' . $testConnection . ') does not '

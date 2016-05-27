@@ -16,31 +16,41 @@
  * and is licensed under the MIT license.
  */
 
-namespace HumusAmqpModule\Service\Controller;
+namespace HumusAmqpModule\Controller;
 
-use HumusAmqpModule\Controller\ExchangesController;
+use HumusAmqpModule\PluginManager\Producer;
+use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-/**
- * Class ExchangesFactory
- * @package HumusAmqpModule\Service\Controller
- */
-class ExchangesFactory implements FactoryInterface
+class StdInProducerControllerFactory implements FactoryInterface
 {
     /**
+     * Create an object
+     *
+     * @param  ContainerInterface $container
+     * @param  string             $requestedName
+     * @param  null|array         $options
+     * @return StdInProducerController
+     */
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
+    {
+        $controller = new StdInProducerController();
+        $controller->setProducerManager($container->get(Producer::class));
+        return $controller;
+    }
+
+    /**
      * @param ServiceLocatorInterface $serviceLocator
-     * @return ExchangesController
+     * @return StdInProducerController
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $sm = $serviceLocator->getServiceLocator();
-        $config = $sm->get('Config');
-        $moduleConfig = $config['humus_amqp_module'];
+        if ($serviceLocator instanceof AbstractPluginManager) {
+            $serviceLocator = $serviceLocator->getServiceLocator();
+        }
         
-        $controller = new ExchangesController();
-        $controller->setConfig($moduleConfig);
-        
-        return $controller;
+        return $this($serviceLocator, StdInProducerController::class);
     }
 }

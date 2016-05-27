@@ -18,7 +18,7 @@
 
 namespace HumusAmqpModule\Controller;
 
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Interop\Container\ContainerInterface;
 
 /**
  * Interface ConsumerManagerAwareInterface
@@ -27,12 +27,12 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 interface ConsumerManagerAwareInterface
 {
     /**
-     * @param ServiceLocatorInterface $manager
+     * @param ContainerInterface $manager
      */
-    public function setConsumerManager(ServiceLocatorInterface $manager);
+    public function setConsumerManager(ContainerInterface $manager);
 
     /**
-     * @return ServiceLocatorInterface
+     * @return ContainerInterface
      */
     public function getConsumerManager();
 }

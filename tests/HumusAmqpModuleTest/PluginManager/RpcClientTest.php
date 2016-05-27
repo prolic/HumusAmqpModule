@@ -19,22 +19,23 @@
 namespace HumusAmqpModuleTest\PluginManager;
 
 use HumusAmqpModule\PluginManager\RpcClient as RpcClientPluginManager;
+use Interop\Container\ContainerInterface;
 
 class RpcClientTest extends \PHPUnit_Framework_TestCase
 {
     public function testValidatePlugin()
     {
         $mock = $this->getMock('HumusAmqpModule\\RpcClient', [], [], '', false);
-        $manager = new RpcClientPluginManager();
+        $manager = new RpcClientPluginManager($this->prophesize(ContainerInterface::class)->reveal());
         $manager->validatePlugin($mock);
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\RuntimeException
+     * @expectedException \HumusAmqpModule\Exception\RuntimeException
      */
     public function testInvalidPlugin()
     {
-        $manager = new RpcClientPluginManager();
+        $manager = new RpcClientPluginManager($this->prophesize(ContainerInterface::class)->reveal());
         $manager->validatePlugin('foo');
     }
 }

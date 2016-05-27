@@ -24,7 +24,7 @@ return [
             'options' => [
                 'route'    => 'humus amqp setup-fabric',
                 'defaults' => [
-                    'controller' => __NAMESPACE__ . '\\Controller\\SetupFabric',
+                    'controller' => Controller\SetupFabricController::class,
                 ]
             ]
         ],
@@ -32,7 +32,7 @@ return [
             'options' => [
                 'route'    => 'humus amqp consumer <name> [<amount>] [--without-signals|-w]',
                 'defaults' => [
-                    'controller' => __NAMESPACE__ . '\\Controller\\Consumer',
+                    'controller' => Controller\ConsumerController::class,
                 ]
             ]
         ],
@@ -40,7 +40,7 @@ return [
             'options' => [
                 'route'    => 'humus amqp list (consumers|producers|rpc-clients|rpc-servers|connections):type',
                 'defaults' => [
-                    'controller' => __NAMESPACE__ . '\\Controller\\List',
+                    'controller' => Controller\ListController::class,
                 ]
             ]
         ],
@@ -48,7 +48,7 @@ return [
             'options' => [
                 'route'    => 'humus amqp list-exchanges',
                 'defaults' => [
-                    'controller' => __NAMESPACE__ . '\\Controller\\Exchanges',
+                    'controller' => Controller\ExchangesController::class,
                 ]
             ]
         ],
@@ -56,7 +56,7 @@ return [
             'options' => [
                 'route'    => 'humus amqp stdin-producer <name> [--route=] <msg>',
                 'defaults' => [
-                    'controller' => __NAMESPACE__ . '\\Controller\\StdInProducer',
+                    'controller' => Controller\StdInProducerController::class,
                 ]
             ]
         ],
@@ -64,7 +64,7 @@ return [
             'options' => [
                 'route' => 'humus amqp purge-consumer <consumer-name> [--no-confirmation]',
                 'defaults' => [
-                    'controller' => __NAMESPACE__ . '\\Controller\\PurgeConsumer',
+                    'controller' => Controller\PurgeConsumerController::class,
                 ]
             ]
         ],
@@ -72,7 +72,7 @@ return [
             'options' => [
                 'route' => 'humus amqp rpc-server <name> [<amount>] [--without-signals|-w]',
                 'defaults' => [
-                    'controller' => __NAMESPACE__ . '\\Controller\\RpcServer',
+                    'controller' => Controller\RpcServerController::class,
                 ]
             ]
         ],

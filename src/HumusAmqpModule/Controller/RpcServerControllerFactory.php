@@ -16,33 +16,41 @@
  * and is licensed under the MIT license.
  */
 
-namespace HumusAmqpModule\Service\Controller;
+namespace HumusAmqpModule\Controller;
 
-use HumusAmqpModule\Controller\GenSupervisordConfigController;
+use HumusAmqpModule\PluginManager\RpcServer;
+use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\AbstractPluginManager;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-/**
- * Class GenSupervisordConfigFactory
- * @package HumusAmqpModule\Service\Controller
- */
-class GenSupervisordConfigFactory implements FactoryInterface
+class RpcServerControllerFactory implements FactoryInterface
 {
     /**
+     * Create an object
+     *
+     * @param  ContainerInterface $container
+     * @param  string             $requestedName
+     * @param  null|array         $options
+     * @return RpcServerController
+     */
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
+    {
+        $controller = new RpcServerController();
+        $controller->setRpcServerManager($container->get(RpcServer::class));
+        return $controller;
+    }
+
+    /**
      * @param ServiceLocatorInterface $serviceLocator
-     * @return GenSupervisordConfigController
+     * @return RpcServerController
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $sm = $serviceLocator->getServiceLocator();
-        $config = $sm->get('Config');
-        $moduleConfig = $config['humus_amqp_module'];
-        $supervisordConfig = $config['humus_supervisor_module']['humus-amqp-supervisor']['supervisord'];
-        
-        $controller = new GenSupervisordConfigController();
-        $controller->setConfig($moduleConfig);
-        $controller->setSuperVisordConfig($supervisordConfig);
-        
-        return $controller;
+        if ($serviceLocator instanceof AbstractPluginManager) {
+            $serviceLocator = $serviceLocator->getServiceLocator();
+        }
+
+        return $this($serviceLocator, RpcServerController::class);
     }
 }

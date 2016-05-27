@@ -20,7 +20,6 @@ namespace HumusAmqpModule\PluginManager;
 
 use HumusAmqpModule\Exception;
 use HumusAmqpModule\ConsumerInterface;
-use Zend\ServiceManager\AbstractPluginManager;
 
 /**
  * Class Consumer
@@ -38,7 +37,7 @@ class Consumer extends AbstractPluginManager
      * @return void
      * @throws Exception\RuntimeException if invalid
      */
-    public function validatePlugin($plugin)
+    public function validate($plugin)
     {
         if ($plugin instanceof ConsumerInterface) {
             // we're okay

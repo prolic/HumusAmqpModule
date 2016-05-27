@@ -20,7 +20,6 @@ namespace HumusAmqpModule\PluginManager;
 
 use AMQPConnection;
 use HumusAmqpModule\Exception;
-use Zend\ServiceManager\AbstractPluginManager;
 
 /**
  * Class Connection
@@ -38,7 +37,7 @@ class Connection extends AbstractPluginManager
      * @return void
      * @throws Exception\RuntimeException if invalid
      */
-    public function validatePlugin($plugin)
+    public function validate($plugin)
     {
         if ($plugin instanceof AMQPConnection) {
             // we're okay

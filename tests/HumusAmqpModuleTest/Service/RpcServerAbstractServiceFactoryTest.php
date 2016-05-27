@@ -83,7 +83,7 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             ->method('create')
             ->will($this->returnValue($queue));
 
-        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection');
+        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection', [], [], '', false);
         $connectionManager
             ->expects($this->any())
             ->method('get')
@@ -94,11 +94,10 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
-        $services->setService('Config', $config);
+        $services->setService('config', $config);
 
-        $callbackManager = new CallbackPluginManager();
+        $callbackManager = new CallbackPluginManager($services);
         $callbackManager->setInvokableClass('test-callback', __NAMESPACE__ . '\TestAsset\TestCallback');
-        $callbackManager->setServiceLocator($services);
 
         $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager);
         $services->setService('HumusAmqpModule\PluginManager\Callback', $callbackManager);
@@ -108,13 +107,15 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $components->setChannelMock($channel);
         $components->setQueueFactory($queueFactory);
 
-        $services->setService('HumusAmqpModule\PluginManager\RpcClient', $rpcsm = new RpcServerPluginManager());
-        $rpcsm->addAbstractFactory($components);
-        $rpcsm->setServiceLocator($services);
+        $rpcsm = new RpcServerPluginManager($services);
 
-        $services->setService('HumusAmqpModule\PluginManager\Callback', $callbackManager = new CallbackPluginManager());
+        $services->setService('HumusAmqpModule\PluginManager\RpcClient', $rpcsm);
+        $rpcsm->addAbstractFactory($components);
+
+        $callbackManager = new CallbackPluginManager($services);
+
+        $services->setService('HumusAmqpModule\PluginManager\Callback', $callbackManager);
         $callbackManager->setInvokableClass('test-callback', __NAMESPACE__ . '\TestAsset\TestCallback');
-        $callbackManager->setServiceLocator($services);
     }
 
     public function testCreateRpcServer()
@@ -129,9 +130,9 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateRpcServerWithoutCallback()
     {
-        $config = $this->services->get('Config');
+        $config = $this->services->get('config');
         unset($config['humus_amqp_module']['rpc_servers']['test-rpc-server']['callback']);
-        $this->services->setService('Config', $config);
+        $this->services->setService('config', $config);
 
         $this->components->createServiceWithName($this->services, 'test-rpc-server', 'test-rpc-server');
     }
@@ -142,9 +143,9 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateConsumerThrowsExceptionOnInvalidLogger()
     {
-        $config = $this->services->get('Config');
+        $config = $this->services->get('config');
         $config['humus_amqp_module']['rpc_servers']['test-rpc-server']['logger'] = 'invalid stuff';
-        $this->services->setService('Config', $config);
+        $this->services->setService('config', $config);
 
         $this->components->createServiceWithName($this->services, 'test-rpc-server', 'test-rpc-server');
     }
@@ -155,9 +156,9 @@ class RpcServerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
      */
     public function testCreateConsumerWithInvalidLogger()
     {
-        $config = $this->services->get('Config');
+        $config = $this->services->get('config');
         $config['humus_amqp_module']['rpc_servers']['test-rpc-server']['logger'] = 'foo';
-        $this->services->setService('Config', $config);
+        $this->services->setService('config', $config);
         $this->services->setService('foo', new \stdClass());
 
         $this->components->createServiceWithName($this->services, 'test-rpc-server', 'test-rpc-server');
