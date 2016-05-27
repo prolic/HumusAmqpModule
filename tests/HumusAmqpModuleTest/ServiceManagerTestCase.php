@@ -59,11 +59,12 @@ class ServiceManagerTestCase extends TestCase
     public function getServiceManager(array $configuration = null)
     {
         $configuration = $configuration ?: static::getConfiguration();
-        $serviceManager = new ServiceManager(
-            new ServiceManagerConfig(
-                isset($configuration['service_manager']) ? $configuration['service_manager'] : []
-            )
+        $serviceManagerConfig = new ServiceManagerConfig(
+            isset($configuration['service_manager']) ? $configuration['service_manager'] : []
         );
+        $serviceManager = new ServiceManager();
+
+        $serviceManagerConfig->configureServiceManager($serviceManager);
 
         $serviceManager->setAllowOverride(true);
 

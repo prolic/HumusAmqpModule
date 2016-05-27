@@ -36,7 +36,7 @@ class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
     {
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
-        $c = $serviceManager->get('Config');
+        $c = $serviceManager->get('config');
         $c['humus_amqp_module']['exchanges'] = array(
             'foo' => array(
                 'name' => 'foo',
@@ -50,7 +50,7 @@ class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
                 'exchange' => 'foo'
             )
         );
-        $serviceManager->setService('Config', $c);
+        $serviceManager->setService('config', $c);
         $cm = $serviceManager->get('ControllerManager');
         $controller = new TestAsset\SetupFabricController();
         $controller->setConsole(new TestAsset\ConsoleAdapter());
@@ -70,7 +70,7 @@ class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
     {
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('Config', [
+        $serviceManager->setService('config', [
             'humus_amqp_module' => [
                 'exchanges' => [],
                 'queues' => []
@@ -89,7 +89,7 @@ class SetupFabricControllerTest extends AbstractConsoleControllerTestCase
     {
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
-        $serviceManager->setService('Config', [
+        $serviceManager->setService('config', [
             'humus_amqp_module' => [
                 'exchanges' => [
                     'foo' => [

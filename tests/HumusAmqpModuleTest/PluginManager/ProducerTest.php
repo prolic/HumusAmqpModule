@@ -19,22 +19,23 @@
 namespace HumusAmqpModuleTest\PluginManager;
 
 use HumusAmqpModule\PluginManager\Producer as ProducerPluginManager;
+use Interop\Container\ContainerInterface;
 
 class ProducerTest extends \PHPUnit_Framework_TestCase
 {
     public function testValidatePlugin()
     {
         $mock = $this->getMock('HumusAmqpModule\\Producer', [], [], '', false);
-        $manager = new ProducerPluginManager();
+        $manager = new ProducerPluginManager($this->prophesize(ContainerInterface::class)->reveal());
         $manager->validatePlugin($mock);
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\RuntimeException
+     * @expectedException \HumusAmqpModule\Exception\RuntimeException
      */
     public function testInvalidPlugin()
     {
-        $manager = new ProducerPluginManager();
+        $manager = new ProducerPluginManager($this->prophesize(ContainerInterface::class)->reveal());
         $manager->validatePlugin('foo');
     }
 }

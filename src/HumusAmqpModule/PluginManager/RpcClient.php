@@ -20,7 +20,6 @@ namespace HumusAmqpModule\PluginManager;
 
 use HumusAmqpModule\Exception;
 use HumusAmqpModule\RpcClient as AmqpRpcClient;
-use Zend\ServiceManager\AbstractPluginManager;
 
 /**
  * Class RpcClient
@@ -38,7 +37,7 @@ class RpcClient extends AbstractPluginManager
      * @return void
      * @throws Exception\RuntimeException if invalid
      */
-    public function validatePlugin($plugin)
+    public function validate($plugin)
     {
         if ($plugin instanceof AmqpRpcClient) {
             // we're okay

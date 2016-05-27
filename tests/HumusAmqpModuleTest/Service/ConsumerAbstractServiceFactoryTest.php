@@ -55,7 +55,7 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             ->method('create')
             ->will($this->returnValue($queue));
 
-        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection');
+        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection', [], [], '', false);
         $connectionManager
             ->expects($this->any())
             ->method('get')
@@ -64,11 +64,10 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
-        $services->setService('Config', $config);
+        $services->setService('config', $config);
 
-        $callbackManager = new CallbackPluginManager();
+        $callbackManager = new CallbackPluginManager($services);
         $callbackManager->setInvokableClass('test-callback', __NAMESPACE__ . '\TestAsset\TestCallback');
-        $callbackManager->setServiceLocator($services);
 
         $services->setService('HumusAmqpModule\PluginManager\Connection', $connectionManager);
         $services->setService('HumusAmqpModule\PluginManager\Callback', $callbackManager);
@@ -77,9 +76,10 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $components->setChannelMock($channel);
         $components->setQueueFactory($queueFactory);
 
-        $services->setService('HumusAmqpModule\PluginManager\Consumer', $consumerManager = new ConsumerPluginManager());
+        $consumerManager = new ConsumerPluginManager($services);
+
+        $services->setService('HumusAmqpModule\PluginManager\Consumer', $consumerManager);
         $consumerManager->addAbstractFactory($components);
-        $consumerManager->setServiceLocator($services);
     }
 
     public function testCreateConsumer()

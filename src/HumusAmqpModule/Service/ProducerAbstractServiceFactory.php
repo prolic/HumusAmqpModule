@@ -20,8 +20,8 @@ namespace HumusAmqpModule\Service;
 
 use HumusAmqpModule\Exception;
 use HumusAmqpModule\Producer;
+use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Class ProducerAbstractServiceFactory
@@ -35,41 +35,35 @@ class ProducerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
     protected $subConfigKey = 'producers';
 
     /**
-     * Create service with name
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string $name
-     * @param string $requestedName
+     * @param ContainerInterface $container
+     * @param string             $requestedName
+     * @param array|null         $options
      * @return Producer
      */
-    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
-        // get global service locator, if we are in a plugin manager
-        // @todo: recheck, if this is really necessary and try to find another way of getting the global service locator
-        if ($serviceLocator instanceof AbstractPluginManager) {
-            $serviceLocator = $serviceLocator->getServiceLocator();
+        if ($container instanceof AbstractPluginManager) {
+            $container = $container->getServiceLocator();
         }
 
-        $spec       = $this->getSpec($serviceLocator, $name, $requestedName);
-        $this->validateSpec($serviceLocator, $spec, $requestedName);
-        $connection = $this->getConnection($serviceLocator, $spec);
+        $spec       = $this->getSpec($container, $requestedName, $requestedName);
+        $this->validateSpec($container, $spec, $requestedName);
+        $connection = $this->getConnection($container, $spec);
         $channel    = $this->createChannel($connection, $spec);
 
-        $exchange = $this->getExchange($serviceLocator, $channel, $spec['exchange'], $this->useAutoSetupFabric($spec));
-        $producer = new Producer($exchange);
-
-        return $producer;
+        $exchange = $this->getExchange($container, $channel, $spec['exchange'], $this->useAutoSetupFabric($spec));
+        return new Producer($exchange);
     }
 
     /**
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param array $spec
-     * @param string $requestedName
+     * @param ContainerInterface $container
+     * @param array              $spec
+     * @param string             $requestedName
      * @throws Exception\InvalidArgumentException
      */
-    protected function validateSpec(ServiceLocatorInterface $serviceLocator, array $spec, $requestedName)
+    protected function validateSpec(ContainerInterface $container, array $spec, $requestedName)
     {
-        $defaultConnection = $this->getDefaultConnectionName($serviceLocator);
+        $defaultConnection = $this->getDefaultConnectionName($container);
 
         if (isset($spec['connection'])) {
             $connection = $spec['connection'];
@@ -78,14 +72,14 @@ class ProducerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
         }
 
         // exchange required
-        if (!isset($spec['exchange'])) {
+        if (!array_key_exists('exchange', $spec)) {
             throw new Exception\InvalidArgumentException(
                 'Exchange is missing for producer ' . $requestedName
             );
         }
 
         $exchange = $spec['exchange'];
-        $config  = $this->getConfig($serviceLocator);
+        $config  = $this->getConfig($container);
         // validate exchange existence
         if (!isset($config['exchanges'][$exchange])) {
             throw new Exception\InvalidArgumentException(
@@ -96,7 +90,7 @@ class ProducerAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
         // validate exchange connection
         $testConnection = isset($config['exchanges'][$exchange]['connection'])
             ? $config['exchanges'][$exchange]['connection']
-            : $this->getDefaultConnectionName($serviceLocator);
+            : $this->getDefaultConnectionName($container);
 
         if ($testConnection != $connection) {
             throw new Exception\InvalidArgumentException(

@@ -20,9 +20,9 @@ namespace HumusAmqpModule\Controller;
 
 use HumusAmqpModule\ConsumerInterface;
 use HumusAmqpModule\Exception;
+use Interop\Container\ContainerInterface;
 use Zend\Console\ColorInterface;
 use Zend\Mvc\Controller\AbstractConsoleController;
-use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
@@ -34,7 +34,7 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
 {
 
     /**
-     * @var ServiceLocatorInterface
+     * @var ContainerInterface
      */
     protected $consumerManager;
 
@@ -98,16 +98,16 @@ class ConsumerController extends AbstractConsoleController implements ConsumerMa
     }
 
     /**
-     * @param ServiceLocatorInterface $manager
+     * @param ContainerInterface $manager
      * @return void
      */
-    public function setConsumerManager(ServiceLocatorInterface $manager)
+    public function setConsumerManager(ContainerInterface $manager)
     {
         $this->consumerManager = $manager;
     }
 
     /**
-     * @return ServiceLocatorInterface
+     * @return ContainerInterface
      */
     public function getConsumerManager()
     {

@@ -19,22 +19,23 @@
 namespace HumusAmqpModuleTest\PluginManager;
 
 use HumusAmqpModule\PluginManager\Connection as ConnectionPluginManager;
+use Interop\Container\ContainerInterface;
 
 class ConnectionTest extends \PHPUnit_Framework_TestCase
 {
     public function testValidatePlugin()
     {
         $mock = $this->getMockForAbstractClass('AMQPConnection');
-        $manager = new ConnectionPluginManager();
+        $manager = new ConnectionPluginManager($this->prophesize(ContainerInterface::class)->reveal());
         $manager->validatePlugin($mock);
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\RuntimeException
+     * @expectedException \HumusAmqpModule\Exception\RuntimeException
      */
     public function testInvalidPlugin()
     {
-        $manager = new ConnectionPluginManager();
+        $manager = new ConnectionPluginManager($this->prophesize(ContainerInterface::class)->reveal());
         $manager->validatePlugin('foo');
     }
 }

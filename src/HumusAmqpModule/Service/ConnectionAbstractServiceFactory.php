@@ -20,7 +20,7 @@ namespace HumusAmqpModule\Service;
 
 use AMQPConnection;
 use HumusAmqpModule\ConnectionOptions;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Interop\Container\ContainerInterface;
 
 /**
  * Instantiates an AMQPConnection and created the connection
@@ -37,16 +37,14 @@ class ConnectionAbstractServiceFactory extends AbstractAmqpAbstractServiceFactor
     protected $subConfigKey = 'connections';
 
     /**
-     * Create service with name
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string $name
-     * @param string $requestedName
+     * @param ContainerInterface $container
+     * @param string             $requestedName
+     * @param array|null         $options
      * @return AMQPConnection
      */
-    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
-        $config  = $this->getConfig($serviceLocator);
+        $config  = $this->getConfig($container);
 
         $options = new ConnectionOptions($config[$this->subConfigKey][$requestedName]);
         $connection = new AMQPConnection($options->toArray());

@@ -18,9 +18,9 @@
 
 namespace HumusAmqpModule\Controller;
 
+use Interop\Container\ContainerInterface;
 use Zend\Console\ColorInterface;
 use Zend\Mvc\Controller\AbstractConsoleController;
-use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
@@ -31,7 +31,7 @@ use Zend\Stdlib\ResponseInterface;
 class StdInProducerController extends AbstractConsoleController
 {
     /**
-     * @var ServiceLocatorInterface
+     * @var ContainerInterface
      */
     protected $producerManager;
 
@@ -66,15 +66,15 @@ class StdInProducerController extends AbstractConsoleController
     }
 
     /**
-     * @param ServiceLocatorInterface $producerManager
+     * @param ContainerInterface $producerManager
      */
-    public function setProducerManager(ServiceLocatorInterface $producerManager)
+    public function setProducerManager(ContainerInterface $producerManager)
     {
         $this->producerManager = $producerManager;
     }
 
     /**
-     * @return ServiceLocatorInterface
+     * @return ContainerInterface
      */
     public function getProducerManager()
     {

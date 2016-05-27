@@ -19,21 +19,22 @@
 namespace HumusAmqpModuleTest\PluginManager;
 
 use HumusAmqpModule\PluginManager\Callback as CallbackPluginManager;
+use Interop\Container\ContainerInterface;
 
 class CallbackTest extends \PHPUnit_Framework_TestCase
 {
     public function testValidatePlugin()
     {
-        $manager = new CallbackPluginManager();
+        $manager = new CallbackPluginManager($this->prophesize(ContainerInterface::class)->reveal());
         $manager->validatePlugin('str_replace');
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\RuntimeException
+     * @expectedException \HumusAmqpModule\Exception\RuntimeException
      */
     public function testInvalidPlugin()
     {
-        $manager = new CallbackPluginManager();
+        $manager = new CallbackPluginManager($this->prophesize(ContainerInterface::class)->reveal());
         $manager->validatePlugin('foo');
     }
 }

@@ -20,9 +20,9 @@ namespace HumusAmqpModule\Service;
 
 use HumusAmqpModule\Consumer;
 use HumusAmqpModule\Exception;
-use Zend\Log\LoggerInterface;
+use Interop\Container\ContainerInterface;
+use Zend\Log\LoggerInterface as ZendLoggerInterface;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ServiceLocatorInterface;
 use Psr\Log;
 use Zend\Log\PsrLoggerAdapter;
 
@@ -38,28 +38,26 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
     protected $subConfigKey = 'consumers';
 
     /**
-     * Create service with name
-     *
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string $name
-     * @param string $requestedName
+     * @param ContainerInterface $container
+     * @param string             $requestedName
+     * @param array|null         $options
      * @return Consumer
      * @throws Exception\InvalidArgumentException
      */
-    public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
     {
         // get global service locator, if we are in a plugin manager
-        if ($serviceLocator instanceof AbstractPluginManager) {
-            $serviceLocator = $serviceLocator->getServiceLocator();
+        if ($container instanceof AbstractPluginManager) {
+            $container = $container->getServiceLocator();
         }
 
-        $spec = $this->getSpec($serviceLocator, $name, $requestedName);
-        $this->validateSpec($serviceLocator, $spec, $requestedName);
+        $spec = $this->getSpec($container, $requestedName, $requestedName);
+        $this->validateSpec($container, $spec, $requestedName);
 
-        $connection = $this->getConnection($serviceLocator, $spec);
+        $connection = $this->getConnection($container, $spec);
         $channel    = $this->createChannel($connection, $spec);
 
-        $config = $this->getConfig($serviceLocator);
+        $config = $this->getConfig($container);
         $queues = [];
 
         foreach ($spec['queues'] as $queue) {
@@ -67,64 +65,63 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
                 // will create the exchange to declare it on the channel
                 // the created exchange will not be used afterwards
                 $exchangeName = $config['queues'][$queue]['exchange'];
-                $this->getExchange($serviceLocator, $channel, $exchangeName, $this->useAutoSetupFabric($spec));
+                $this->getExchange($container, $channel, $exchangeName, $this->useAutoSetupFabric($spec));
             }
 
-            $queueSpec = $this->getQueueSpec($serviceLocator, $queue);
+            $queueSpec = $this->getQueueSpec($container, $queue);
             $queues[] = $this->getQueue($queueSpec, $channel, $this->useAutoSetupFabric($spec));
         }
 
-        $idleTimeout = isset($spec['idle_timeout']) ? $spec['idle_timeout'] : 5.0;
-        $waitTimeout = isset($spec['wait_timeout']) ? $spec['wait_timeout'] : 100000;
+        $idleTimeout = array_key_exists('idle_timeout', $spec) ? $spec['idle_timeout'] : 5.0;
+        $waitTimeout = array_key_exists('wait_timeout', $spec) ? $spec['wait_timeout'] : 100000;
 
         $consumer = new Consumer($queues, $idleTimeout, $waitTimeout);
 
-        if (isset($spec['logger'])) {
-            if (!$serviceLocator->has($spec['logger'])) {
-                throw new Exception\InvalidArgumentException(
-                    'The logger ' . $spec['logger'] . ' is not configured'
-                );
+        if (array_key_exists('logger', $spec)) {
+            if (!$container->has($spec['logger'])) {
+                throw new Exception\InvalidArgumentException('The logger ' . $spec['logger'] . ' is not configured');
             }
-            $logger = $serviceLocator->get($spec['logger']);
-            if ($logger instanceof LoggerInterface) {
+            $logger = $container->get($spec['logger']);
+            if ($logger instanceof ZendLoggerInterface) {
                 $logger = new PsrLoggerAdapter($logger);
             }
-            if (!$logger instanceof \Psr\Log\LoggerInterface) {
-                throw new Exception\InvalidArgumentException(
-                    'The logger ' . $spec['logger'] . ' is not a Psr\Log'
-                );
+            if (!$logger instanceof Log\LoggerInterface) {
+                throw new Exception\InvalidArgumentException('The logger ' . $spec['logger'] . ' is not a Psr\Log');
             }
             $consumer->setLogger($logger);
         } else {
             $consumer->setLogger($this->getDefaultNullLogger());
         }
 
-        $callbackManager = $this->getCallbackManager($serviceLocator);
+        $callbackManager = $this->getCallbackManager($container);
 
         if (!$callbackManager->has($spec['callback'])) {
             throw new Exception\InvalidArgumentException(
                 'The required callback ' . $spec['callback'] . ' can not be found'
             );
         }
+        /** @var callable $callback */
         $callback        = $callbackManager->get($spec['callback']);
         $consumer->setDeliveryCallback($callback);
 
-        if (isset($spec['flush_callback'])) {
+        if (array_key_exists('flush_callback', $spec)) {
             if (!$callbackManager->has($spec['flush_callback'])) {
                 throw new Exception\InvalidArgumentException(
                     'The required callback ' . $spec['flush_callback'] . ' can not be found'
                 );
             }
+            /** @var callable $flushCallback */
             $flushCallback = $callbackManager->get($spec['flush_callback']);
             $consumer->setFlushCallback($flushCallback);
         }
 
-        if (isset($spec['error_callback'])) {
+        if (array_key_exists('error_callback', $spec)) {
             if (!$callbackManager->has($spec['error_callback'])) {
                 throw new Exception\InvalidArgumentException(
                     'The required callback ' . $spec['error_callback'] . ' can not be found'
                 );
             }
+            /** @var callable $errorCallback */
             $errorCallback = $callbackManager->get($spec['error_callback']);
             $consumer->setErrorCallback($errorCallback);
         }
@@ -133,36 +130,36 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
     }
 
     /**
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param array $spec
-     * @param string $requestedName
+     * @param ContainerInterface $container
+     * @param array              $spec
+     * @param string             $requestedName
      * @throws Exception\InvalidArgumentException
      */
-    protected function validateSpec(ServiceLocatorInterface $serviceLocator, array $spec, $requestedName)
+    protected function validateSpec(ContainerInterface $container, array $spec, $requestedName)
     {
         // queues are required
-        if (!isset($spec['queues'])) {
+        if (!array_key_exists('queues', $spec)) {
             throw new Exception\InvalidArgumentException(
                 'Queues are missing for consumer ' . $requestedName
             );
         }
 
         // callback is required
-        if (!isset($spec['callback'])) {
+        if (!array_key_exists('callback', $spec)) {
             throw new Exception\InvalidArgumentException(
                 'No delivery callback specified for consumer ' . $requestedName
             );
         }
 
-        $defaultConnection = $this->getDefaultConnectionName($serviceLocator);
+        $defaultConnection = $this->getDefaultConnectionName($container);
 
-        if (isset($spec['connection'])) {
+        if (array_key_exists('connection', $spec)) {
             $connection = $spec['connection'];
         } else {
             $connection = $defaultConnection;
         }
 
-        $config  = $this->getConfig($serviceLocator);
+        $config  = $this->getConfig($container);
         foreach ($spec['queues'] as $queue) {
             // validate queue existence
             if (!isset($config['queues'][$queue])) {
@@ -193,7 +190,7 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
 
             // validate exchange connection
             $exchange = $config['exchanges'][$config['queues'][$queue]['exchange']];
-            $testConnection = isset($exchange['connection']) ? $exchange['connection'] : $defaultConnection;
+            $testConnection = array_key_exists('connection', $exchange) ? $exchange['connection'] : $defaultConnection;
             if ($testConnection != $connection) {
                 throw new Exception\InvalidArgumentException(
                     'The exchange connection for exchange ' . $config['queues'][$queue]['exchange']
@@ -205,7 +202,7 @@ class ConsumerAbstractServiceFactory extends AbstractAmqpQueueAbstractServiceFac
     }
 
     /**
-     * @return \Psr\Log\LoggerInterface
+     * @return Log\LoggerInterface
      */
     protected function getDefaultNullLogger()
     {

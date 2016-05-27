@@ -39,7 +39,7 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     {
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
-        $services->setService('Config', $config);
+        $services->setService('config', $config);
 
         $connection = $this->getMock('AMQPConnection', [], [], '', false);
         $channel    = $this->getMock('AMQPChannel', [], [], '', false);
@@ -58,7 +58,7 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             ->method('create')
             ->will($this->returnValue($queue));
 
-        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection');
+        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection', [], [], '', false);
         $connectionManager
             ->expects($this->any())
             ->method('get')
@@ -66,16 +66,16 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             ->willReturn($connection);
 
         $dependentComponent = new ConnectionAbstractServiceFactory();
-        $this->services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
+        $cm = new ConnectionPluginManager($services);
+        $this->services->setService('HumusAmqpModule\PluginManager\Connection', $cm);
         $cm->addAbstractFactory($dependentComponent);
-        $cm->setServiceLocator($this->services);
 
         $components = $this->components = new TestAsset\RpcClientAbstractServiceFactory();
         $components->setChannelMock($channel);
         $components->setQueueFactory($queueFactory);
-        $this->services->setService('HumusAmqpModule\PluginManager\RpcClient', $rpccm = new RpcClientPluginManager());
+        $rpccm = new RpcClientPluginManager($services);
+        $this->services->setService('HumusAmqpModule\PluginManager\RpcClient', $rpccm);
         $rpccm->addAbstractFactory($components);
-        $rpccm->setServiceLocator($this->services);
     }
 
     public function testCreateRpcClient()
@@ -160,7 +160,7 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
      * @expectedExceptionMessage The rpc client queue false-rpc-client-queue-name is missing in the queues configuration
      */
     public function testCreateRpcClientThrowsExceptionOnInvalidQueueName()
@@ -203,7 +203,7 @@ class RpcClientAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException HumusAmqpModule\Exception\InvalidArgumentException
+     * @expectedException \HumusAmqpModule\Exception\InvalidArgumentException
      * @expectedExceptionMessage Queue is missing for rpc client test-rpc-client
      */
     public function testCreateRpcClientThrowsExceptionOnMissingQueue()

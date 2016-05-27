@@ -20,9 +20,9 @@ namespace HumusAmqpModule\Controller;
 
 use HumusAmqpModule\Exception;
 use HumusAmqpModule\RpcServer;
+use Interop\Container\ContainerInterface;
 use Zend\Console\ColorInterface;
 use Zend\Mvc\Controller\AbstractConsoleController;
-use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\ResponseInterface;
 
@@ -38,7 +38,7 @@ class RpcServerController extends AbstractConsoleController
     protected $rpcServer;
 
     /**
-     * @var ServiceLocatorInterface
+     * @var ContainerInterface
      */
     protected $rpcServerManager;
 
@@ -91,15 +91,15 @@ class RpcServerController extends AbstractConsoleController
     }
 
     /**
-     * @param ServiceLocatorInterface $serviceLocator
+     * @param ContainerInterface $manager
      */
-    public function setRpcServerManager(ServiceLocatorInterface $serviceLocator)
+    public function setRpcServerManager(ContainerInterface $manager)
     {
-        $this->rpcServerManager = $serviceLocator;
+        $this->rpcServerManager = $manager;
     }
 
     /**
-     * @return ServiceLocatorInterface
+     * @return ContainerInterface
      */
     public function getRpcServerManager()
     {

@@ -20,6 +20,7 @@ namespace HumusAmqpModuleTest\Service;
 
 use HumusAmqpModule\PluginManager\Connection as ConnectionPluginManager;
 use HumusAmqpModule\Service\ConnectionAbstractServiceFactory;
+use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\ServiceManager;
 
 class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
@@ -52,12 +53,12 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
         $services = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
-        $services->setService('Config', $config);
+        $services->setService('config', $config);
 
-        $components = $this->components = new ConnectionAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
-        $cm->addAbstractFactory($components);
-        $cm->setServiceLocator($services);
+        $this->components = new ConnectionAbstractServiceFactory();
+        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager($services));
+        $cm->addAbstractFactory($this->components);
+        //$cm->setServiceLocator($services);
     }
 
     public function testMissingGlobalConfigIndicatesCannotCreateInstance()
@@ -66,9 +67,8 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
         $services->setAllowOverride(true);
 
         $components = $this->components = new ConnectionAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
+        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager($services));
         $cm->addAbstractFactory($components);
-        $cm->setServiceLocator($services);
 
         $this->assertFalse($this->components->canCreateServiceWithName($this->services, 'foo', 'foo'));
     }
@@ -82,19 +82,19 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testMissinAmqpServicePrefixIndicatesCannotCreateInstance()
     {
-        $this->services->setService('Config', []);
+        $this->services->setService('config', []);
         $this->assertFalse($this->components->canCreateServiceWithName($this->services, 'foo', 'foo'));
     }
 
     public function testInvalidConfigIndicatesCannotCreateInstance()
     {
-        $this->services->setService('Config', ['humus_amqp_module' => 'string']);
+        $this->services->setService('config', ['humus_amqp_module' => 'string']);
         $this->assertFalse($this->components->canCreateServiceWithName($this->services, 'foo', 'foo'));
     }
 
     public function testEmptyConnectionConfigIndicatesCannotCreateConnection()
     {
-        $this->services->setService('Config', ['humus_amqp_module' => []]);
+        $this->services->setService('config', ['humus_amqp_module' => []]);
         $this->assertFalse(
             $this->components->canCreateServiceWithName($this->services, 'test-connection', 'test-connection')
         );
@@ -102,7 +102,7 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testMissingSpecIndicatesCanCreateConnectionWithDefaultSettings()
     {
-        $this->services->setService('Config', [
+        $this->services->setService('config', [
             'humus_amqp_module' => [
                 'connections' => [
                     'test-connection' => []
@@ -120,7 +120,7 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testInvalidConnectionConfigIndicatesCannotCreateConnection()
     {
-        $this->services->setService('Config', [
+        $this->services->setService('config', [
             'humus_amqp_module' => [
                 'connections' => [
                     'test-connection' => 'foobar'
@@ -138,7 +138,7 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testCorrectConfigIndicatesCanCreateConnection()
     {
-        $this->services->setService('Config', [
+        $this->services->setService('config', [
             'humus_amqp_module' => [
                 'connections' => [
                     'test-connection' => [
@@ -157,7 +157,7 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function testPersistentConnectionSettings()
     {
-        $this->services->setService('Config', [
+        $this->services->setService('config', [
             'humus_amqp_module' => [
                 'connections' => [
                     'test-connection' => [
@@ -166,7 +166,7 @@ class ConnectionAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
                 ],
             ],
         ]);
-        $conn = $this->components->createServiceWithName($this->services, 'testconnection', 'test-connection');
+        $conn = $this->components->createServiceWithName($this->services, 'test-connection', 'test-connection');
         $this->assertInstanceOf('AMQPConnection', $conn);
         $this->assertTrue(isset($conn->persistent));
         $this->assertTrue($conn->persistent);

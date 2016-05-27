@@ -103,7 +103,7 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             ->method('create')
             ->will($this->returnValue($exchange));
 
-        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection');
+        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection', [], [], '', false);
         $connectionManager
             ->expects($this->any())
             ->method('get')
@@ -112,19 +112,20 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
-        $services->setService('Config', $config);
+        $services->setService('config', $config);
 
         $dependentComponent = new ConnectionAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager());
+        $services->setService('HumusAmqpModule\PluginManager\Connection', $cm = new ConnectionPluginManager($services));
         $cm->addAbstractFactory($dependentComponent);
-        $cm->setServiceLocator($services);
 
         $components = $this->components = new TestAsset\ProducerAbstractServiceFactory();
         $components->setChannelMock($channel);
         $components->setExchangeFactory($exchangeFactory);
-        $services->setService('HumusAmqpModule\PluginManager\Producer', $producerManager = new ProducerPluginManager());
+
+        $producerManager = new ProducerPluginManager($services);
+
+        $services->setService('HumusAmqpModule\PluginManager\Producer', $producerManager);
         $producerManager->addAbstractFactory($components);
-        $producerManager->setServiceLocator($services);
     }
 
     public function testCreateProducer()
@@ -210,17 +211,26 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
         $services    = $this->services = new ServiceManager();
         $services->setAllowOverride(true);
-        $services->setService('Config', $config);
+        $services->setService('config', $config);
 
         $components = $this->components = new TestAsset\ProducerAbstractServiceFactory();
-        $services->setService('HumusAmqpModule\PluginManager\Producer', $producerManager = new ProducerPluginManager());
+
+        $producerManager = new ProducerPluginManager($services);
+
+        $services->setService('HumusAmqpModule\PluginManager\Producer', $producerManager);
         $producerManager->addAbstractFactory($components);
-        $producerManager->setServiceLocator($services);
 
         try {
             $producerManager->get('test-producer');
+
+            // Assert that we are not going here
+            $this->assertTrue(false);
         } catch (\Zend\ServiceManager\Exception\ServiceNotCreatedException $e) {
-            $p = $e->getPrevious()->getPrevious();
+            // In service-manager v3 we are on the main SL
+            $p = $e->getPrevious();
+            if (!$p instanceof \HumusAmqpModule\Exception\RuntimeException) {
+                $p = $p->getPrevious();
+            }
             $this->assertInstanceOf('HumusAmqpModule\Exception\RuntimeException', $p);
             $this->assertEquals('HumusAmqpModule\PluginManager\Connection not found', $p->getMessage());
         }

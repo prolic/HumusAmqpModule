@@ -26,7 +26,6 @@ use Zend\ModuleManager\Feature\BootstrapListenerInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\Config;
 
 /**
  * Class Module
@@ -50,27 +49,25 @@ class Module implements
         $serviceManager = $e->getApplication()->getServiceManager();
         /* @var $serviceManager \Zend\ServiceManager\ServiceManager */
 
-        $config = $serviceManager->get('Config');
+        $config = $serviceManager->get('config');
 
         // Use naming conventions to set up a bunch of services based on namespace:
         $namespaces = [
-            'Callback' => 'callback',
-            'Connection' => 'connection',
-            'Producer' => 'producer',
-            'Consumer' => 'consumer',
-            'RpcClient' => 'rpc_client',
-            'RpcServer' => 'rpc_server'
+            PluginManager\Callback::class => 'callback',
+            PluginManager\Connection::class => 'connection',
+            PluginManager\Producer::class => 'producer',
+            PluginManager\Consumer::class => 'consumer',
+            PluginManager\RpcClient::class => 'rpc_client',
+            PluginManager\RpcServer::class => 'rpc_server',
         ];
 
         // register plugin managers
-        foreach ($namespaces as $ns => $configKey) {
-            $serviceName = __NAMESPACE__ . '\\PluginManager\\' . $ns;
-            $factory = function () use ($serviceName, $config, $ns, $configKey, $serviceManager) {
+        foreach ($namespaces as $serviceName => $configKey) {
+            $factory = function () use ($config, $serviceName, $configKey, $serviceManager) {
                 $serviceConfig = $config['humus_amqp_module']['plugin_managers'][$configKey];
-                $service = new $serviceName(new Config($serviceConfig));
-                /* @var $service AbstractPluginManager */
-                $service->setServiceLocator($serviceManager);
-                if ('Connection' == $ns) {
+                /** @var AbstractPluginManager $service */
+                $service = new $serviceName($serviceManager, $serviceConfig);
+                if (PluginManager\Connection::class === $serviceName) {
                     $service->addInitializer(function (AMQPConnection $connection) {
                         if (isset($connection->persistent) && true === $connection->persistent) {
                             $connection->pconnect();

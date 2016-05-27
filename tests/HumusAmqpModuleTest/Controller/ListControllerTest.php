@@ -37,13 +37,13 @@ class ListControllerTest extends AbstractConsoleControllerTestCase
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
 
-        $config = $serviceManager->get('Config');
+        $config = $serviceManager->get('config');
 
         $config['humus_amqp_module']['consumers'] = [
             'testconsumer-1' => [],
             'testconsumer-2' => []
         ];
-        $serviceManager->setService('Config', $config);
+        $serviceManager->setService('config', $config);
 
 
         ob_start();
@@ -63,10 +63,10 @@ class ListControllerTest extends AbstractConsoleControllerTestCase
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
 
-        $config = $serviceManager->get('Config');
+        $config = $serviceManager->get('config');
 
         $config['humus_amqp_module'] = [];
-        $serviceManager->setService('Config', $config);
+        $serviceManager->setService('config', $config);
 
 
         ob_start();
@@ -84,10 +84,10 @@ class ListControllerTest extends AbstractConsoleControllerTestCase
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);
 
-        $config = $serviceManager->get('Config');
+        $config = $serviceManager->get('config');
 
         $config['humus_amqp_module']['rpc_servers'] = [];
-        $serviceManager->setService('Config', $config);
+        $serviceManager->setService('config', $config);
 
         ob_start();
         $this->dispatch('humus amqp list rpc-servers');

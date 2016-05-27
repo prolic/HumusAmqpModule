@@ -21,10 +21,11 @@ namespace HumusAmqpModule\Service;
 use AMQPChannel;
 use AMQPQueue;
 use HumusAmqpModule\Exception;
+use HumusAmqpModule\PluginManager;
 use HumusAmqpModule\QueueFactory;
 use HumusAmqpModule\QueueFactoryInterface;
 use HumusAmqpModule\QueueSpecification;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Interop\Container\ContainerInterface;
 
 /**
  * Class AbstractAmqpQueueAbstractServiceFactory
@@ -33,7 +34,7 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 abstract class AbstractAmqpQueueAbstractServiceFactory extends AbstractAmqpAbstractServiceFactory
 {
     /**
-     * @var \HumusAmqpModule\PluginManager\Callback
+     * @var Callback
      */
     protected $callbackManager;
 
@@ -50,28 +51,25 @@ abstract class AbstractAmqpQueueAbstractServiceFactory extends AbstractAmqpAbstr
      */
     protected function getQueue(QueueSpecification $spec, AMQPChannel $channel, $autoSetupFabric)
     {
-        $queue = $this->getQueueFactory()->create($spec, $channel, $autoSetupFabric);
-        return $queue;
+        return $this->getQueueFactory()->create($spec, $channel, $autoSetupFabric);
     }
 
     /**
-     * @param ServiceLocatorInterface $serviceLocator
-     * @return \HumusAmqpModule\PluginManager\Callback
+     * @param ContainerInterface $container
+     * @return PluginManager\Callback
      * @throws Exception\RuntimeException
      */
-    protected function getCallbackManager(ServiceLocatorInterface $serviceLocator)
+    protected function getCallbackManager(ContainerInterface $container)
     {
         if (null !== $this->callbackManager) {
             return $this->callbackManager;
         }
 
-        if (!$serviceLocator->has('HumusAmqpModule\PluginManager\Callback')) {
-            throw new Exception\RuntimeException(
-                'HumusAmqpModule\PluginManager\Callback not found'
-            );
+        if (!$container->has(PluginManager\Callback::class)) {
+            throw new Exception\RuntimeException(sprintf('%s not found', PluginManager\Callback::class));
         }
 
-        $this->callbackManager = $serviceLocator->get('HumusAmqpModule\PluginManager\Callback');
+        $this->callbackManager = $container->get(PluginManager\Callback::class);
         return $this->callbackManager;
     }
 
@@ -95,14 +93,13 @@ abstract class AbstractAmqpQueueAbstractServiceFactory extends AbstractAmqpAbstr
     }
 
     /**
-     * @param ServiceLocatorInterface $serviceLocator
-     * @param string $queueName
+     * @param ContainerInterface $container
+     * @param string             $queueName
      * @return QueueSpecification
      */
-    protected function getQueueSpec(ServiceLocatorInterface $serviceLocator, $queueName)
+    protected function getQueueSpec(ContainerInterface $container, $queueName)
     {
-        $config  = $this->getConfig($serviceLocator);
-        $specs = new QueueSpecification($config['queues'][$queueName]);
-        return $specs;
+        $config  = $this->getConfig($container);
+        return new QueueSpecification($config['queues'][$queueName]);
     }
 }
