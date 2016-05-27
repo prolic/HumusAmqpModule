@@ -5,7 +5,7 @@ namespace HumusAmqpModuleTest\Controller;
 use HumusAmqpModule\Controller\GenSupervisordConfigController as Controller;
 use HumusAmqpModule\Controller\GenSupervisordConfigControllerFactory as ControllerFactory;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\ServiceManager;
 
 class GenSupervisordConfigControllerFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -14,7 +14,7 @@ class GenSupervisordConfigControllerFactoryTest extends \PHPUnit_Framework_TestC
      */
     protected $controllerFactory;
     /**
-     * @var ServiceLocatorInterface
+     * @var ServiceManager
      */
     protected $serviceLocator;
     /**
@@ -31,7 +31,7 @@ class GenSupervisordConfigControllerFactoryTest extends \PHPUnit_Framework_TestC
 
     protected function setUp()
     {
-        $serviceLocator = $this->prophesize(ServiceLocatorInterface::class);
+        $serviceLocator = $this->prophesize(ServiceManager::class);
 
         $serviceLocator->get('config')
             ->willReturn($this->defaultConfig);

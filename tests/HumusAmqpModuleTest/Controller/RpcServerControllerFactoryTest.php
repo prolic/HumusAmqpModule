@@ -6,7 +6,7 @@ use HumusAmqpModule\Controller\RpcServerController as Controller;
 use HumusAmqpModule\Controller\RpcServerControllerFactory as ControllerFactory;
 use HumusAmqpModule\PluginManager\RpcServer;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\ServiceManager;
 
 class RpcServerControllerFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -16,7 +16,7 @@ class RpcServerControllerFactoryTest extends \PHPUnit_Framework_TestCase
      */
     protected $controllerFactory;
     /**
-     * @var ServiceLocatorInterface
+     * @var ServiceManager
      */
     protected $serviceLocator;
     /**
@@ -27,7 +27,7 @@ class RpcServerControllerFactoryTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $manager = $this->prophesize(RpcServer::class);
-        $serviceLocator = $this->prophesize(ServiceLocatorInterface::class);
+        $serviceLocator = $this->prophesize(ServiceManager::class);
         $serviceLocator->get(RpcServer::class)->willReturn($manager->reveal());
 
         $this->controllerFactory = new ControllerFactory();

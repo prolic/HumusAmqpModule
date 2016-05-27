@@ -6,7 +6,7 @@ use HumusAmqpModule\Controller\SetupFabricController as Controller;
 use HumusAmqpModule\Controller\SetupFabricControllerFactory as ControllerFactory;
 use HumusAmqpModule\PluginManager\Connection;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\ServiceManager;
 
 class SetupFabricControllerFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -16,7 +16,7 @@ class SetupFabricControllerFactoryTest extends \PHPUnit_Framework_TestCase
      */
     protected $controllerFactory;
     /**
-     * @var ServiceLocatorInterface
+     * @var ServiceManager
      */
     protected $serviceLocator;
     /**
@@ -33,7 +33,7 @@ class SetupFabricControllerFactoryTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $manager = $this->prophesize(Connection::class);
-        $serviceLocator = $this->prophesize(ServiceLocatorInterface::class);
+        $serviceLocator = $this->prophesize(ServiceManager::class);
         $serviceLocator->get(Connection::class)->willReturn($manager->reveal());
         $serviceLocator->get('config')->willReturn($this->config);
 

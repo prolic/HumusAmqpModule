@@ -5,7 +5,7 @@ namespace HumusAmqpModuleTest\Controller;
 use HumusAmqpModule\Controller\ExchangesController as Controller;
 use HumusAmqpModule\Controller\ExchangesControllerFactory as ControllerFactory;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\ServiceManager;
 
 class ExchangesControllerFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -14,7 +14,7 @@ class ExchangesControllerFactoryTest extends \PHPUnit_Framework_TestCase
      */
     protected $controllerFactory;
     /**
-     * @var ServiceLocatorInterface
+     * @var ServiceManager
      */
     protected $serviceLocator;
     /**
@@ -24,7 +24,7 @@ class ExchangesControllerFactoryTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $serviceLocator = $this->prophesize(ServiceLocatorInterface::class);
+        $serviceLocator = $this->prophesize(ServiceManager::class);
 
         $serviceLocator->get('config')
             ->willReturn($this->defaultConfig);

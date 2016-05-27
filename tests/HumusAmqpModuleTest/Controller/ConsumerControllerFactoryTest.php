@@ -6,7 +6,7 @@ use HumusAmqpModule\Controller\ConsumerController as Controller;
 use HumusAmqpModule\Controller\ConsumerControllerFactory as ControllerFactory;
 use HumusAmqpModule\PluginManager\Consumer;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\ServiceManager;
 
 class ConsumerControllerFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -16,7 +16,7 @@ class ConsumerControllerFactoryTest extends \PHPUnit_Framework_TestCase
      */
     protected $controllerFactory;
     /**
-     * @var ServiceLocatorInterface
+     * @var ServiceManager
      */
     protected $serviceLocator;
     /**
@@ -27,7 +27,7 @@ class ConsumerControllerFactoryTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $manager = $this->prophesize(Consumer::class);
-        $serviceLocator = $this->prophesize(ServiceLocatorInterface::class);
+        $serviceLocator = $this->prophesize(ServiceManager::class);
         $serviceLocator->get(Consumer::class)->willReturn($manager->reveal());
 
         $this->controllerFactory = new ControllerFactory();
