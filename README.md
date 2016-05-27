@@ -35,7 +35,7 @@ You can install the [Demo-Module](https://github.com/prolic/HumusAmqpDemoModule)
 Dependencies
 ------------
 
- - PHP >= 5.4
+ - PHP 5.5 | 7
  - [ext-amqp 1.7.0](https://github.com/pdezwart/php-amqp)
  - [HumusSupervisorModule](https://github.com/prolic/HumusSupervisorModule) (optional)
  - [Zend Console 2.3.0](https://github.com/zendframework/zf2)
