@@ -25,7 +25,9 @@ class RpcServerTest extends \PHPUnit_Framework_TestCase
 {
     public function testValidatePlugin()
     {
-        $mock = $this->getMock('HumusAmqpModule\\RpcServer', [], [], '', false);
+        $mock = $this->getMockBuilder('HumusAmqpModule\\RpcServer')
+            ->disableOriginalConstructor()
+            ->getMock();
         $manager = new RpcServerPluginManager($this->prophesize(ContainerInterface::class)->reveal());
         $manager->validatePlugin($mock);
     }

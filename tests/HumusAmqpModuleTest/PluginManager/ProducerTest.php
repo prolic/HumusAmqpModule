@@ -25,7 +25,9 @@ class ProducerTest extends \PHPUnit_Framework_TestCase
 {
     public function testValidatePlugin()
     {
-        $mock = $this->getMock('HumusAmqpModule\\Producer', [], [], '', false);
+        $mock = $this->getMockBuilder('HumusAmqpModule\\Producer')
+            ->disableOriginalConstructor()
+            ->getMock();
         $manager = new ProducerPluginManager($this->prophesize(ContainerInterface::class)->reveal());
         $manager->validatePlugin($mock);
     }

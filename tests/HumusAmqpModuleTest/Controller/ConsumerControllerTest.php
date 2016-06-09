@@ -35,7 +35,10 @@ class ConsumerControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatchWithTestConsumer()
     {
-        $consumer = $this->getMock('HumusAmqpModule\Consumer', ['consume'], [], '', false);
+        $consumer = $this->getMockBuilder('HumusAmqpModule\Consumer')
+            ->setMethods(['consume'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $consumer
             ->expects($this->once())
             ->method('consume')
@@ -79,7 +82,7 @@ class ConsumerControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatchWithInvalidAmount()
     {
-        $consumer = $this->getMock(__NAMESPACE__ . '\TestAsset\TestConsumer');
+        $consumer = $this->getMockBuilder(__NAMESPACE__ . '\TestAsset\TestConsumer')->getMock();
 
         $serviceManager = $this->getApplicationServiceLocator();
         $serviceManager->setAllowOverride(true);

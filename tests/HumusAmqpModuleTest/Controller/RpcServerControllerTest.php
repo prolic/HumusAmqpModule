@@ -34,7 +34,10 @@ class RpcServerControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatch()
     {
-        $rpcServer = $this->getMock('HumusAmqpModule\RpcServer', ['consume'], [], '', false);
+        $rpcServer = $this->getMockBuilder('HumusAmqpModule\RpcServer')
+            ->setMethods(['consume'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $rpcServer
             ->expects($this->once())
             ->method('consume')
@@ -53,7 +56,10 @@ class RpcServerControllerTest extends AbstractConsoleControllerTestCase
 
     public function testDispatchWithInvalidAmount()
     {
-        $rpcServer = $this->getMock('HumusAmqpModule\RpcServer', ['consume'], [], '', false);
+        $rpcServer = $this->getMockBuilder('HumusAmqpModule\RpcServer')
+            ->setMethods(['consume'])
+            ->disableOriginalConstructor()
+            ->getMock();
         $rpcServer
             ->expects($this->never())
             ->method('consume');

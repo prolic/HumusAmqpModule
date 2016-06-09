@@ -48,7 +48,7 @@ class ModuleTest extends ServiceManagerTestCase
     {
         $module = new Module();
 
-        $usage = $module->getConsoleUsage($this->getMock('Zend\Console\Adapter\AdapterInterface'));
+        $usage = $module->getConsoleUsage($this->getMockBuilder('Zend\Console\Adapter\AdapterInterface')->getMock());
 
         $this->assertInternalType('array', $usage);
     }
