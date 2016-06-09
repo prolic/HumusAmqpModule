@@ -19,7 +19,9 @@
 namespace HumusAmqpModuleTest\Amqp;
 
 use HumusAmqpModule\Consumer;
+use HumusAmqpModule\ConsumerCallbackInterface;
 use HumusAmqpModule\ConsumerInterface;
+use HumusAmqpModule\ExceptionCallbackInterface;
 use Prophecy\Argument;
 
 /**
@@ -28,26 +30,39 @@ use Prophecy\Argument;
  */
 class ConsumerTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Consumer
+     */
+    protected $consumer;
+    /**
+     * @var \Prophecy\Prophecy\ObjectProphecy|\AMQPChannel
+     */
+    protected $channelProphet;
+    /**
+     * @var \Prophecy\Prophecy\ObjectProphecy|\AMQPQueue
+     */
+    protected $queueProphet;
+
+    protected function setUp()
+    {
+        $this->channelProphet = $this->prophesize(\AMQPChannel::class);
+        $this->channelProphet->getPrefetchCount()->shouldBeCalledTimes(1)->willReturn(3);
+
+        $this->queueProphet = $this->prophesize(\AMQPQueue::class);
+        $this->queueProphet->getChannel()->willReturn($this->channelProphet->reveal());
+
+        $this->consumer = new Consumer([$this->queueProphet->reveal()], 1, 1 * 1000 * 500);
+    }
+
     public function testProcessMessage()
     {
-        $amqpChannel = $this->getMockBuilder('AMQPChannel')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $consumer = $this->consumer;
 
-        $amqpChannel->expects($this->once())->method('getPrefetchCount')->willReturn(3);
+        $message = $this->prophesize(\AMQPEnvelope::class);
+        $message->getDeliveryTag()->willReturn(null);
+        $message->isRedelivery()->willReturn(false);
 
-        $message = $this->getMockBuilder('AMQPEnvelope')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $amqpQueue = $this->getMockBuilder('AMQPQueue')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
-        $amqpQueue->expects($this->any())->method('get')->willReturn($message);
-
-        $consumer = new Consumer([$amqpQueue], 1, 1 * 1000 * 500);
+        $this->queueProphet->get()->willReturn($message->reveal());
 
         $logger = $this->prophesize('Psr\Log\LoggerInterface');
         $logger->debug(Argument::any());
@@ -79,37 +94,23 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         };
         $consumer->setDeliveryCallback($callbackFunction);
 
-        $amqpQueue->expects($this->exactly(2))->method('ack');
-        $amqpQueue->expects($this->exactly(3))->method('reject');
+        $this->queueProphet->ack(Argument::any(), Argument::any())->shouldBeCalledTimes(2);
+        $this->queueProphet->reject(Argument::any(), Argument::any())->shouldBeCalledTimes(3);
 
         $consumer->consume(7);
     }
 
     public function testFlushDeferred()
     {
-        $amqpChannel = $this->getMockBuilder('AMQPChannel')
-            ->disableOriginalConstructor()
-            ->getMock();
+        $consumer = $this->consumer;
 
-        $amqpChannel->expects($this->once())->method('getPrefetchCount')->willReturn(3);
-
-        $message = $this->getMockBuilder('AMQPEnvelope')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $message->expects($this->any())->method('getDeliveryTag')->willReturnCallback(function () {
-            return uniqid();
+        $message = $this->prophesize(\AMQPEnvelope::class);
+        $message->getDeliveryTag()->will(function () {
+            return uniqid('', true);
         });
+        $message->isRedelivery()->willReturn(false);
 
-        $amqpQueue = $this->getMockBuilder('AMQPQueue')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
-        $amqpQueue->expects($this->any())->method('get')->willReturn($message);
-
-        $consumer = new Consumer([$amqpQueue], 1, 1 * 1000 * 500);
-
+        $this->queueProphet->get()->willReturn($message->reveal());
 
         $logger = $this->prophesize('Psr\Log\LoggerInterface');
         $logger->debug(Argument::any());
@@ -149,27 +150,28 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
             return false;
         });
 
-        $amqpQueue->expects($this->exactly(3))->method('ack');
-        $amqpQueue->expects($this->exactly(3))->method('reject');
+        $this->queueProphet->ack(Argument::any(), Argument::any())->shouldBeCalledTimes(3);
+        $this->queueProphet->reject(Argument::any(), Argument::any())->shouldBeCalledTimes(3);
 
         $consumer->consume(5);
     }
 
+    public function testHandleDeliveryWithCallbackInterface()
+    {
+        $consumer = $this->consumer;
+
+        $envelope = $this->prophesize(\AMQPEnvelope::class);
+
+        $callback = $this->prophesize(ConsumerCallbackInterface::class);
+        $callback->onMessage($envelope->reveal(), $this->queueProphet->reveal(), $consumer)->shouldBeCalledTimes(1);
+
+        $consumer->setDeliveryCallback($callback->reveal());
+        $consumer->handleDelivery($envelope->reveal(), $this->queueProphet->reveal());
+    }
+
     public function testHandleDeliveryException()
     {
-        $amqpChannel = $this->getMockBuilder('AMQPChannel')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $amqpChannel->expects($this->once())->method('getPrefetchCount')->willReturn(3);
-
-        $amqpQueue = $this->getMockBuilder('AMQPQueue')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
-
-        $consumer = new Consumer([$amqpQueue], 1, 1 * 1000 * 500);
+        $consumer = $this->consumer;
 
         $exception = new \Exception('Test Exception');
         $errorCallback = $this->getMockBuilder('stdClass')
@@ -185,43 +187,31 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
 
     public function testHandleDeliveryExceptionWithLogger()
     {
-        $amqpChannel = $this->getMockBuilder('AMQPChannel')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $amqpChannel->expects($this->once())->method('getPrefetchCount')->willReturn(3);
-
-        $amqpQueue = $this->getMockBuilder('AMQPQueue')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
-
         $logger = $this->prophesize('Psr\Log\LoggerInterface');
         $logger->error(Argument::any())->shouldBeCalled();
 
         $exception = new \Exception('Test Exception');
 
-        $consumer = new Consumer([$amqpQueue], 1, 1 * 1000 * 500);
+        $consumer = $this->consumer;
         $consumer->setLogger($logger->reveal());
+        $consumer->handleDeliveryException($exception);
+    }
+
+    public function testHandleDeliveryExceptionWithCallbackInterface()
+    {
+        $consumer = $this->consumer;
+
+        $exception = new \Exception('Test Exception');
+        $errorCallback = $this->prophesize(ExceptionCallbackInterface::class);
+        $errorCallback->onDeliveryException($exception, $consumer)->shouldBeCalledTimes(1);
+
+        $consumer->setErrorCallback($errorCallback->reveal());
         $consumer->handleDeliveryException($exception);
     }
 
     public function testHandleFlushDeferredException()
     {
-        $amqpChannel = $this->getMockBuilder('AMQPChannel')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $amqpChannel->expects($this->once())->method('getPrefetchCount')->willReturn(3);
-
-        $amqpQueue = $this->getMockBuilder('AMQPQueue')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
-
-        $consumer = new Consumer([$amqpQueue], 1, 1 * 1000 * 500);
+        $consumer = $this->consumer;
 
         $exception = new \Exception('Test Exception');
         $errorCallback = $this->getMockBuilder('stdClass')
@@ -231,31 +221,32 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $errorCallback->expects(static::once())
             ->method('__invoke')
             ->with($exception, $consumer);
+
         $consumer->setErrorCallback($errorCallback);
         $consumer->handleFlushDeferredException($exception);
     }
 
     public function testHandleFlushDeferredExceptionWithLogger()
     {
-        $amqpChannel = $this->getMockBuilder('AMQPChannel')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $amqpChannel->expects($this->once())->method('getPrefetchCount')->willReturn(3);
-
-        $amqpQueue = $this->getMockBuilder('AMQPQueue')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $amqpQueue->expects($this->once())->method('getChannel')->willReturn($amqpChannel);
-
+        $consumer = $this->consumer;
         $logger = $this->prophesize('Psr\Log\LoggerInterface');
         $logger->error(Argument::any())->shouldBeCalled();
 
         $exception = new \Exception('Test Exception');
 
-        $consumer = new Consumer([$amqpQueue], 1, 1 * 1000 * 500);
         $consumer->setLogger($logger->reveal());
-        $consumer->handleDeliveryException($exception);
+        $consumer->handleFlushDeferredException($exception);
+    }
+
+    public function testHandleFlushDeferredExceptionWithCallbackInterface()
+    {
+        $consumer = $this->consumer;
+
+        $exception = new \Exception('Test Exception');
+        $errorCallback = $this->prophesize(ExceptionCallbackInterface::class);
+        $errorCallback->onFlushDeferredException($exception, $consumer)->shouldBeCalledTimes(1);
+
+        $consumer->setErrorCallback($errorCallback->reveal());
+        $consumer->handleFlushDeferredException($exception);
     }
 }

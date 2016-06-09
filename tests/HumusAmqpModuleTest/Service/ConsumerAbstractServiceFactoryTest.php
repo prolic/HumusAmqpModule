@@ -38,24 +38,32 @@ class ConsumerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
 
     public function prepare($config)
     {
-        $connection = $this->getMock('AMQPConnection', [], [], '', false);
-        $channel    = $this->getMock('AMQPChannel', [], [], '', false);
+        $connection = $this->getMockBuilder('AMQPConnection')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $channel    = $this->getMockBuilder('AMQPChannel')
+            ->disableOriginalConstructor()
+            ->getMock();
         $channel
             ->expects($this->any())
             ->method('getPrefetchCount')
             ->will($this->returnValue(10));
-        $queue      = $this->getMock('AMQPQueue', [], [], '', false);
+        $queue      = $this->getMockBuilder('AMQPQueue')
+            ->disableOriginalConstructor()
+            ->getMock();
         $queue
             ->expects($this->any())
             ->method('getChannel')
             ->will($this->returnValue($channel));
-        $queueFactory = $this->getMock('HumusAmqpModule\QueueFactory');
+        $queueFactory = $this->getMockBuilder('HumusAmqpModule\QueueFactory')->getMock();
         $queueFactory
             ->expects($this->any())
             ->method('create')
             ->will($this->returnValue($queue));
 
-        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection', [], [], '', false);
+        $connectionManager = $this->getMockBuilder('HumusAmqpModule\PluginManager\Connection')
+            ->disableOriginalConstructor()
+            ->getMock();
         $connectionManager
             ->expects($this->any())
             ->method('get')

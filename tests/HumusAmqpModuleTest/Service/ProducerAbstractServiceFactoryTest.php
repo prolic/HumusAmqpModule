@@ -90,20 +90,22 @@ class ProducerAbstractServiceFactoryTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $connection = $this->getMock('AMQPConnection', [], [], '', false);
-        $channel    = $this->getMock('AMQPChannel', [], [], '', false);
+        $connection = $this->getMockBuilder('AMQPConnection')->disableOriginalConstructor()->getMock();
+        $channel    = $this->getMockBuilder('AMQPChannel')->disableOriginalConstructor()->getMock();
         $channel
             ->expects($this->any())
             ->method('getPrefetchCount')
             ->will($this->returnValue(10));
-        $exchange      = $this->getMock('AMQPExchange', [], [], '', false);
-        $exchangeFactory = $this->getMock('HumusAmqpModule\ExchangeFactory');
+        $exchange      = $this->getMockBuilder('AMQPExchange')->disableOriginalConstructor()->getMock();
+        $exchangeFactory = $this->getMockBuilder('HumusAmqpModule\ExchangeFactory')->getMock();
         $exchangeFactory
             ->expects($this->any())
             ->method('create')
             ->will($this->returnValue($exchange));
 
-        $connectionManager = $this->getMock('HumusAmqpModule\PluginManager\Connection', [], [], '', false);
+        $connectionManager = $this->getMockBuilder('HumusAmqpModule\PluginManager\Connection')
+            ->disableOriginalConstructor()
+            ->getMock();
         $connectionManager
             ->expects($this->any())
             ->method('get')
