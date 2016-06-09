@@ -105,7 +105,7 @@ class ConsumerTest extends \PHPUnit_Framework_TestCase
         $consumer = $this->consumer;
 
         $message = $this->prophesize(\AMQPEnvelope::class);
-        $message->getDeliveryTag()->will(function() {
+        $message->getDeliveryTag()->will(function () {
             return uniqid('', true);
         });
         $message->isRedelivery()->willReturn(false);
