@@ -162,7 +162,7 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
             if (!$queue instanceof AMQPQueue) {
                 throw new Exception\InvalidArgumentException(
                     'Queue must be an instance of AMQPQueue, '
-                    . is_object($queue) ? get_class($queue) : gettype($queue) . ' given'
+                    . (is_object($queue) ? get_class($queue) : gettype($queue)) . ' given'
                 );
             }
             if (null === $this->blockSize) {
@@ -176,12 +176,12 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
     }
 
     /**
-     * @param callable $callback
+     * @param callable|ConsumerCallbackInterface $callback
      * @throws Exception\InvalidArgumentException
      */
     public function setDeliveryCallback($callback)
     {
-        if (!is_callable($callback)) {
+        if (!$callback instanceof ConsumerCallbackInterface && !is_callable($callback)) {
             throw new Exception\InvalidArgumentException('Invalid callback given');
         }
         $this->deliveryCallback = $callback;
@@ -196,12 +196,12 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
     }
 
     /**
-     * @param callable $callback
+     * @param callable|FlushDeferredCallbackInterface $callback
      * @throws Exception\InvalidArgumentException
      */
     public function setFlushCallback($callback)
     {
-        if (!is_callable($callback)) {
+        if (!$callback instanceof FlushDeferredCallbackInterface && !is_callable($callback)) {
             throw new Exception\InvalidArgumentException('Invalid callback given');
         }
         $this->flushCallback = $callback;
@@ -216,11 +216,12 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
     }
 
     /**
-     * @param callable $callback
+     * @param callable|ExceptionCallbackInterface $callback
+     * @throws \HumusAmqpModule\Exception\InvalidArgumentException
      */
     public function setErrorCallback($callback)
     {
-        if (!is_callable($callback)) {
+        if (!$callback instanceof ExceptionCallbackInterface && !is_callable($callback)) {
             throw new Exception\InvalidArgumentException('Invalid callback given');
         }
         $this->errorCallback = $callback;
@@ -258,6 +259,8 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      * Start consumer
      *
      * @param int $msgAmount
+     * @throws \AMQPChannelException
+     * @throws \AMQPConnectionException
      */
     public function consume($msgAmount = 0)
     {
@@ -311,6 +314,10 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
     {
         $callback = $this->getDeliveryCallback();
 
+        if ($callback instanceof ConsumerCallbackInterface) {
+            return $callback->onMessage($message, $queue, $this);
+        }
+
         return call_user_func_array($callback, [$message, $queue, $this]);
     }
 
@@ -336,6 +343,8 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
 
         if (null === $callback) {
             $this->logger->error('Exception during handleDelivery: ' . $e->getMessage());
+        } elseif ($callback instanceof ExceptionCallbackInterface) {
+            $callback->onDeliveryException($e, $this);
         } else {
             call_user_func_array($callback, [$e, $this]);
         }
@@ -353,6 +362,8 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
 
         if (null === $callback) {
             $this->logger->error('Exception during flushDeferred: ' . $e->getMessage());
+        } elseif ($callback instanceof ExceptionCallbackInterface) {
+            $callback->onFlushDeferredException($e, $this);
         } else {
             call_user_func_array($callback, [$e, $this]);
         }
@@ -375,7 +386,11 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
         }
 
         try {
-            $result = call_user_func_array($callback, [$this]);
+            if ($callback instanceof FlushDeferredCallbackInterface) {
+                $result = $callback->onFlushDeferred($this);
+            } else {
+                $result = call_user_func_array($callback, [$this]);
+            }
         } catch (\Exception $e) {
             $result = false;
             $this->handleFlushDeferredException($e);
@@ -399,8 +414,10 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      * Handle process flag
      *
      * @param AMQPEnvelope $message
-     * @param $flag
+     * @param              $flag
      * @return void
+     * @throws \AMQPConnectionException
+     * @throws \AMQPChannelException
      */
     protected function handleProcessFlag(AMQPEnvelope $message, $flag)
     {
@@ -433,6 +450,8 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      * This will be called every time the block size (see prefetch_count) or timeout is reached
      *
      * @return void
+     * @throws \AMQPConnectionException
+     * @throws \AMQPChannelException
      */
     protected function ack()
     {
@@ -453,6 +472,8 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      *
      * @param bool $requeue
      * @return void
+     * @throws \AMQPConnectionException
+     * @throws \AMQPChannelException
      */
     protected function nackAll($requeue = false)
     {
@@ -467,6 +488,8 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
      * Handle deferred acks
      *
      * @return void
+     * @throws \AMQPConnectionException
+     * @throws \AMQPChannelException
      */
     protected function ackOrNackBlock()
     {
