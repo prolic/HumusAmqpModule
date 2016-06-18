@@ -11,7 +11,7 @@
         syntaxCheck="true"
         >
     <testsuite name="HumusAmqpModule Test-Suite">
-        <directory>./tests/HumusAmqpModuleTest</directory>
+        <directory>./tests</directory>
     </testsuite>
     <filter>
         <whitelist addUncoveredFilesFromWhitelist="true">

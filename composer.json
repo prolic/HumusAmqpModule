@@ -33,7 +33,12 @@
     },
     "autoload": {
         "psr-4": {
-            "HumusAmqpModule\\": "src/HumusAmqpModule/"
+            "HumusAmqpModule\\": "src/",
+            "HumusAmqpModuleTest\\": "tests/"
+
         }
-    }
+    },
+    "bin": [
+        "bin/humus-amqp"
+    ]
 }
