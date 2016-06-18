@@ -2,8 +2,10 @@ Humus AMQP Module
 =================
 
 [![Build Status](https://travis-ci.org/prolic/HumusAmqpModule.svg)](https://travis-ci.org/prolic/HumusAmqpModule)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/prolic/HumusAmqpModule/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/prolic/HumusAmqpModule/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/prolic/HumusAmqpModule/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/prolic/HumusAmqpModule/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/prolic/HumusAmqpModule/badges/coverage.png?b=master)](https://scruconf.py
+                                                                                                                 index.rst
+                                                                                                                 make.bat
+                                                                                                                 Makefiletinizer-ci.com/g/prolic/HumusAmqpModule/?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/humus-amqp-module/badge/?version=latest)](http://humus-amqp-module.readthedocs.org/en/latest/)
 [![Documentation Status](https://readthedocs.org/projects/humus-amqp-module/badge/?version=v0.1.7)](http://humus-amqp-module.readthedocs.org/en/v0.1.0/)
 [![License](https://poser.pugx.org/prolic/humus-amqp-module/license.svg)](https://packagist.org/packages/prolic/humus-amqp-module)
@@ -13,34 +15,32 @@ Humus AMQP Module
 [![Total Downloads](https://poser.pugx.org/prolic/humus-amqp-module/downloads.svg)](https://packagist.org/packages/prolic/humus-amqp-module)
 [![Dependency Status](http://www.versioneye.com/php/prolic:humus-amqp-module/dev-master/badge.svg)](http://www.versioneye.com/php/prolic:humus-amqp-module)
 
-About
------
+## About
 
-The Humus AMQP Module incorporates messaging in your zf2 application via [RabbitMQ](http://www.rabbitmq.com/) using the [PHP AMQP Extension](https://github.com/pdezwart/php-amqp).
+Documentation for `Humus AMQP Module
+<http://www.github.com/prolic/HumusAmqpModule/>`_
 
-This module implements several messaging patterns comparable to the [Thumper](https://github.com/videlalvaro/Thumper) library.
+The Humus AMQP Module incorporates messaging in your zf2 application via RabbitMQ using the PHP AMQP Extension,
+it is based on `HumusAmqp <https://github.com/prolic/HumusAmqp>`_ and required PHP 7.
 
-A lot of ideas and even implementation details came from the [RabbitMQ Java Client](https://github.com/rabbitmq/rabbitmq-java-client) and the [RabbitMqBundle](https://github.com/videlalvaro/RabbitMqBundle), special thanks to [Alvaro Videla](https://github.com/videlalvaro) and the contributors of this project.
+If you want to use it without Zend Framework, use `HumusAmqp <https://github.com/prolic/HumusAmqp>`_ without this module.
 
-Documentation
--------------
+Documentation can be found here: `humus-amqp.readthedocs.org <http://humus-amqp.readthedocs.org>`_.
 
-Documentation is [available here](http://humus-amqp-module.readthedocs.org/), powered by [Read the docs](http://readthedocs.org/).
-
-Demo
-----
+## Demo
 
 You can install the [Demo-Module](https://github.com/prolic/HumusAmqpDemoModule) additionally. That should help you getting started. Just remove the demo module, when you're ready to go!
 
-Dependencies
-------------
+## Support
 
- - PHP 5.5 | 7
- - [ext-amqp 1.7.0](https://github.com/pdezwart/php-amqp)
- - [HumusSupervisorModule](https://github.com/prolic/HumusSupervisorModule) (optional)
- - [Zend Console 2.3.0](https://github.com/zendframework/zf2)
- - [Zend EventManager 2.3.0](https://github.com/zendframework/zf2)
- - [Zend MVC 2.3.0](https://github.com/zendframework/zf2)
- - [Zend ModuleManager 2.3.0](https://github.com/zendframework/zf2)
- - [Zend ServiceManager 2.3.0](https://github.com/zendframework/zf2)
- - [Zend Text 2.3.0](https://github.com/zendframework/zf2)
+- File issues at [https://github.com/prolic/HumusAmqp/issues](https://github.com/prooph/event-store/issues).
+- Say hello in the [HumusAmqp gitter](https://gitter.im/prooph/improoph) chat.
+
+## Contribute
+
+Please feel free to fork and extend existing or add new plugins and send a pull request with your changes!
+To establish a consistent code quality, please provide unit tests for all your changes and may adapt the documentation.
+
+## License
+
+Released under the [MIT](LICENSE).

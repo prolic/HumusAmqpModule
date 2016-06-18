@@ -18,12 +18,38 @@
  *  and is licensed under the MIT license.
  */
 
-return [
-    'modules' => [
-        'HumusAmqpModule',
-    ],
-    'module_listener_options' => [
-        'config_glob_paths' => [],
-        'module_paths' => [],
-    ],
-];
+declare (strict_types=1);
+
+namespace HumusAmqpModule\Console\Input;
+
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Input\InputDefinition;
+use Zend\Console\Request;
+
+/**
+ * Class RequestInput
+ * @package HumusAmqpModule\Console\Input
+ */
+class RequestInput extends ArgvInput
+{
+    /**
+     * Constructor
+     *
+     * @param \Zend\Console\Request $request
+     * @param \Symfony\Component\Console\Input\InputDefinition $definition
+     */
+    public function __construct(Request $request, InputDefinition $definition = null)
+    {
+        $parameters = [
+            null,
+        ];
+
+        foreach ($request->getParams() as $key => $param) {
+            if (is_numeric($key)) {
+                $parameters[] = $param;
+            }
+        }
+
+        parent::__construct($parameters, $definition);
+    }
+}

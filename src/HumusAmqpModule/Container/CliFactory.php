@@ -18,12 +18,26 @@
  *  and is licensed under the MIT license.
  */
 
-return [
-    'modules' => [
-        'HumusAmqpModule',
-    ],
-    'module_listener_options' => [
-        'config_glob_paths' => [],
-        'module_paths' => [],
-    ],
-];
+declare (strict_types=1);
+
+namespace HumusAmqpModule\Container;
+
+use Humus\Amqp\Console\ConsoleRunner;
+use Interop\Container\ContainerInterface;
+use Symfony\Component\Console\Application;
+
+/**
+ * Class CliFactory
+ * @package HumusAmqpModule\Container
+ */
+final class CliFactory
+{
+    /**
+     * @param ContainerInterface $container
+     * @return Application
+     */
+    public function __invoke(ContainerInterface $container)
+    {
+        return ConsoleRunner::createApplication(ConsoleRunner::createHelperSet($container));
+    }
+}
