@@ -18,12 +18,27 @@
  *  and is licensed under the MIT license.
  */
 
-return [
-    'modules' => [
-        'HumusAmqpModule',
-    ],
-    'module_listener_options' => [
-        'config_glob_paths' => [],
-        'module_paths' => [],
-    ],
-];
+declare (strict_types=1);
+
+namespace HumusAmqpModuleTest;
+
+use HumusAmqpModule\Module;
+use PHPUnit_Framework_TestCase as TestCase;
+
+/**
+ * Class ModuleTest
+ * @package HumusAmqpModuleTest
+ */
+class ModuleTest extends TestCase
+{
+    /**
+     * @test
+     */
+    public function it_gets_config()
+    {
+        $module = new Module();
+        $config = $module->getConfig();
+        $this->assertInternalType('array', $config);
+        $this->assertSame($config, unserialize(serialize($config)));
+    }
+}

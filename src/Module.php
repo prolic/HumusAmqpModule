@@ -22,40 +22,14 @@ declare (strict_types=1);
 
 namespace HumusAmqpModule;
 
-use HumusAmqpModule\Console\Output\PropertyOutput;
-use Symfony\Component\Console\Input\StringInput;
-use Zend\Console\Adapter\AdapterInterface as Console;
-use Zend\EventManager\EventInterface;
-use Zend\ModuleManager\Feature\BootstrapListenerInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
-use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Class Module
  * @package HumusAmqpModule
  */
-class Module implements
-    BootstrapListenerInterface,
-    ConfigProviderInterface,
-    ConsoleUsageProviderInterface
+class Module implements ConfigProviderInterface
 {
-    /**
-     * @var ServiceLocatorInterface
-     */
-    private $serviceManager;
-
-    /**
-     * Listen to the bootstrap event
-     *
-     * @param EventInterface $e
-     * @return void
-     */
-    public function onBootstrap(EventInterface $e)
-    {
-        $this->serviceManager = $e->getTarget()->getServiceManager();
-    }
-
     /**
      * Get config
      *
@@ -63,20 +37,6 @@ class Module implements
      */
     public function getConfig()
     {
-        return include __DIR__ . '/../../config/module.config.php';
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function getConsoleUsage(Console $console)
-    {
-        /* @var $cli \Symfony\Component\Console\Application */
-        $cli    = $this->serviceManager->get('humus-amqp-cli');
-        $output = new PropertyOutput();
-
-        $cli->run(new StringInput('list'), $output);
-
-        return $output->getMessage();
+        return include __DIR__ . '/../config/module.config.php';
     }
 }
