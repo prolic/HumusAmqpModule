@@ -11,8 +11,6 @@ Humus AMQP Module
 
 ## About
 
-Documentation for [Humus AMQP Module](http://www.github.com/prolic/HumusAmqpModule/)
-
 The Humus AMQP Module incorporates messaging in your zf2 application via RabbitMQ using the PHP AMQP Extension,
 it is based on [HumusAmqp](https://github.com/prolic/HumusAmqp>) and required PHP 7.
 
