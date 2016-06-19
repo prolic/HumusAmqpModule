@@ -20,10 +20,6 @@ If you want to use it without Zend Framework, use [HumusAmqp](https://github.com
 
 Documentation can be found here: [humusamqp.readthedocs.io](https://humusamqp.readthedocs.io/).
 
-## Demo
-
-You can install the [Demo-Module](https://github.com/prolic/HumusAmqpDemoModule) additionally. That should help you getting started. Just remove the demo module, when you're ready to go!
-
 ## Support
 
 - File issues at [https://github.com/prolic/HumusAmqp/issues](https://github.com/prolic/HumusAmqpDemoModule/issues).
