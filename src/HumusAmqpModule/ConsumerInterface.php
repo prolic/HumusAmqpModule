@@ -20,6 +20,7 @@ namespace HumusAmqpModule;
 
 use AMQPEnvelope;
 use AMQPQueue;
+use Psr\Log\LoggerInterface;
 
 /**
  * Interface ConsumerInterface
@@ -70,4 +71,9 @@ interface ConsumerInterface
      * @return void
      */
     public function handleShutdownSignal();
+
+    /**
+     * @return LoggerInterface
+     */
+    public function getLogger();
 }
