@@ -24,6 +24,7 @@ use ArrayIterator;
 use InfiniteIterator;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * The consumer attaches to a single queue
@@ -382,6 +383,14 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
         }
 
         return $result;
+    }
+
+    /**
+     * @return LoggerInterface
+     */
+    public function getLogger()
+    {
+        return $this->logger;
     }
 
     /**
