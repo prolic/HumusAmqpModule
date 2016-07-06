@@ -33,6 +33,6 @@
         }
     },
     "bin": [
-        "bin/humus-amqp"
+        "bin/humus-amqp-module"
     ]
 }
