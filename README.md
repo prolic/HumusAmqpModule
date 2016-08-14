@@ -2,6 +2,7 @@ Humus AMQP Module
 =================
 
 [![Build Status](https://travis-ci.org/prolic/HumusAmqpModule.svg)](https://travis-ci.org/prolic/HumusAmqpModule)
+[![Coverage Status](https://coveralls.io/repos/github/prolic/HumusAmqpModule/badge.svg?branch=master)](https://coveralls.io/github/prolic/HumusAmqpModule?branch=master)
 [![Documentation Status](https://readthedocs.org/projects/humusamqp/badge/?version=latest)](https://readthedocs.org/projects/humusamqp/badge/?version=latest)
 [![License](https://poser.pugx.org/prolic/humus-amqp-module/license.svg)](https://packagist.org/packages/prolic/humus-amqp-module)
 [![Latest Stable Version](https://poser.pugx.org/prolic/humus-amqp-module/v/stable.svg)](https://packagist.org/packages/prolic/humus-amqp-module)
@@ -17,6 +18,14 @@ it is based on [HumusAmqp](https://github.com/prolic/HumusAmqp>) and required PH
 If you want to use it without Zend Framework, use [HumusAmqp](https://github.com/prolic/HumusAmqp/) without this module.
 
 Documentation can be found here: [humusamqp.readthedocs.io](https://humusamqp.readthedocs.io/).
+
+## Installation
+
+The recommended way to install is through composer:
+
+php composer.phar require prolic/humus-amqp-module:^1.0
+
+You can then enable the module in your config/application.config.php by adding 'HumusAmqpModule' to the 'modules' section.
 
 ## Support
 
