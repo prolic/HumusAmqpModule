@@ -25,7 +25,7 @@ Documentation can be found here: [humusamqp.readthedocs.io](https://humusamqp.re
 
 ## Installation
 
-You can install prolic/humus-amqp-module via composer by adding "prolic/humus-amqp": "^1.0" as requirement to your composer.json.
+You can install prolic/humus-amqp-module via composer by adding "prolic/humus-amqp-module": "^1.0" as requirement to your composer.json.
 
 You can then enable the module in your config/application.config.php by adding 'HumusAmqpModule' to the 'modules' section.
 
