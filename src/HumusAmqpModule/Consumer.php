@@ -264,14 +264,13 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
     {
         $this->target = $msgAmount;
 
-        foreach ($this->queues as $index => $queue) {
-            if (!$this->timestampLastAck) {
-                $this->timestampLastAck = microtime(1);
-            }
+        /** @var \AMQPQueue $queue */
+        foreach($this->queues as $queue) {
+            $queue->consume(function ($message, $queue) {
+                if (!$this->timestampLastAck) {
+                    $this->timestampLastAck = microtime(1);
+                }
 
-            $message = $queue->get();
-
-            if ($message instanceof AMQPEnvelope) {
                 try {
                     $processFlag = $this->handleDelivery($message, $queue);
                 } catch (\Exception $e) {
@@ -279,27 +278,26 @@ class Consumer implements ConsumerInterface, LoggerAwareInterface
                     $processFlag = false;
                 }
                 $this->handleProcessFlag($message, $processFlag);
-            } elseif (0 == $index) { // all queues checked, no messages found
-                usleep($this->waitTimeout);
-            }
 
-            $now = microtime(1);
+                $now = microtime(1);
 
-            if ($this->countMessagesUnacked > 0
-                && ($this->countMessagesUnacked == $this->blockSize
-                    || ($now - $this->timestampLastAck) > $this->idleTimeout
-                )) {
-                $this->ackOrNackBlock();
-            }
+                if ($this->countMessagesUnacked > 0
+                    && ($this->countMessagesUnacked == $this->blockSize
+                        || ($now - $this->timestampLastAck) > $this->idleTimeout
+                    )
+                ) {
+                    $this->ackOrNackBlock();
+                }
 
-            if ($this->usePcntlSignalDispatch) {
-                // Check for signals
-                pcntl_signal_dispatch();
-            }
+                if ($this->usePcntlSignalDispatch) {
+                    // Check for signals
+                    pcntl_signal_dispatch();
+                }
 
-            if (!$this->keepAlive || (0 != $this->target && $this->countMessagesConsumed >= $this->target)) {
-                break;
-            }
+                if (!$this->keepAlive || (0 != $this->target && $this->countMessagesConsumed >= $this->target)) {
+                    return;
+                }
+            });
         }
     }
 
