@@ -38,7 +38,7 @@ class ModuleTest extends TestCase
     {
         $module = new Module();
         $config = $module->getConfig();
-        $this->assertIsArray($config);
+        $this->assertInternalType('array', $config);
         $this->assertSame($config, unserialize(serialize($config)));
     }
 }
