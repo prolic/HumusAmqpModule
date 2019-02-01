@@ -23,7 +23,7 @@ declare (strict_types=1);
 namespace HumusAmqpModuleTest;
 
 use HumusAmqpModule\Module;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ModuleTest
@@ -38,7 +38,7 @@ class ModuleTest extends TestCase
     {
         $module = new Module();
         $config = $module->getConfig();
-        $this->assertInternalType('array', $config);
+        $this->assertIsArray($config);
         $this->assertSame($config, unserialize(serialize($config)));
     }
 }

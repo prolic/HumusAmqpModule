@@ -8,7 +8,6 @@
         stopOnFailure="false"
         processIsolation="false"
         backupGlobals="false"
-        syntaxCheck="true"
         >
     <testsuite name="HumusAmqpModule Test-Suite">
         <directory>./tests</directory>
