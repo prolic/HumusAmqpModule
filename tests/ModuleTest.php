@@ -18,12 +18,12 @@
  *  and is licensed under the MIT license.
  */
 
-declare (strict_types=1);
+declare(strict_types=1);
 
 namespace HumusAmqpModuleTest;
 
 use HumusAmqpModule\Module;
-use PHPUnit_Framework_TestCase as TestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class ModuleTest
@@ -38,7 +38,12 @@ class ModuleTest extends TestCase
     {
         $module = new Module();
         $config = $module->getConfig();
-        $this->assertInternalType('array', $config);
+        if (\method_exists($this, 'assertIsArray')) {
+            $this->assertIsArray($config);
+        } else {
+            $this->assertInternalType('array', $config);
+        }
+
         $this->assertSame($config, unserialize(serialize($config)));
     }
 }

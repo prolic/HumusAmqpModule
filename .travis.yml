@@ -4,6 +4,9 @@ sudo: false
 
 php:
   - 7.0
+  - 7.1
+  - 7.2
+  - 7.3
 
 env:
   matrix:
@@ -24,4 +27,4 @@ script:
   - ./vendor/bin/php-cs-fixer fix -v --diff --dry-run
 
 after_success:
- - php vendor/bin/coveralls -v
+ - travis_retry php vendor/bin/php-coveralls -v
