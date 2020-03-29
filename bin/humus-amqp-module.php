@@ -1,6 +1,16 @@
 <?php
+
 /**
- * Copyright (c) 2016. Sascha-Oliver Prolic <saschaprolic@googlemail.com>
+ * This file is part of `prolic/humus-amqp-module`.
+ * (c) 2015-2020 Sascha-Oliver Prolic <saschaprolic@googlemail.com>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+/**
+ * Copyright (c) 2015-2020. Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -20,13 +30,13 @@
 
 use Zend\Mvc\Application;
 
-ini_set('display_errors', true);
-chdir(__DIR__);
+\ini_set('display_errors', true);
+\chdir(__DIR__);
 
 $previousDir = '.';
 
-while (!file_exists('config/application.config.php')) {
-    $dir = dirname(getcwd());
+while (! \file_exists('config/application.config.php')) {
+    $dir = \dirname(\getcwd());
 
     if ($previousDir === $dir) {
         throw new RuntimeException(
@@ -36,15 +46,14 @@ while (!file_exists('config/application.config.php')) {
     }
 
     $previousDir = $dir;
-    chdir($dir);
+    \chdir($dir);
 }
 
-
-if (is_readable('init_autoloader.php')) {
+if (\is_readable('init_autoloader.php')) {
     include_once 'init_autoloader.php';
-} elseif (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+} elseif (\file_exists(__DIR__ . '/../vendor/autoload.php')) {
     include_once __DIR__ . '/../vendor/autoload.php';
-} elseif (file_exists(__DIR__ . '/../../../autoload.php')) {
+} elseif (\file_exists(__DIR__ . '/../../../autoload.php')) {
     include_once __DIR__ . '/../../../autoload.php';
 } else {
     throw new RuntimeException('Error: vendor/autoload.php could not be found. Did you run php composer.phar install?');
