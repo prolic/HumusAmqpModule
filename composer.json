@@ -21,6 +21,7 @@
         "zendframework/zend-mvc": "^2.7.15"
     },
     "require-dev": {
+	"friendsofphp/php-cs-fixer": "^2.16.1",
         "phpunit/phpunit": "^9.0",
         "prooph/php-cs-fixer-config": "^0.3",
         "php-coveralls/php-coveralls": "^2.1"
