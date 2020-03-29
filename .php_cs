@@ -1,21 +1,10 @@
 <?php
 
-$config = PhpCsFixer\Config::create();
-$config->setRules([
-    '@PSR2' => true,
-]);
+$config = new Prooph\CS\Config\Prooph();
+$config->getFinder()->in(__DIR__);
 
-$finder = PhpCsFixer\Finder::create();
+$cacheDir = getenv('TRAVIS') ? getenv('HOME') . '/.php-cs-fixer' : __DIR__;
 
-/*
- * You can set manually these paths:
- */
-$finder->in([
-    'bin',
-    'src',
-    'tests'
-]);
-
-$config->setFinder($finder);
+$config->setCacheFile($cacheDir . '/.php_cs.cache');
 
 return $config;

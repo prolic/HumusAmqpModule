@@ -12,16 +12,17 @@
         }
     ],
     "require": {
-        "php": "^7.0",
-        "prolic/humus-amqp"  : "^1.0",
-        "container-interop/container-interop": "^1.1",
+        "php": "^7.4",
+        "prolic/humus-amqp"  : "^2.0",
+        "psr/container": "^1.0",
         "sandrokeil/interop-config": "^1.0 || ^2.0",
-        "symfony/console": "^3.0|^4.0",
-        "zendframework/zend-modulemanager": "^2.7"
+        "symfony/console": "^4.3|^5.0",
+        "zendframework/zend-modulemanager": "^2.8.4",
+        "zendframework/zend-mvc": "^2.7.15"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.5 || ^7.0 || ^8.0",
-        "friendsofphp/php-cs-fixer": "^2.14",
+        "phpunit/phpunit": "^9.0",
+        "prooph/php-cs-fixer-config": "^0.3",
         "php-coveralls/php-coveralls": "^2.1"
     },
     "autoload": {

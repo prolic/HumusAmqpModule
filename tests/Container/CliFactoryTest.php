@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016. Sascha-Oliver Prolic <saschaprolic@googlemail.com>
+ * Copyright (c) 2015-2020. Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -23,20 +23,16 @@ declare(strict_types=1);
 namespace HumusAmqpModuleTest\Container;
 
 use HumusAmqpModule\Container\CliFactory;
-use Interop\Container\ContainerInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application;
 
-/**
- * Class CliFactoryTest
- * @package HumusAmqpModuleTest\Container
- */
 class CliFactoryTest extends TestCase
 {
     /**
      * @test
      */
-    public function it_creates_console_runner()
+    public function it_creates_console_runner(): void
     {
         $container = $this->prophesize(ContainerInterface::class);
 

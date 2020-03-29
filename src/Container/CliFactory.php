@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016. Sascha-Oliver Prolic <saschaprolic@googlemail.com>
+ * Copyright (c) 2015-2020. Sascha-Oliver Prolic <saschaprolic@googlemail.com>
  *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
  *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
@@ -23,20 +23,12 @@ declare(strict_types=1);
 namespace HumusAmqpModule\Container;
 
 use Humus\Amqp\Console\ConsoleRunner;
-use Interop\Container\ContainerInterface;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application;
 
-/**
- * Class CliFactory
- * @package HumusAmqpModule\Container
- */
 final class CliFactory
 {
-    /**
-     * @param ContainerInterface $container
-     * @return Application
-     */
-    public function __invoke(ContainerInterface $container)
+    public function __invoke(ContainerInterface $container): Application
     {
         return ConsoleRunner::createApplication(ConsoleRunner::createHelperSet($container));
     }

@@ -13,7 +13,7 @@ Humus AMQP Module
 ## About
 
 The Humus AMQP Module incorporates messaging in your zf2 application via RabbitMQ using [HumusAmqp](https://github.com/prolic/HumusAmqp>),
-a PHP 7 AMQP libray supporting multiple drivers and providing full-featured Consumer, Producer, and JSON-RPC Client / Server implementations.
+a PHP 7.4 AMQP libray supporting multiple drivers and providing full-featured Consumer, Producer, and JSON-RPC Client / Server implementations.
 
 The JSON-RPC part implements JSON-RPC 2.0 Specification.
 
@@ -25,7 +25,7 @@ Documentation can be found here: [humusamqp.readthedocs.io](https://humusamqp.re
 
 ## Installation
 
-You can install prolic/humus-amqp-module via composer by adding "prolic/humus-amqp-module": "^1.0" as requirement to your composer.json.
+You can install prolic/humus-amqp-module via composer by adding "prolic/humus-amqp-module": "^2.0" as requirement to your composer.json.
 
 You can then enable the module in your config/application.config.php by adding 'HumusAmqpModule' to the 'modules' section.
 
